@@ -1,0 +1,9 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/.vs
+/AutoLua/obj
+/AutoLua.Android/obj
+/AutoLua.Android/bin/Debug
+/AutoLua/bin/Debug/netstandard2.0
