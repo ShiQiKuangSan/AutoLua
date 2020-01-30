@@ -1,53 +1,55 @@
-﻿using System;
+﻿using AutoLua.Droid.AutoAccessibility.Accessibility.Node;
+using System;
 using System.Collections.Generic;
-using Android.Views;
-using Xamarin.Forms;
 
 namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
 {
+    /// <summary>
+    /// 通知了监听事件管理器
+    /// </summary>
     [Android.Runtime.Preserve(AllMembers = true)]
-    public class KeyMonitorEvent : IKeyMonitorEvent
+    public class NotificationMonitorEventManager
     {
         /// <summary>
         /// 监听按键的缓存
         /// </summary>
-        private readonly IList<IKeyMonitorEvent> keyMonitorEvents = new List<IKeyMonitorEvent>();
+        private readonly IList<INotificationMonitorEvent> notificationMonitorEvent = new List<INotificationMonitorEvent>();
 
         /// <summary>
         /// 添加按键监听事件。
         /// </summary>
         /// <param name="event"></param>
-        public void Add(IKeyMonitorEvent @event)
+        public void Add(INotificationMonitorEvent @event)
         {
             if (@event == null)
                 return;
 
-            keyMonitorEvents.Add(@event);
+            notificationMonitorEvent.Add(@event);
         }
 
         /// <summary>
         /// 移除按键监听事件。
         /// </summary>
         /// <param name="event"></param>
-        public void Remove(IKeyMonitorEvent @event)
+        public void Remove(INotificationMonitorEvent @event)
         {
             if (@event == null)
                 return;
 
-            keyMonitorEvents.Remove(@event);
+            notificationMonitorEvent.Remove(@event);
         }
 
-        public void OnKeyEvent(Keycode keyCode, KeyEvent @event)
+
+        public void OnNotification(Notification notification)
         {
-            foreach (var item in keyMonitorEvents)
+            foreach (var item in notificationMonitorEvent)
             {
                 try
                 {
-                    item.OnKeyEvent(keyCode, @event);
+                    item.OnNotification(notification);
                 }
                 catch (Exception)
                 {
-                    AppApplication.OnLog("异常", $"Error OnKeyEvent: {@event.ToString()} Listener: {item.ToString()}", Color.Red);
                 }
             }
         }

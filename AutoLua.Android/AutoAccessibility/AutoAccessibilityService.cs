@@ -15,7 +15,7 @@ namespace AutoLua.Droid.AutoAccessibility
     Permission = "android.permission.BIND_ACCESSIBILITY_SERVICE")]
     [IntentFilter(new[] { "android.accessibilityservice.AccessibilityService" })]
     [MetaData("android.accessibilityservice", Resource = "@xml/accessible_service_config")]
-    public class AutoAccessibilityService : AccessibilityService
+    public sealed class AutoAccessibilityService : AccessibilityService
     {
         public static AutoAccessibilityService Instance = null;
 

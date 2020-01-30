@@ -12,7 +12,9 @@ namespace AutoLua.Droid.Utils
     {
         private static Thread mUiThread;
 
-        private static Handler _handler = new Handler(Looper.MainLooper);
+        private static Handler _uiHandler = new Handler(Looper.MainLooper);
+        
+        private static Handler _handler = new Handler();
 
         private static volatile Java.Lang.Ref.WeakReference _currentActivity = new Java.Lang.Ref.WeakReference(null);
 
@@ -30,19 +32,21 @@ namespace AutoLua.Droid.Utils
 
         public static bool IsUIThread => Thread.CurrentThread() == mUiThread;
 
-        public static void RunOnUI(Action r) => _handler.Post(r);
+        public static void RunOnUI(Action r) => _uiHandler.Post(r);
 
-        public static void RunOnUIDelayed(Action r, long delayMills) => _handler.PostDelayed(r, delayMills);
+        public static void Run(Action r) => _handler.Post(r);
+
+        public static void RunOnUIDelayed(Action r, long delayMills) => _uiHandler.PostDelayed(r, delayMills);
 
         public static void RemoveRunnable(Action r)
         {
             if (r == null)
             {
-                _handler.RemoveCallbacksAndMessages(null);
+                _uiHandler.RemoveCallbacksAndMessages(null);
             }
             else
             {
-                _handler.RemoveCallbacks(r);
+                _uiHandler.RemoveCallbacks(r);
             }
         }
 

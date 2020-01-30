@@ -75,17 +75,24 @@
   <ItemGroup>
     <Compile Include="AppApplication.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Delegates.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\AccessibilityEventNotifications.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Event\AccessibilityEventWindos.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Event\IAccessibilityEvent.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Event\IKeyInterceptorEvent.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Event\IKeyMonitorEvent.cs" />
-    <Compile Include="AutoAccessibility\Accessibility\Event\KeyInterceptorEvent.cs" />
-    <Compile Include="AutoAccessibility\Accessibility\Event\KeyMonitorEvent.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\INotificationMonitorEvent.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\IToastMonitorEvent.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\KeyInterceptorEventManager.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\KeyMonitorEventManager.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\NotificationMonitorEventManager.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\ToastMonitorEventManager.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Filter\By.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Filter\ExpressionExecutor.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Filter\IExpressionExecutor.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Filter\IUiNodeSearch.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Filter\UiNodeSearch.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Node\Notification.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Node\Toast.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Node\UiNode.cs" />
     <Compile Include="AutoAccessibility\AutoAccessibilityService.cs" />
     <Compile Include="AutoAccessibility\AutoGlobal.cs" />

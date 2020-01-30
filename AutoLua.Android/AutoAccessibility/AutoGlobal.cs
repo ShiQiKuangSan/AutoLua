@@ -19,14 +19,23 @@ namespace AutoLua.Droid.AutoAccessibility
         public AccessibilityEventWindos AccessibilityEvent { get; }
 
         /// <summary>
+        /// 无障碍服务事件接口(通知事件)
+        /// </summary>
+        public AccessibilityEventNotifications  AccessibilityEventNotifications { get; }
+
+        /// <summary>
         /// 按键拦截事件。
         /// </summary>
-        public KeyInterceptorEvent KeyInterceptorEvent { get; }
+        public KeyInterceptorEventManager KeyInterceptorEvent { get; }
 
         /// <summary>
         /// 按键监听事件。
         /// </summary>
-        public KeyMonitorEvent KeyMonitorEvent { get; }
+        public KeyMonitorEventManager KeyMonitorEvent { get; }
+
+        public NotificationMonitorEventManager NotificationMonitorEvent { get; }
+
+        public ToastMonitorEventManager ToastMonitorEvent { get; }
 
         /// <summary>
         /// 一个有序的事件集合
@@ -38,8 +47,12 @@ namespace AutoLua.Droid.AutoAccessibility
             Context = application.ApplicationContext;
             Events = new List<IAccessibilityEvent>();
             AccessibilityEvent = new AccessibilityEventWindos(application.PackageManager);
-            KeyInterceptorEvent = new KeyInterceptorEvent();
-            KeyMonitorEvent = new KeyMonitorEvent();
+            AccessibilityEventNotifications = new AccessibilityEventNotifications();
+
+            KeyInterceptorEvent = new KeyInterceptorEventManager();
+            KeyMonitorEvent = new KeyMonitorEventManager();
+            NotificationMonitorEvent = new NotificationMonitorEventManager();
+            ToastMonitorEvent = new ToastMonitorEventManager();
 
             AddEvent();
         }
@@ -110,6 +123,7 @@ namespace AutoLua.Droid.AutoAccessibility
         /// </summary>
         private void AddEvent()
         {
+            Events.Add(AccessibilityEventNotifications);
             Events.Add(AccessibilityEvent);
         }
 

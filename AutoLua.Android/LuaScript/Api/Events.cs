@@ -4,6 +4,7 @@ using Android.AccessibilityServices;
 using Android.Views;
 using AutoLua.Droid.AutoAccessibility;
 using AutoLua.Droid.AutoAccessibility.Accessibility.Event;
+using AutoLua.Droid.AutoAccessibility.Accessibility.Node;
 
 namespace AutoLua.Droid.LuaScript.Api
 {
@@ -19,6 +20,16 @@ namespace AutoLua.Droid.LuaScript.Api
         /// 是否启动按键拦截。
         /// </summary>
         private bool IsKeyIntercepts = false;
+
+        /// <summary>
+        /// 是否监听Toast
+        /// </summary>
+        private bool IsToastListening = false;
+
+        /// <summary>
+        /// 是否监听通知栏
+        /// </summary>
+        private bool IsNotificationListening = false;
 
         /// <summary>
         /// 按键监听事件集合
@@ -38,6 +49,8 @@ namespace AutoLua.Droid.LuaScript.Api
         private const string OnKeyDownKey = "keyDown_";
         private const string OnKeyUpKey = "keyUp_";
 
+        private Action<Toast> eventToasts;
+        private Action<Notification> eventNotifications;
 
         public Events()
         {
@@ -61,7 +74,35 @@ namespace AutoLua.Droid.LuaScript.Api
                 throw new Exception("按键监听未启用，请在软件设置中开启");
 
             IsKeyListening = true;
-            AutoGlobal.Instance.KeyMonitorEvent?.Add(new EventsApi(this));
+            AutoGlobal.Instance?.KeyMonitorEvent?.Add(new EventsApi(this));
+        }
+
+        /// <summary>
+        /// 开启Toast监听。
+        /// Toast监听依赖于无障碍服务，因此此函数会确保无障碍服务运行。
+        /// </summary>
+        public void observeToast()
+        {
+            if (IsToastListening)
+                return;
+
+            GetAccessibilityService();
+            IsToastListening = true;
+            AutoGlobal.Instance?.ToastMonitorEvent?.Add(new EventsToastApi(this));
+        }
+
+        /// <summary>
+        /// 开启通知监听。例如QQ消息、微信消息、推送等通知。
+        /// 通知监听依赖于通知服务，如果通知服务没有运行，会抛出异常并跳转到通知权限开启界面。（有时即使通知权限已经开启通知服务也没有运行，这时需要关闭权限再重新开启一次）
+        /// </summary>
+        public void observeNotification()
+        {
+            if (IsNotificationListening)
+                return;
+
+            GetAccessibilityService();
+            IsNotificationListening = true;
+            AutoGlobal.Instance?.NotificationMonitorEvent?.Add(new EventsNotificationApi(this));
         }
 
         /// <summary>
@@ -241,7 +282,7 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         /// <param name="keyName">要屏蔽的按键</param>
         /// <param name="enabled">是否屏蔽</param>
-        public void setKeyInterceptionEnabled(string keyName,bool enabled = false)
+        public void setKeyInterceptionEnabled(string keyName, bool enabled = false)
         {
             if (string.IsNullOrWhiteSpace(keyName))
                 return;
@@ -254,6 +295,26 @@ namespace AutoLua.Droid.LuaScript.Api
             {
                 interceptedKeys.Remove(keyName);
             }
+        }
+
+
+        /// <summary>
+        /// 当有应用发出toast(气泡消息)时会触发该事件。但AutoLua软件本身的toast除外。
+        /// </summary>
+        /// <param name="action"></param>
+        public void onToast(Action<Toast> action)
+        {
+            eventToasts = action ?? throw new Exception($"onToast : 回调函数是空的");
+        }
+
+        /// <summary>
+        /// 开启通知监听。例如QQ消息、微信消息、推送等通知。
+        /// 通知监听依赖于通知服务，如果通知服务没有运行，会抛出异常并跳转到通知权限开启界面。（有时即使通知权限已经开启通知服务也没有运行，这时需要关闭权限再重新开启一次）
+        /// </summary>
+        /// <param name="action"></param>
+        public void onNotification(Action<Notification> action)
+        {
+            eventNotifications = action ?? throw new Exception($"onNotification : 回调函数是空的");
         }
 
         /// <summary>
@@ -351,6 +412,52 @@ namespace AutoLua.Droid.LuaScript.Api
                 var code = @event.KeyCode.ToString();
 
                 return events.interceptedKeys.Contains(code);
+            }
+        }
+
+        /// <summary>
+        /// toast 监听的回调事件api
+        /// </summary>
+        private class EventsToastApi : IToastMonitorEvent
+        {
+            private readonly Events events;
+
+            public EventsToastApi(Events events)
+            {
+                this.events = events;
+            }
+
+            /// <summary>
+            /// toast 的回调。
+            /// </summary>
+            /// <param name="toast">回调消息。</param>
+            public void OnToast(Toast toast)
+            {
+                if (!events.IsToastListening)
+                    return;
+
+                events?.eventToasts?.Invoke(toast);
+            }
+        }
+
+        /// <summary>
+        /// 通知栏 监听的回调事件api
+        /// </summary>
+        private class EventsNotificationApi : INotificationMonitorEvent
+        {
+            private readonly Events events;
+
+            public EventsNotificationApi(Events events)
+            {
+                this.events = events;
+            }
+
+            public void OnNotification(Notification notification)
+            {
+                if (!events.IsNotificationListening)
+                    return;
+
+                events?.eventNotifications?.Invoke(notification);
             }
         }
     }

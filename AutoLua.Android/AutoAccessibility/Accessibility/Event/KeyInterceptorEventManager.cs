@@ -5,10 +5,10 @@ using Android.Views;
 namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
 {
     /// <summary>
-    /// 按键拦截器，主要是进行按键的屏蔽监听
+    /// 按键拦截器，主要是进行按键的屏蔽监听，管理器
     /// </summary>
     [Android.Runtime.Preserve(AllMembers = true)]
-    public class KeyInterceptorEvent : IKeyInterceptorEvent
+    public class KeyInterceptorEventManager
     {
         /// <summary>
         /// 拦截的事件缓存。
