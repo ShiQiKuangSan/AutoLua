@@ -12,6 +12,7 @@ namespace AutoLua.Droid.LuaScript.Api
             if (!File.Exists(file))
             {
                 AppApplication.OnLog("错误", $"脚本 {file} 不存在", Color.Red);
+                return;
             }
 
             try

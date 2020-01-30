@@ -101,7 +101,7 @@ namespace AutoLua.Droid.AutoAccessibility
         protected override bool OnKeyEvent(KeyEvent e)
         {
             AutoGlobal.Instance?.KeyMonitorEvent?.OnKeyEvent(e.KeyCode, e);
-            return AutoGlobal.Instance?.KeyInterceptorEvent?.OnInterceptKeyEvent(e) ?? false;
+            return AutoGlobal.Instance?.KeyInterceptorEvent?.OnInterceptKeyEvent(e) ?? false; ;
         }
 
         public override void OnInterrupt()

@@ -14,7 +14,7 @@ using static AFollestad.MaterialDialogs.MaterialDialog;
 namespace AutoLua.Droid.LuaScript.Api
 {
     [Android.Runtime.Preserve(AllMembers = true)]
-    public class Dialogs : Java.Lang.Object
+    public class Dialogs
     {
         private ContextThemeWrapper mThemeWrapper;
 
@@ -368,7 +368,6 @@ namespace AutoLua.Droid.LuaScript.Api
             /// 是否结束
             /// </summary>
             public bool IsEnd { get; set; } = false;
-            public object Data { get; set; }
         }
 
 
