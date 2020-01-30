@@ -103,6 +103,7 @@
     <Compile Include="LuaScript\Api\Dialogs.cs" />
     <Compile Include="LuaScript\Api\Engines.cs" />
     <Compile Include="LuaScript\Api\Events.cs" />
+    <Compile Include="LuaScript\Api\LuaFiles.cs" />
     <Compile Include="LuaScript\Api\ScreenMetrics.cs" />
     <Compile Include="LuaScript\LuaGlobal.cs" />
     <Compile Include="LuaScript\LuaGlobalMethod.cs" />

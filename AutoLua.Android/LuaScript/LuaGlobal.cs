@@ -34,12 +34,12 @@ namespace AutoLua.Droid.LuaScript
                 return;
 
             IsInit = true;
-            
+
             var lua = AppApplication.Lua;
             var dialogs = new Dialogs();
 
             //选择器
-            lua["by"] = new By();  
+            lua["by"] = new By();
             lua["context"] = AppApplication.Instance.ApplicationContext;
             //app 操作
             lua["app"] = new LuaAppUtils(AppApplication.Instance);
@@ -47,9 +47,12 @@ namespace AutoLua.Droid.LuaScript
             lua["device"] = new Device();
             //弹窗
             lua["dialogs"] = dialogs;
-
+            //脚本系统
             lua["engines"] = new Engines();
+            //事件系统
             lua["events"] = new Api.Events();
+            //文件系统
+            lua["LuaFiles"] = new LuaFiles();
 
             luaGlobal = new LuaGlobalMethod(AppApplication.Instance);
 
