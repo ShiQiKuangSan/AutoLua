@@ -99,10 +99,12 @@
     <Compile Include="AutoAccessibility\Gesture\DefatltGesture.cs" />
     <Compile Include="AutoAccessibility\Gesture\IGesture.cs" />
     <Compile Include="Expansions\StringExtensions.cs" />
+    <Compile Include="LuaScript\Api\Colors.cs" />
     <Compile Include="LuaScript\Api\Device.cs" />
     <Compile Include="LuaScript\Api\Dialogs.cs" />
     <Compile Include="LuaScript\Api\Engines.cs" />
     <Compile Include="LuaScript\Api\Events.cs" />
+    <Compile Include="LuaScript\Api\HttpLua.cs" />
     <Compile Include="LuaScript\Api\LuaFiles.cs" />
     <Compile Include="LuaScript\Api\ScreenMetrics.cs" />
     <Compile Include="LuaScript\LuaGlobal.cs" />

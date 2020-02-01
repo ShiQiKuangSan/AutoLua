@@ -52,7 +52,11 @@ namespace AutoLua.Droid.LuaScript
             //事件系统
             lua["events"] = new Api.Events();
             //文件系统
-            lua["LuaFiles"] = new LuaFiles();
+            lua["files"] = new LuaFiles();
+            //网络请求模块
+            lua["http"] = new HttpLua();
+            //顔色模塊
+            lua["colors"] = new Colors();
 
             luaGlobal = new LuaGlobalMethod(AppApplication.Instance);
 

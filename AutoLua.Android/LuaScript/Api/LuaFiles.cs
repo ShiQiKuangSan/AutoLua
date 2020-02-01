@@ -314,31 +314,39 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <returns></returns>
         public string path(string relativePath)
         {
-            var basePath = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/scriptlua/";
-
-            var f = new File(basePath);
-            var paths = relativePath.Split('/');
-
-            foreach (var path in paths)
-            {
-                if (path.Equals("."))
-                    continue;
-                if (path.Equals(".."))
-                {
-                    f = f.ParentFile;
-                    continue;
-                }
-
-                f = new File(f, path);
-            }
-
-            return relativePath.EndsWith(File.Separator) ? f.Path + "/" : f.Path;
+            return PFiles.path(relativePath);
         }
 
-
-
-        private class PFiles
+        internal class PFiles
         {
+            /// <summary>
+            /// 返回相对路径对应的绝对路径。例如files.path("./1.png")，如果运行这个语句的脚本位于文件夹"/sdcard/脚本/"中，则返回"/sdcard/脚本/1.png"。
+            /// </summary>
+            /// <param name="relativePath">相对路径</param>
+            /// <returns></returns>
+            public static string path(string relativePath)
+            {
+                var basePath = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/scriptlua/";
+
+                var f = new File(basePath);
+                var paths = relativePath.Split('/');
+
+                foreach (var path in paths)
+                {
+                    if (path.Equals("."))
+                        continue;
+                    if (path.Equals(".."))
+                    {
+                        f = f.ParentFile;
+                        continue;
+                    }
+
+                    f = new File(f, path);
+                }
+
+                return relativePath.EndsWith(File.Separator) ? f.Path + "/" : f.Path;
+            }
+
             /// <summary>
             /// 返回路径path是否是文件。
             /// </summary>
