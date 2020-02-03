@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoLua.Android", "AutoLua.Android\AutoLua.Android.csproj", "{1B8E0D32-439B-4584-9904-7A4A8C7D9B5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoLua", "AutoLua\AutoLua.csproj", "{83E64740-D736-4951-85CF-313FA31FD481}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoLua", "AutoLua\AutoLua.csproj", "{83E64740-D736-4951-85CF-313FA31FD481}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLua", "NLua\NLua.csproj", "{31E4CF86-2BD0-4699-A775-3C9604D8A770}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +27,10 @@ Global
 		{83E64740-D736-4951-85CF-313FA31FD481}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83E64740-D736-4951-85CF-313FA31FD481}.Release|Any CPU.Build.0 = Release|Any CPU
 		{83E64740-D736-4951-85CF-313FA31FD481}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{31E4CF86-2BD0-4699-A775-3C9604D8A770}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31E4CF86-2BD0-4699-A775-3C9604D8A770}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31E4CF86-2BD0-4699-A775-3C9604D8A770}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31E4CF86-2BD0-4699-A775-3C9604D8A770}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

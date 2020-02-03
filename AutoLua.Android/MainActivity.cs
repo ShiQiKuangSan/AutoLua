@@ -4,7 +4,6 @@ using Android.Content;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
-using AutoLua.Droid.Utils;
 
 namespace AutoLua.Droid
 {
@@ -29,4 +28,6 @@ namespace AutoLua.Droid
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
+
+
 }

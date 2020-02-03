@@ -63,11 +63,8 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.3</Version>
     </PackageReference>
-    <PackageReference Include="NLua">
-      <Version>1.4.27</Version>
-    </PackageReference>
-    <PackageReference Include="OpenCvSharp3-AnyCPU">
-      <Version>4.0.0.20181129</Version>
+    <PackageReference Include="OpenCvSharp4">
+      <Version>4.2.0.20200108</Version>
     </PackageReference>
     <PackageReference Include="Rg.Plugins.Popup">
       <Version>1.2.0.223</Version>
@@ -175,6 +172,10 @@
     <ProjectReference Include="..\AutoLua\AutoLua.csproj">
       <Project>{007316B9-CF50-4BE5-8284-BB1BC288F5E9}</Project>
       <Name>AutoLua</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NLua\NLua.csproj">
+      <Project>{31e4cf86-2bd0-4699-a775-3c9604d8a770}</Project>
+      <Name>NLua</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

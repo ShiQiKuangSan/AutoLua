@@ -1,16 +1,19 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Android.App;
+using Android.Content;
 using Android.Content.Res;
 using Android.Graphics;
+using Android.Media;
 using Android.OS;
 using Android.Util;
 using Android.Views;
 using AutoLua.Droid.Http;
 using AutoLua.Droid.Http.Models;
-using AutoLua.Droid.LuaScript.Utils;
 using AutoLua.Droid.LuaScript.Utils.ScreenCaptures;
 using AutoLua.Droid.Utils;
+using Java.Lang;
 using OpenCvSharp;
 using static AutoLua.Droid.LuaScript.Api.LuaFiles;
 using Bitmap = Android.Graphics.Bitmap;
@@ -23,7 +26,6 @@ namespace AutoLua.Droid.LuaScript.Api
     [Android.Runtime.Preserve(AllMembers = true)]
     public class Images
     {
-        private static bool _isOpenCvInitialized = false;
         private IScreenCaptureRequester _screenCaptureRequester;
         private ScreenCapturer _screenCapturer;
 
@@ -269,16 +271,21 @@ namespace AutoLua.Droid.LuaScript.Api
                 throw new Exception("本脚本需要此安卓版本以上才能运行" + "最低要求安装 5");
             }
 
-            Orientation orientation;
+            Android.Content.Res.Orientation orientation;
 
             if (landscape)
             {
-                orientation = Orientation.Landscape;
+                orientation = Android.Content.Res.Orientation.Landscape;
             }
             else
             {
-                orientation = Orientation.Portrait;
+                orientation = Android.Content.Res.Orientation.Portrait;
             }
+
+            var data = new Intent(AppUtils.GetAppContext, Class.FromType(typeof(ScreenCaptureRequestActivity)));
+
+            _screenCapturer = new ScreenCapturer(data, orientation, ScreenMetrics.Instance.DeviceScreenDensity,
+                        new Handler());
 
             if (_screenCapturer != null)
             {
@@ -286,6 +293,7 @@ namespace AutoLua.Droid.LuaScript.Api
                 return;
             }
 
+            var results = false;
 
             _screenCaptureRequester.SetOnActivityResultCallback((result, data) =>
             {
@@ -294,9 +302,28 @@ namespace AutoLua.Droid.LuaScript.Api
                     _screenCapturer = new ScreenCapturer(data, orientation, ScreenMetrics.Instance.DeviceScreenDensity,
                         new Handler());
                 }
+
+                results = true;
             });
-            
+
             _screenCaptureRequester.Request();
+
+            var t = new Task(() =>
+            {
+                while (!results)
+                {
+                    Thread.Sleep(200);
+                }
+            });
+            t.Start();
+            t.Wait();
+        }
+
+        public ImageWrapper captureScreen()
+        {
+            var capture = _screenCapturer.Capture();
+
+            return ImageWrapper.OfBitmap(capture);
         }
 
         private static Bitmap.CompressFormat ParseImageFormat(string format)
@@ -363,6 +390,34 @@ namespace AutoLua.Droid.LuaScript.Api
         public static ImageWrapper OfBitmap(Bitmap bitmap)
         {
             return bitmap == null ? null : new ImageWrapper(bitmap);
+        }
+        public static ImageWrapper OfBitmap(Image image)
+        {
+            if (image == null)
+            {
+                return null;
+            }
+            return new ImageWrapper(ToBitmap(image));
+        }
+
+        public static Bitmap ToBitmap(Image image)
+        {
+            var plane = image.GetPlanes()[0];
+            var buffer = plane.Buffer;
+            buffer.Position(0);
+
+            int pixelStride = plane.PixelStride;
+            int rowPadding = plane.RowStride - pixelStride * image.Width;
+            var bitmap = Bitmap.CreateBitmap(image.Width + (rowPadding / pixelStride), image.Height, Bitmap.Config.Argb8888);
+
+            bitmap.CopyPixelsFromBuffer(buffer);
+
+            if (rowPadding == 0)
+            {
+                return bitmap;
+            }
+
+            return Bitmap.CreateBitmap(bitmap, 0, 0, image.Width, image.Height);
         }
 
         public static ImageWrapper OfMat(Mat mat)
