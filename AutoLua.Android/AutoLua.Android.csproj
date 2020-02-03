@@ -66,6 +66,9 @@
     <PackageReference Include="NLua">
       <Version>1.4.27</Version>
     </PackageReference>
+    <PackageReference Include="OpenCvSharp3-AnyCPU">
+      <Version>4.0.0.20181129</Version>
+    </PackageReference>
     <PackageReference Include="Rg.Plugins.Popup">
       <Version>1.2.0.223</Version>
     </PackageReference>
@@ -99,26 +102,46 @@
     <Compile Include="AutoAccessibility\Gesture\DefatltGesture.cs" />
     <Compile Include="AutoAccessibility\Gesture\IGesture.cs" />
     <Compile Include="Expansions\StringExtensions.cs" />
+    <Compile Include="Http\HttpClient.cs" />
+    <Compile Include="Http\HttpClientManager.cs" />
+    <Compile Include="Http\HttpTimer.cs" />
+    <Compile Include="Http\Models\HttpItem.cs" />
+    <Compile Include="Http\Models\HttpResult.cs" />
+    <Compile Include="Http\Models\PostDataType.cs" />
+    <Compile Include="Http\Models\ResultCookieType.cs" />
+    <Compile Include="Http\Models\ResultType.cs" />
     <Compile Include="LuaScript\Api\Colors.cs" />
     <Compile Include="LuaScript\Api\Device.cs" />
     <Compile Include="LuaScript\Api\Dialogs.cs" />
     <Compile Include="LuaScript\Api\Engines.cs" />
     <Compile Include="LuaScript\Api\Events.cs" />
     <Compile Include="LuaScript\Api\HttpLua.cs" />
+    <Compile Include="LuaScript\Api\Images.cs" />
     <Compile Include="LuaScript\Api\LuaFiles.cs" />
     <Compile Include="LuaScript\Api\ScreenMetrics.cs" />
     <Compile Include="LuaScript\LuaGlobal.cs" />
     <Compile Include="LuaScript\LuaGlobalMethod.cs" />
     <Compile Include="LuaScript\Utils\IntentUtil.cs" />
     <Compile Include="LuaScript\Utils\LuaAppUtils.cs" />
+    <Compile Include="LuaScript\Utils\ScreenCaptures\ActivityScreenCaptureRequester.cs" />
+    <Compile Include="LuaScript\Utils\ScreenCaptures\BaseScreenCaptureRequester.cs" />
+    <Compile Include="LuaScript\Utils\ScreenCaptures\IScreenCaptureRequester.cs" />
+    <Compile Include="LuaScript\Utils\ScreenCaptures\ScreenCapturer.cs" />
+    <Compile Include="LuaScript\Utils\ScreenCaptures\ScreenCaptureRequester.cs" />
     <Compile Include="MainActivity.cs" />
+    <Compile Include="OpenCv\OpenCvHelper.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScreenCaptureRequestActivity.cs" />
     <Compile Include="Services\FileService.cs" />
     <Compile Include="Services\LuaScriptService.cs" />
     <Compile Include="Services\ToastService.cs" />
     <Compile Include="Utils\AppUtils.cs" />
+    <Compile Include="Utils\App\IDelegateHost.cs" />
+    <Compile Include="Utils\App\IOnActivityResultDelegate.cs" />
+    <Compile Include="Utils\App\Mediator.cs" />
     <Compile Include="Utils\Clip\ClipboardUtil.cs" />
+    <Compile Include="Utils\IntentExtras.cs" />
     <Compile Include="Utils\Random\RandomManager.cs" />
     <Compile Include="Utils\ToastUtils.cs" />
   </ItemGroup>

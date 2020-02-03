@@ -7,7 +7,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
     [Android.Runtime.Preserve(AllMembers = true)]
     public class UiNodeSearch : IUiNodeSearch
     {
-        public IList<UiNode> Search(UiNode root, IExpressionExecutor filter, int max = int.MaxValue)
+        public IEnumerable<UiNode> Search(UiNode root, IExpressionExecutor filter, int max = int.MaxValue)
         {
             try
             {
@@ -20,7 +20,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
             }
         }
 
-        private static List<UiNode> SearchChild(UiNode root, IExpressionExecutor filter, int max)
+        private static IEnumerable<UiNode> SearchChild(UiNode root, IExpressionExecutor filter, int max)
         {
             var result = new List<UiNode>();
             var stack = new Queue<UiNode>();

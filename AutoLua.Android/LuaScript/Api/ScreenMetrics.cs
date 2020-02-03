@@ -9,16 +9,16 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <summary>
         /// 是否初始化
         /// </summary>
-        private bool initialized = false;
+        private bool _initialized;
 
         public int DeviceScreenHeight { get; private set; }
         public int DeviceScreenWidth { get; private set; }
 
         public DisplayMetricsDensity DeviceScreenDensity { get; private set; }
 
-        private readonly static object Lock = new object();
+        private static readonly object Lock = new object();
 
-        private static ScreenMetrics instance = null;
+        private static ScreenMetrics _instance = null;
 
         public static ScreenMetrics Instance
         {
@@ -26,16 +26,14 @@ namespace AutoLua.Droid.LuaScript.Api
             {
                 lock (Lock)
                 {
-                    if (instance == null) instance = new ScreenMetrics();
-
-                    return instance;
+                    return _instance ??= new ScreenMetrics();
                 }
             }
         }
 
         public void Init(Activity activity)
         {
-            if (initialized)
+            if (_initialized)
                 return;
 
             var metrics = new DisplayMetrics();
@@ -43,7 +41,7 @@ namespace AutoLua.Droid.LuaScript.Api
             DeviceScreenHeight = metrics.HeightPixels;
             DeviceScreenWidth = metrics.WidthPixels;
             DeviceScreenDensity = metrics.DensityDpi;
-            initialized = true;
+            _initialized = true;
         }
 
         /// <summary>
@@ -53,14 +51,7 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <returns></returns>
         public int GetOrientationAwareScreenWidth(Android.Content.Res.Orientation orientation)
         {
-            if (orientation == Android.Content.Res.Orientation.Landscape)
-            {
-                return DeviceScreenHeight;
-            }
-            else
-            {
-                return DeviceScreenWidth;
-            }
+            return orientation == Android.Content.Res.Orientation.Landscape ? DeviceScreenHeight : DeviceScreenWidth;
         }
 
         /// <summary>
@@ -70,14 +61,7 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <returns></returns>
         public int GetOrientationAwareScreenHeight(Android.Content.Res.Orientation orientation)
         {
-            if (orientation == Android.Content.Res.Orientation.Landscape)
-            {
-                return DeviceScreenWidth;
-            }
-            else
-            {
-                return DeviceScreenHeight;
-            }
+            return orientation == Android.Content.Res.Orientation.Landscape ? DeviceScreenWidth : DeviceScreenHeight;
         }
     }
 }

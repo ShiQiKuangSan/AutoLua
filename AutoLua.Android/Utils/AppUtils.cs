@@ -10,18 +10,18 @@ namespace AutoLua.Droid.Utils
     [Android.Runtime.Preserve(AllMembers = true)]
     public class AppUtils
     {
-        private static Thread mUiThread;
+        private static Thread _uiThread;
 
-        private static Handler _uiHandler = new Handler(Looper.MainLooper);
+        private static readonly Handler UiHandler = new Handler(Looper.MainLooper);
         
-        private static Handler _handler = new Handler();
+        private static readonly Handler Handler = new Handler();
 
         private static volatile Java.Lang.Ref.WeakReference _currentActivity = new Java.Lang.Ref.WeakReference(null);
 
         public static void Init(Context context)
         {
             GetAppContext = context;
-            mUiThread = Thread.CurrentThread();
+            _uiThread = Thread.CurrentThread();
         }
 
         public static Context GetAppContext { get; private set; }
@@ -30,23 +30,23 @@ namespace AutoLua.Droid.Utils
 
         public static Resources GetResource => GetAppContext.Resources;
 
-        public static bool IsUIThread => Thread.CurrentThread() == mUiThread;
+        public static bool IsUiThread => Thread.CurrentThread() == _uiThread;
 
-        public static void RunOnUI(Action r) => _uiHandler.Post(r);
+        public static void RunOnUI(Action r) => UiHandler.Post(r);
 
-        public static void Run(Action r) => _handler.Post(r);
+        public static void Run(Action r) => Handler.Post(r);
 
-        public static void RunOnUIDelayed(Action r, long delayMills) => _uiHandler.PostDelayed(r, delayMills);
+        public static void RunOnUIDelayed(Action r, long delayMills) => UiHandler.PostDelayed(r, delayMills);
 
         public static void RemoveRunnable(Action r)
         {
             if (r == null)
             {
-                _uiHandler.RemoveCallbacksAndMessages(null);
+                UiHandler.RemoveCallbacksAndMessages(null);
             }
             else
             {
-                _uiHandler.RemoveCallbacks(r);
+                UiHandler.RemoveCallbacks(r);
             }
         }
 

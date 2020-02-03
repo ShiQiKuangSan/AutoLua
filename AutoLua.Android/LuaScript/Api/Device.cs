@@ -127,7 +127,7 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         public string serial = Build.Serial;
 
-        private PowerManager.WakeLock mWakeLock;
+        private PowerManager.WakeLock _mWakeLock;
 
         /// <summary>
         /// 设备的IMEI.
@@ -163,7 +163,7 @@ namespace AutoLua.Droid.LuaScript.Api
         }
 
 
-        private const string FAKE_MAC_ADDRESS = "02:00:00:00:00:00";
+        private const string FakeMacAddress = "02:00:00:00:00:00";
 
         /// <summary>
         /// 返回设备的Mac地址。该函数需要在有WLAN连接的情况下才能获取，否则会返回空。
@@ -187,7 +187,7 @@ namespace AutoLua.Droid.LuaScript.Api
                 }
 
                 var mac = wifiInf.MacAddress;
-                if (FAKE_MAC_ADDRESS == mac)
+                if (FakeMacAddress == mac)
                 {
                     mac = null;
                 }
@@ -392,13 +392,13 @@ namespace AutoLua.Droid.LuaScript.Api
         public void KeepAwake(WakeLockFlags flags, long timeout)
         {
             CheckWakeLock(flags);
-            mWakeLock.Acquire(timeout);
+            _mWakeLock.Acquire(timeout);
         }
 
         public void KeepAwake(WakeLockFlags flags)
         {
             CheckWakeLock(flags);
-            mWakeLock.Acquire();
+            _mWakeLock.Acquire();
         }
 
         /// <summary>
@@ -485,8 +485,8 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         public void CancelKeepingAwake()
         {
-            if (mWakeLock != null && mWakeLock.IsHeld)
-                mWakeLock.Release();
+            if (_mWakeLock != null && _mWakeLock.IsHeld)
+                _mWakeLock.Release();
         }
 
         /// <summary>
@@ -511,11 +511,10 @@ namespace AutoLua.Droid.LuaScript.Api
 
         private void CheckWakeLock(WakeLockFlags flags)
         {
-            if (mWakeLock == null)
-            {
-                CancelKeepingAwake();
-                mWakeLock = GetSystemService<PowerManager>(Context.PowerService).NewWakeLock(flags, Class.FromType(typeof(Device)).Name);
-            }
+            if (_mWakeLock != null) return;
+            
+            CancelKeepingAwake();
+            _mWakeLock = GetSystemService<PowerManager>(Context.PowerService).NewWakeLock(flags, Class.FromType(typeof(Device)).Name);
         }
 
         private T GetSystemService<T>(string service) where T : class, IJavaObject
@@ -537,17 +536,16 @@ namespace AutoLua.Droid.LuaScript.Api
                 return;
             }
 
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
-            {
-                var context = AppApplication.Instance;
+            if (Build.VERSION.SdkInt < BuildVersionCodes.M) return;
+            
+            var context = AppApplication.Instance;
 
-                var intent = new Intent(Settings.ActionManageWriteSettings);
+            var intent = new Intent(Settings.ActionManageWriteSettings);
 
-                intent.SetData(Android.Net.Uri.Parse("package:" + context.PackageName));
-                context.StartActivity(intent.AddFlags(ActivityFlags.NewTask));
-            }
+            intent.SetData(Android.Net.Uri.Parse("package:" + context.PackageName));
+            context.StartActivity(intent.AddFlags(ActivityFlags.NewTask));
 
-            //throw new SecurityException("沒有修改系統设置权限");
+            throw new SecurityException("沒有修改系統设置权限");
         }
 
         private bool CanWriteSettings()
@@ -586,12 +584,11 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         private void CheckReadPhoneStatePermission()
         {
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+            if (Build.VERSION.SdkInt < BuildVersionCodes.M) return;
+            
+            if (AppApplication.Instance.CheckSelfPermission(Manifest.Permission.ReadPhoneState) != Permission.Granted)
             {
-                if (AppApplication.Instance.CheckSelfPermission(Manifest.Permission.ReadPhoneState) != Permission.Granted)
-                {
-                    throw new SecurityException("没有读取设备信息权限");
-                }
+                throw new SecurityException("没有读取设备信息权限");
             }
         }
 
@@ -607,8 +604,8 @@ namespace AutoLua.Droid.LuaScript.Api
                     if (macBytes == null)
                         return null;
 
-                    var mac = new Java.Lang.StringBuilder();
-                    foreach (byte b in macBytes)
+                    var mac = new StringBuilder();
+                    foreach (var b in macBytes)
                     {
                         mac.Append(b);
                     }
@@ -623,7 +620,7 @@ namespace AutoLua.Droid.LuaScript.Api
 
             return string.Empty;
         }
-        private string GetMacByFile()
+        private static string GetMacByFile()
         {
             try
             {

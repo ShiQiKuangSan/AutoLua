@@ -13,7 +13,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
         /// <summary>
         /// 拦截的事件缓存。
         /// </summary>
-        private readonly IList<IKeyInterceptorEvent> keyInterceptors = new List<IKeyInterceptorEvent>();
+        private readonly IList<IKeyInterceptorEvent> _keyInterceptors = new List<IKeyInterceptorEvent>();
 
         /// <summary>
         /// 添加拦截事件。
@@ -24,7 +24,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
             if (@event == null)
                 return;
 
-            keyInterceptors.Add(@event);
+            _keyInterceptors.Add(@event);
         }
 
         /// <summary>
@@ -36,17 +36,17 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
             if (@event == null)
                 return;
 
-            keyInterceptors.Remove(@event);
+            _keyInterceptors.Remove(@event);
         }
 
         /// <summary>
         /// 拦截按键事件。
         /// </summary>
-        /// <param name="key">按键。</param>
+        /// <param name="event">事件</param>
         /// <returns>是否拦截成功。</returns>
         public bool OnInterceptKeyEvent(KeyEvent @event)
         {
-            foreach (var item in keyInterceptors)
+            foreach (var item in _keyInterceptors)
             {
                 try
                 {
@@ -55,6 +55,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
                 }
                 catch (Exception)
                 {
+                    // ignored
                 }
             }
 

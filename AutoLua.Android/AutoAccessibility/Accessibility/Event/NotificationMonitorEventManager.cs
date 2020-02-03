@@ -13,7 +13,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
         /// <summary>
         /// 监听按键的缓存
         /// </summary>
-        private readonly IList<INotificationMonitorEvent> notificationMonitorEvent = new List<INotificationMonitorEvent>();
+        private readonly IList<INotificationMonitorEvent> _notificationMonitorEvent = new List<INotificationMonitorEvent>();
 
         /// <summary>
         /// 添加按键监听事件。
@@ -24,7 +24,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
             if (@event == null)
                 return;
 
-            notificationMonitorEvent.Add(@event);
+            _notificationMonitorEvent.Add(@event);
         }
 
         /// <summary>
@@ -36,13 +36,13 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
             if (@event == null)
                 return;
 
-            notificationMonitorEvent.Remove(@event);
+            _notificationMonitorEvent.Remove(@event);
         }
 
 
         public void OnNotification(Notification notification)
         {
-            foreach (var item in notificationMonitorEvent)
+            foreach (var item in _notificationMonitorEvent)
             {
                 try
                 {
@@ -50,6 +50,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
                 }
                 catch (Exception)
                 {
+                    // ignored
                 }
             }
         }

@@ -30,70 +30,71 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
         #endregion
 
         #region 字段
-        /// <inheritdoc />
+
+        /// <inheritdoc cref="Depth" />
         /// <summary>
         /// 节点深度。
         /// </summary>
         public int Depth { get; }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="IndexInParent" />
         /// <summary>
         /// 节点下标
         /// </summary>
         public int IndexInParent { get; }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="Row" />
         /// <summary>
         /// 行。
         /// </summary>
         public int Row => CollectionItemInfo?.RowIndex ?? -1;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="RowCount" />
         /// <summary>
         /// 总行数。
         /// </summary>
         public int RowCount => CollectionInfo?.RowCount ?? 0;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="RowSpan" />
         /// <summary>
         /// 总列数。
         /// </summary>
         public int RowSpan => CollectionItemInfo?.RowSpan ?? -1;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="Column" />
         /// <summary>
         /// </summary>
         public int Column => CollectionItemInfo?.ColumnIndex ?? 0;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="ColumnCount" />
         /// <summary>
         /// </summary>
         public int ColumnCount => CollectionInfo?.ColumnCount ?? 0;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="ColumnSpan" />
         /// <summary>
         /// </summary>
         public int ColumnSpan => CollectionItemInfo?.ColumnSpan ?? -1;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="Clickable" />
         /// <summary>
         /// 是否可以点击
         /// </summary>
         public new bool Clickable => base.Clickable;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="ContextClickable" />
         /// <summary>
         /// 内容是否可以被点击
         /// </summary>
         public new bool ContextClickable => base.ContextClickable;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="IsSelected" />
         /// <summary>
         /// 是否选中。
         /// </summary>
         public bool IsSelected => base.Selected;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="Id" />
         /// <summary>
         /// 不包含包名的节点编号。
         /// </summary>
@@ -128,13 +129,13 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
             }
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="FullId" />
         /// <summary>
         /// 节点的完整编号。
         /// </summary>
         public string FullId => ViewIdResourceName ?? string.Empty;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="ClassName" />
         /// <summary>
         /// 节点的类名。
         /// </summary>
@@ -145,13 +146,13 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
         /// </summary>
         public new string Text => base.Text ?? string.Empty;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="Desc" />
         /// <summary>
         /// 节点详细文本。
         /// </summary>
         public string Desc => ContentDescription ?? string.Empty;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="ChildCount" />
         /// <summary>
         /// 当前节点的子节点数。
         /// </summary>
@@ -403,7 +404,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
 
         #region 控件查找操作
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="Bounds" />
         /// <summary>
         /// 返回控件在屏幕上的范围，其值是一个Rect对象。
         /// </summary>
@@ -415,7 +416,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
             return rect;
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="BoundsInParent" />
         /// <summary>
         /// 返回控件在父控件中的范围，其值是一个Rect对象。
         /// </summary>
@@ -427,7 +428,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
             return rect;
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="Child" />
         /// <summary>
         /// 获得节点的子集
         /// </summary>
@@ -447,7 +448,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
             return chil == null ? null : new UiNode(chil, Depth + 1, index);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="Parent" />
         /// <summary>
         /// 获得节点的父级。
         /// </summary>
@@ -481,9 +482,8 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
         /// 执行操作
         /// </summary>
         /// <param name="action">动作</param>
-        /// <param name="arguments">参数类型</param>
         /// <returns></returns>
-        internal new bool PerformAction(int action)
+        private new bool PerformAction(int action)
         {
             var bundle = new Bundle(action);
             try

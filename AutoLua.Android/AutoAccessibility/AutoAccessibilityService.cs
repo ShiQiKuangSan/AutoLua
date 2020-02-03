@@ -32,7 +32,7 @@ namespace AutoLua.Droid.AutoAccessibility
         /// <summary>
         /// 只检测该事件返回的包。
         /// </summary>
-        public Func<IList<string>> RunPackageNames = null;
+        public readonly Func<IList<string>> RunPackageNames = null;
 
         protected override void OnServiceConnected()
         {
@@ -45,7 +45,7 @@ namespace AutoLua.Droid.AutoAccessibility
 
             var autoGlobal = AutoGlobal.Instance;
 
-            if (autoGlobal != null && autoGlobal.Context != null)
+            if (autoGlobal?.Context != null)
             {
                 Toast.MakeText(autoGlobal.Context, "服务启动成功", ToastLength.Long).Show();
             }
@@ -72,6 +72,9 @@ namespace AutoLua.Droid.AutoAccessibility
 
             var status = RunPackageNames?.Invoke().Any(x => x == e.PackageName) ?? false;
 
+            if (AutoGlobal.Instance?.Events == null) 
+                return;
+            
             foreach (var item in AutoGlobal.Instance?.Events)
             {
                 item.Event(this, e);

@@ -16,7 +16,7 @@ namespace AutoLua.Droid.LuaScript.Api
     [Android.Runtime.Preserve(AllMembers = true)]
     public class Dialogs
     {
-        private ContextThemeWrapper mThemeWrapper;
+        private ContextThemeWrapper _themeWrapper;
 
         /// <summary>
         /// 显示一个只包含“确定”按钮的提示对话框。直至用户点击确定脚本才继续运行。
@@ -39,7 +39,7 @@ namespace AutoLua.Droid.LuaScript.Api
                 callback?.Invoke();
             });
 
-            var builder = new MaterialDialog.Builder(context)
+            var builder = new Builder(context)
                 .Title(title)
                 .PositiveText("确定")
                 .DismissListener(dialog =>
@@ -92,17 +92,7 @@ namespace AutoLua.Droid.LuaScript.Api
 
                     action.Invoke(false);
                 })
-                .OnAny((dialog, which) =>
-                {
-                    if (which == DialogAction.Positive)
-                    {
-                        action.Invoke(true);
-                    }
-                    else
-                    {
-                        action.Invoke(false);
-                    }
-                });
+                .OnAny((dialog, which) => { action.Invoke(which == DialogAction.Positive); });
 
             if (!string.IsNullOrWhiteSpace(content))
                 builder.Content(content);
@@ -131,7 +121,7 @@ namespace AutoLua.Droid.LuaScript.Api
                 callback?.Invoke(value);
             });
 
-            var builder = new MaterialDialog.Builder(context)
+            var builder = new Builder(context)
               .Input(null, content, true, new InputCallback((input) => action(input)))
               .Title(title)
               .CancelListener(dialog =>
@@ -189,11 +179,12 @@ namespace AutoLua.Droid.LuaScript.Api
             }
             catch (System.Exception)
             {
+                // ignored
             }
 
             var builder = new MaterialDialog.Builder(context)
                 .DismissListener((dialog) => action(string.Empty))
-                .ItemsCallback(new Action<MaterialDialog, View, int, string>((dialog, itemView, position, text) => action(text)))
+                .ItemsCallback((dialog, itemView, position, text) => action(text))
                 .Title(title)
                 .Items(list);
 
@@ -238,11 +229,12 @@ namespace AutoLua.Droid.LuaScript.Api
             }
             catch (System.Exception)
             {
+                // ignored
             }
 
             var builder = new MaterialDialog.Builder(context)
                 .DismissListener((dialog) => action(0, string.Empty))
-                .ItemsCallbackSingleChoice(selectedIndex, new Func<MaterialDialog, View, int, string, bool>((dialog, itemView, which, text) => action(which, text)))
+                .ItemsCallbackSingleChoice(selectedIndex, (dialog, itemView, which, text) => action.Invoke(which, text))
                 .Title(title)
                 .PositiveText("确定")
                 .Items(list);
@@ -284,7 +276,7 @@ namespace AutoLua.Droid.LuaScript.Api
 
                     foreach (var x in tableIndices.Values)
                     {
-                        var status = int.TryParse(x, out int res);
+                        var status = int.TryParse(x, out var res);
 
                         if (status)
                             tableIndicesList.Add(res);
@@ -301,11 +293,12 @@ namespace AutoLua.Droid.LuaScript.Api
             }
             catch (System.Exception)
             {
+                // ignored
             }
 
-            var builder = new MaterialDialog.Builder(context)
+            var builder = new Builder(context)
                 .DismissListener((dialog) => action(new int[0], new string[0]))
-                .ItemsCallbackMultiChoice(tableIndicesList.ToArray(), new Func<MaterialDialog, int[], string[], bool>((dialog, which, text) => action(which, text)))
+                .ItemsCallbackMultiChoice(tableIndicesList.ToArray(), (dialog, which, text) => action(which, text))
                 .Title(title)
                 .PositiveText("确定")
                 .Items(list);
@@ -313,10 +306,10 @@ namespace AutoLua.Droid.LuaScript.Api
             Show(builder);
         }
 
-        public MaterialDialog.Builder newBuilder()
+        public Builder newBuilder()
         {
             var context = GetActivityContext();
-            var builder = new MaterialDialog.Builder(context)
+            var builder = new Builder(context)
                 .Theme(Theme.Light);
             return builder;
         }
@@ -326,7 +319,7 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
-        private void Show(MaterialDialog.Builder builder)
+        private static void Show(MaterialDialog.Builder builder)
         {
             if (Looper.MainLooper == Looper.MyLooper())
             {
@@ -354,11 +347,11 @@ namespace AutoLua.Droid.LuaScript.Api
 
         private Context GetContext()
         {
-            if (mThemeWrapper != null)
-                return mThemeWrapper;
+            if (_themeWrapper != null)
+                return _themeWrapper;
 
-            mThemeWrapper = new ContextThemeWrapper(AppUtils.GetAppContext.ApplicationContext, Resource.Style.Theme_AppCompat_Light);
-            return mThemeWrapper;
+            _themeWrapper = new ContextThemeWrapper(AppUtils.GetAppContext.ApplicationContext, Resource.Style.Theme_AppCompat_Light);
+            return _themeWrapper;
         }
 
 
@@ -373,16 +366,16 @@ namespace AutoLua.Droid.LuaScript.Api
 
         private class InputCallback : Java.Lang.Object, IInputCallback
         {
-            private readonly Action<string> action;
+            private readonly Action<string> _action;
 
             public InputCallback(Action<string> action)
             {
-                this.action = action;
+                this._action = action;
             }
 
             public void OnInput(MaterialDialog dialog, ICharSequence input)
             {
-                action.Invoke(input.ToString());
+                _action.Invoke(input.ToString());
             }
         }
 

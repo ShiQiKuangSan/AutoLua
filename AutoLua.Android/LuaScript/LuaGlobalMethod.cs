@@ -17,12 +17,10 @@ namespace AutoLua.Droid.LuaScript
     [Android.Runtime.Preserve(AllMembers = true)]
     internal class LuaGlobalMethod
     {
-        private readonly Context _context;
-        private readonly IGesture gesture;
+        private readonly IGesture _gesture;
         internal LuaGlobalMethod(Context context)
         {
-            _context = context;
-            gesture = new DefatltGesture();
+            _gesture = new DefatltGesture();
             ClipboardUtil.Context = context;
         }
 
@@ -77,10 +75,9 @@ namespace AutoLua.Droid.LuaScript
         /// toast
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="toastyType"></param>
         public void Toast(string message)
         {
-            ToastUtils.showToast(message);
+            ToastUtils.ShowToast(message);
         }
 
         /// <summary>
@@ -89,35 +86,39 @@ namespace AutoLua.Droid.LuaScript
         /// <param name="message">日志消息</param>
         public void Print(object message)
         {
-            if (message == null)
-                return;
-
-            if (message is LuaBase lubase)
+            switch (message)
             {
-                var str = message.ToString();
-                if (str == "table")
-                {
-                    Task.Run(() =>
-                    {
-                        var str1 = JsonConvert.SerializeObject(message);
-                        var msg = JsonConvert.DeserializeObject<TableLog>(str1);
-
-                        var builder = new System.Text.StringBuilder();
-
-                        builder.AppendLine();
-                        for (var i = 0; i < msg.Keys.Count; i++)
-                        {
-                            var key = msg.Keys[i];
-                            var value = msg.Values[i].ToString();
-                            var val = value == "{}" ? "function" : value;
-
-                            builder.AppendLine($"\t {key} ==>> {val}");
-                        }
-
-                        PLog(builder.ToString());
-                    });
-
+                case null:
                     return;
+                case LuaBase _:
+                {
+                    var str = message.ToString();
+                    if (str == "table")
+                    {
+                        Task.Run(() =>
+                        {
+                            var str1 = JsonConvert.SerializeObject(message);
+                            var msg = JsonConvert.DeserializeObject<TableLog>(str1);
+
+                            var builder = new System.Text.StringBuilder();
+
+                            builder.AppendLine();
+                            for (var i = 0; i < msg.Keys.Count; i++)
+                            {
+                                var key = msg.Keys[i];
+                                var value = msg.Values[i].ToString();
+                                var val = value == "{}" ? "function" : value;
+
+                                builder.AppendLine($"\t {key} ==>> {val}");
+                            }
+
+                            PLog(builder.ToString());
+                        });
+
+                        return;
+                    }
+
+                    break;
                 }
             }
 
@@ -126,9 +127,15 @@ namespace AutoLua.Droid.LuaScript
 
         private class TableLog
         {
-            public List<string> Keys { get; set; }
+            public TableLog(List<string> keys, List<object> values)
+            {
+                Keys = keys;
+                Values = values;
+            }
 
-            public List<object> Values { get; set; }
+            public List<string> Keys { get; private set; }
+
+            public List<object> Values { get; private set; }
         }
 
         private void PLog(string message)
@@ -141,10 +148,9 @@ namespace AutoLua.Droid.LuaScript
         /// 相当于toast(message);log(message)。显示信息message并在控制台中输出。参见console.log。
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="toastyType"></param>
         public void ToastLog(string message)
         {
-            ToastUtils.showToast(message);
+            ToastUtils.ShowToast(message);
             PLog(message);
         }
 
@@ -186,7 +192,7 @@ namespace AutoLua.Droid.LuaScript
             }
             catch (System.Exception e)
             {
-                LogEventDelegates.Instance.OnLog(new LogEventArgs("异常", e.Message.ToString(), Xamarin.Forms.Color.Red));
+                LogEventDelegates.Instance.OnLog(new LogEventArgs("异常", e.Message, Xamarin.Forms.Color.Red));
             }
         }
 
@@ -218,7 +224,7 @@ namespace AutoLua.Droid.LuaScript
         /// <returns></returns>
         public bool Click(int x, int y)
         {
-            return gesture.Click(x, y);
+            return _gesture.Click(x, y);
         }
 
         /// <summary>
@@ -229,7 +235,7 @@ namespace AutoLua.Droid.LuaScript
         /// <returns></returns>
         public bool LongClick(int x, int y)
         {
-            return gesture.LongClick(x, y);
+            return _gesture.LongClick(x, y);
         }
 
         /// <summary>
@@ -241,7 +247,7 @@ namespace AutoLua.Droid.LuaScript
         /// <returns></returns>
         public bool Press(int x, int y, int duration)
         {
-            return gesture.Press(x, y, duration);
+            return _gesture.Press(x, y, duration);
         }
 
         /// <summary>
@@ -255,7 +261,7 @@ namespace AutoLua.Droid.LuaScript
         /// <returns></returns>
         public bool Swipe(int x1, int y1, int x2, int y2, int duration)
         {
-            return gesture.Swipe(x1, y1, x2, y2, duration);
+            return _gesture.Swipe(x1, y1, x2, y2, duration);
         }
 
         /// <summary>
@@ -266,7 +272,7 @@ namespace AutoLua.Droid.LuaScript
         /// <returns></returns>
         public bool Gesture(int duration, params int[][] points)
         {
-            return gesture.Gesture(duration, 0, null, points);
+            return _gesture.Gesture(duration, 0, null, points);
         }
 
         /// <summary>
@@ -276,7 +282,7 @@ namespace AutoLua.Droid.LuaScript
         /// <returns></returns>
         public bool Gestures(params GestureDescription.StrokeDescription[] strokes)
         {
-            return gesture.Gestures(null, strokes);
+            return _gesture.Gestures(null, strokes);
         }
     }
 }

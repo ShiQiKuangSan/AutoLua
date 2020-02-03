@@ -1,15 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using AutoLua.Droid.AutoAccessibility.Accessibility.Filter;
 using Java.IO;
 
 namespace AutoLua.Droid.LuaScript.Api
@@ -57,10 +47,8 @@ namespace AutoLua.Droid.LuaScript.Api
         public string join(string path, params string[] paths)
         {
             var file = new File(path);
-            foreach (var item in paths)
-            {
-                file = new File(file, path);
-            }
+            
+            file = paths.Aggregate(file, (current, item) => new File(current, path));
 
             return file.Path;
         }
@@ -120,10 +108,7 @@ namespace AutoLua.Droid.LuaScript.Api
         {
             var p = this.path(path);
 
-            if (string.IsNullOrWhiteSpace(encoding))
-                return PFiles.Read(p);
-
-            return PFiles.Read(p, encoding);
+            return string.IsNullOrWhiteSpace(encoding) ? PFiles.Read(p) : PFiles.Read(p, encoding);
         }
 
         /// <summary>
@@ -314,7 +299,7 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <returns></returns>
         public string path(string relativePath)
         {
-            return PFiles.path(relativePath);
+            return PFiles.Path(relativePath);
         }
 
         internal class PFiles
@@ -324,7 +309,7 @@ namespace AutoLua.Droid.LuaScript.Api
             /// </summary>
             /// <param name="relativePath">相对路径</param>
             /// <returns></returns>
-            public static string path(string relativePath)
+            public static string Path(string relativePath)
             {
                 var basePath = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/scriptlua/";
 
@@ -387,10 +372,7 @@ namespace AutoLua.Droid.LuaScript.Api
             public static string Join(string path, params string[] paths)
             {
                 var file = new File(path);
-                foreach (var item in paths)
-                {
-                    file = new File(file, path);
-                }
+                file = paths.Aggregate(file, (current, item) => new File(current, path));
 
                 return file.Path;
             }
@@ -402,9 +384,9 @@ namespace AutoLua.Droid.LuaScript.Api
             /// <returns></returns>
             public static bool Create(string path)
             {
-                var f = new Java.IO.File(path);
+                var f = new File(path);
 
-                if (path.EndsWith(Java.IO.File.Separator))
+                if (path.EndsWith(File.Separator))
                 {
                     return f.Mkdir();
                 }
@@ -446,21 +428,21 @@ namespace AutoLua.Droid.LuaScript.Api
             /// </summary>
             /// <param name="path"></param>
             /// <returns></returns>
-            public static bool CreateIfNotExists(string path)
+            private static bool CreateIfNotExists(string path)
             {
                 EnsureDir(path);
                 var file = new File(path);
 
-                if (!file.Exists())
+                if (file.Exists()) 
+                    return false;
+                
+                try
                 {
-                    try
-                    {
-                        return file.CreateNewFile();
-                    }
-                    catch (IOException e)
-                    {
-                        e.PrintStackTrace();
-                    }
+                    return file.CreateNewFile();
+                }
+                catch (IOException e)
+                {
+                    e.PrintStackTrace();
                 }
                 return false;
             }
@@ -472,16 +454,16 @@ namespace AutoLua.Droid.LuaScript.Api
             /// <returns></returns>
             public static bool EnsureDir(string path)
             {
-                int i = path.LastIndexOf("\\");
+                var i = path.LastIndexOf("\\", StringComparison.Ordinal);
+                
                 if (i < 0)
-                    i = path.LastIndexOf("/");
+                    i = path.LastIndexOf("/", StringComparison.Ordinal);
+                
                 if (i >= 0)
                 {
-                    string folder = path.Substring(0, i);
+                    var folder = path.Substring(0, i);
                     var file = new File(folder);
-                    if (file.Exists())
-                        return true;
-                    return file.Mkdirs();
+                    return file.Exists() || file.Mkdirs();
                 }
                 else
                 {
@@ -501,7 +483,7 @@ namespace AutoLua.Droid.LuaScript.Api
                 return Read(new File(path));
             }
 
-            public static string Read(File file, string encoding)
+            private static string Read(File file, string encoding = "utf-8")
             {
                 try
                 {
@@ -513,12 +495,7 @@ namespace AutoLua.Droid.LuaScript.Api
                 }
             }
 
-            public static string Read(File file)
-            {
-                return Read(file, "utf-8");
-            }
-
-            public static string Read(InputStream inputStream, string encoding)
+            private static string Read(InputStream inputStream, string encoding)
             {
                 try
                 {
@@ -553,7 +530,7 @@ namespace AutoLua.Droid.LuaScript.Api
                 }
             }
 
-            public static byte[] ReadBytes(InputStream inputStream)
+            private static byte[] ReadBytes(InputStream inputStream)
             {
                 try
                 {
@@ -571,7 +548,7 @@ namespace AutoLua.Droid.LuaScript.Api
 
             #region 文件写入
 
-            const int DEFAULT_BUFFER_SIZE = 8192;
+            private const int DefaultBufferSize = 8192;
 
             public static void Write(string path, string text)
             {
@@ -590,7 +567,7 @@ namespace AutoLua.Droid.LuaScript.Api
                 }
             }
 
-            public static void Write(File file, string text)
+            private static void Write(File file, string text)
             {
                 try
                 {
@@ -602,17 +579,12 @@ namespace AutoLua.Droid.LuaScript.Api
                 }
             }
 
-            public static void Write(InputStream inputStream, OutputStream os)
-            {
-                Write(inputStream, os, true);
-            }
-
-            public static void Write(OutputStream fileOutputStream, string text)
+            private static void Write(OutputStream fileOutputStream, string text)
             {
                 Write(fileOutputStream, new Java.Lang.String(text), "utf-8");
             }
 
-            public static void Write(OutputStream outputStream, Java.Lang.String text, string encoding)
+            private static void Write(OutputStream outputStream, Java.Lang.String text, string encoding)
             {
                 try
                 {
@@ -628,24 +600,24 @@ namespace AutoLua.Droid.LuaScript.Api
                 }
             }
 
-            public static void Write(InputStream inputStream, OutputStream os, bool close)
+            private static void Write(InputStream inputStream, OutputStream os, bool close = true)
             {
-                byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+                var buffer = new byte[DefaultBufferSize];
                 try
                 {
                     while (inputStream.Available() > 0)
                     {
-                        int n = inputStream.Read(buffer);
+                        var n = inputStream.Read(buffer);
                         if (n > 0)
                         {
                             os.Write(buffer, 0, n);
                         }
                     }
-                    if (close)
-                    {
-                        inputStream.Close();
-                        os.Close();
-                    }
+
+                    if (!close) return;
+                    
+                    inputStream.Close();
+                    os.Close();
                 }
                 catch (IOException e)
                 {
@@ -665,7 +637,7 @@ namespace AutoLua.Droid.LuaScript.Api
                 }
             }
 
-            public static void WriteBytes(OutputStream outputStream, byte[] bytes)
+            private static void WriteBytes(OutputStream outputStream, byte[] bytes)
             {
                 try
                 {
@@ -737,7 +709,7 @@ namespace AutoLua.Droid.LuaScript.Api
                 }
             }
 
-            public static bool CopyStream(InputStream inputStream, string path)
+            private static bool CopyStream(InputStream inputStream, string path)
             {
                 if (!EnsureDir(path))
                     return false;
@@ -792,7 +764,7 @@ namespace AutoLua.Droid.LuaScript.Api
 
             public static string GetExtension(string fileName)
             {
-                int i = fileName.LastIndexOf('.');
+                var i = fileName.LastIndexOf('.');
                 if (i < 0 || i + 1 >= fileName.Length - 1)
                     return "";
                 return fileName.Substring(i + 1);
@@ -801,7 +773,7 @@ namespace AutoLua.Droid.LuaScript.Api
             public static string GetNameWithoutExtension(string filePath)
             {
                 var fileName = GetName(filePath);
-                int b = fileName.LastIndexOf('.');
+                var b = fileName.LastIndexOf('.');
                 if (b < 0)
                     b = fileName.Length;
 
@@ -820,23 +792,17 @@ namespace AutoLua.Droid.LuaScript.Api
                 return DeleteRecursively(new File(path));
             }
 
-            public static bool DeleteRecursively(File file)
+            private static bool DeleteRecursively(File file)
             {
                 if (file.IsFile)
                     return file.Delete();
 
                 var children = file.ListFiles();
 
-                if (children != null)
-                {
-                    foreach (var child in children)
-                    {
-                        if (!DeleteRecursively(child))
-                            return false;
-                    }
-                }
-
-                return file.Delete();
+                if (children == null) 
+                    return file.Delete();
+                
+                return children.All(DeleteRecursively) && file.Delete();
             }
 
             public static string GetSdcardPath()
@@ -850,7 +816,7 @@ namespace AutoLua.Droid.LuaScript.Api
                 return WrapNonNull(file.List());
             }
 
-            public static void CloseSilently(ICloseable closeable)
+            private static void CloseSilently(ICloseable closeable)
             {
                 if (closeable == null)
                 {
@@ -869,10 +835,7 @@ namespace AutoLua.Droid.LuaScript.Api
 
             private static string[] WrapNonNull(string[] list)
             {
-                if (list == null)
-                    return new string[0];
-
-                return list;
+                return list ?? new string[0];
             }
         }
     }

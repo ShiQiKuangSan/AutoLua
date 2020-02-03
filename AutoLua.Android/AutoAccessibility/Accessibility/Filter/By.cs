@@ -56,15 +56,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By textContains(string str)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.Text))
-                {
-                    return false;
-                }
-
-                return node.Text.Contains(str);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Text) && node.Text.Contains(str)));
             return this;
         }
 
@@ -75,15 +67,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By textStartsWith(string prefix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.Text))
-                {
-                    return false;
-                }
-
-                return node.Text.StartsWith(prefix);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Text) && node.Text.StartsWith(prefix)));
 
             return this;
         }
@@ -95,15 +79,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By textEndsWith(string suffix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.Text))
-                {
-                    return false;
-                }
-
-                return node.Text.EndsWith(suffix);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Text) && node.Text.EndsWith(suffix)));
             return this;
         }
 
@@ -114,15 +90,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By textMatches(string reg)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.Text))
-                {
-                    return false;
-                }
-
-                return Regex.IsMatch(node.Text, reg);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Text) && Regex.IsMatch(node.Text, reg)));
             return this;
         }
 
@@ -152,15 +120,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By descContains(string str)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.Desc))
-                {
-                    return false;
-                }
-
-                return node.Desc.Contains(str);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Desc) && node.Desc.Contains(str)));
             return this;
         }
 
@@ -171,15 +131,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By descStartsWith(string prefix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.Desc))
-                {
-                    return false;
-                }
-
-                return node.Desc.StartsWith(prefix);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Desc) && node.Desc.StartsWith(prefix)));
             return this;
         }
 
@@ -190,15 +142,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By descEndsWith(string suffix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.Desc))
-                {
-                    return false;
-                }
-
-                return node.Desc.EndsWith(suffix);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Desc) && node.Desc.EndsWith(suffix)));
             return this;
         }
 
@@ -209,15 +153,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By descMatches(string reg)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.Desc))
-                {
-                    return false;
-                }
-
-                return Regex.IsMatch(node.Desc, reg);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Desc) && Regex.IsMatch(node.Desc, reg)));
             return this;
         }
 
@@ -259,12 +195,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
                     return false;
                 }
 
-                if (!str.Contains(":id/"))
-                {
-                    return node.Id.Contains(str);
-                }
-
-                return node.FullId.Contains(str);
+                return !str.Contains(":id/") ? node.Id.Contains(str) : node.FullId.Contains(str);
             }));
 
             return this;
@@ -284,12 +215,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
                     return false;
                 }
 
-                if (!prefix.Contains(":id/"))
-                {
-                    return node.Id.StartsWith(prefix);
-                }
-
-                return node.FullId.StartsWith(prefix);
+                return !prefix.Contains(":id/") ? node.Id.StartsWith(prefix) : node.FullId.StartsWith(prefix);
             }));
             return this;
         }
@@ -308,12 +234,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
                     return false;
                 }
 
-                if (!suffix.Contains(":id/"))
-                {
-                    return node.Id.EndsWith(suffix);
-                }
-
-                return node.FullId.EndsWith(suffix);
+                return !suffix.Contains(":id/") ? node.Id.EndsWith(suffix) : node.FullId.EndsWith(suffix);
             }));
             return this;
         }
@@ -328,20 +249,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By idMatches(string reg)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.FullId))
-                {
-                    return false;
-                }
-
-                if (!reg.Contains(":id/"))
-                {
-                    return Regex.IsMatch(node.Id, reg);
-                }
-
-                return Regex.IsMatch(node.FullId, reg);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.FullId) && Regex.IsMatch(!reg.Contains(":id/") ? node.Id : node.FullId, reg)));
             return this;
         }
 
@@ -371,15 +279,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By classNameContains(string str)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.ClassName))
-                {
-                    return false;
-                }
-
-                return node.ClassName.Contains(str);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.ClassName) && node.ClassName.Contains(str)));
             return this;
         }
 
@@ -390,15 +290,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By classNameStartsWith(string prefix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.ClassName))
-                {
-                    return false;
-                }
-
-                return node.ClassName.StartsWith(prefix);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.ClassName) && node.ClassName.StartsWith(prefix)));
             return this;
         }
 
@@ -409,15 +301,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By classNameEndsWith(string suffix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.ClassName))
-                {
-                    return false;
-                }
-
-                return node.ClassName.EndsWith(suffix);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.ClassName) && node.ClassName.EndsWith(suffix)));
             return this;
         }
 
@@ -428,15 +312,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By classNameMatches(string reg)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.ClassName))
-                {
-                    return false;
-                }
-
-                return Regex.IsMatch(node.ClassName, reg);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.ClassName) && Regex.IsMatch(node.ClassName, reg)));
             return this;
         }
 
@@ -469,15 +345,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By packageNameContains(string str)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.PackageName))
-                {
-                    return false;
-                }
-
-                return node.PackageName.Contains(str);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.PackageName) && node.PackageName.Contains(str)));
             return this;
         }
 
@@ -488,15 +356,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By packageNameStartsWith(string prefix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.PackageName))
-                {
-                    return false;
-                }
-
-                return node.PackageName.StartsWith(prefix);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.PackageName) && node.PackageName.StartsWith(prefix)));
             return this;
         }
 
@@ -507,15 +367,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By packageNameEndsWith(string suffix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.PackageName))
-                {
-                    return false;
-                }
-
-                return node.PackageName.EndsWith(suffix);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.PackageName) && node.PackageName.EndsWith(suffix)));
             return this;
         }
 
@@ -526,15 +378,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By packageNameMatches(string reg)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                if (string.IsNullOrWhiteSpace(node.PackageName))
-                {
-                    return false;
-                }
-
-                return Regex.IsMatch(node.PackageName, reg);
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.PackageName) && Regex.IsMatch(node.PackageName, reg)));
             return this;
         }
 
@@ -605,10 +449,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By drawingOrder(int order)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node =>
-            {
-                return Build.VERSION.SdkInt >= BuildVersionCodes.N && node.DrawingOrder == order;
-            }));
+            _expressionExecutors.Add(new ExpressionExecutor(node => Build.VERSION.SdkInt >= BuildVersionCodes.N && node.DrawingOrder == order));
             return this;
         }
 

@@ -14,7 +14,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
         /// <summary>
         /// 监听按键的缓存
         /// </summary>
-        private readonly IList<IKeyMonitorEvent> keyMonitorEvents = new List<IKeyMonitorEvent>();
+        private readonly IList<IKeyMonitorEvent> _keyMonitorEvents = new List<IKeyMonitorEvent>();
 
         /// <summary>
         /// 添加按键监听事件。
@@ -25,7 +25,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
             if (@event == null)
                 return;
 
-            keyMonitorEvents.Add(@event);
+            _keyMonitorEvents.Add(@event);
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
             if (@event == null)
                 return;
 
-            keyMonitorEvents.Remove(@event);
+            _keyMonitorEvents.Remove(@event);
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
         /// <param name="event">按键事件</param>
         public void OnKeyEvent(Keycode keyCode, KeyEvent @event)
         {
-            foreach (var item in keyMonitorEvents)
+            foreach (var item in _keyMonitorEvents)
             {
                 try
                 {

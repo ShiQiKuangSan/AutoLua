@@ -13,10 +13,7 @@ namespace AutoLua.Droid.Services
     {
         public object[] RunFile(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
-                return null;
-
-            return AppApplication.Lua?.DoFile(path);
+            return string.IsNullOrWhiteSpace(path) ? null : AppApplication.Lua?.DoFile(path);
         }
 
         public object[] RunProject(string path)

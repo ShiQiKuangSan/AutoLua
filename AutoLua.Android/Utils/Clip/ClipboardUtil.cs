@@ -3,15 +3,15 @@
 namespace AutoLua.Droid.Utils.Clip
 {
     [Android.Runtime.Preserve(AllMembers = true)]
-    public class ClipboardUtil
+    public static class ClipboardUtil
     {
-        private static ClipboardManager clipboardManager;
+        private static readonly ClipboardManager ClipboardManager;
 
         public static Context Context { private get; set; }
 
         static ClipboardUtil()
         {
-            clipboardManager = (ClipboardManager)Context?.GetSystemService(Context.ClipboardService);
+            ClipboardManager = (ClipboardManager)Context?.GetSystemService(Context.ClipboardService);
         }
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace AutoLua.Droid.Utils.Clip
         /// <param name="text"></param>
         public static void SetClip(string text)
         {
-            clipboardManager.PrimaryClip = ClipData.NewPlainText("", text);
+            ClipboardManager.PrimaryClip = ClipData.NewPlainText("", text);
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace AutoLua.Droid.Utils.Clip
         /// <returns></returns>
         public static string GetClip()
         {
-            var clip = clipboardManager.PrimaryClip;
+            var clip = ClipboardManager.PrimaryClip;
 
             return (clip == null || clip.ItemCount == 0) ? string.Empty : clip.GetItemAt(0).Text ?? string.Empty;
         }

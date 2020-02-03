@@ -76,11 +76,11 @@ namespace AutoLua.Droid.AutoAccessibility
                 //root操作
             }
 
-            if (!string.IsNullOrWhiteSpace(errorMsg))
-            {
-                GoToAccessibilitySetting();
-                throw new System.Exception(errorMsg);
-            }
+            if (string.IsNullOrWhiteSpace(errorMsg)) 
+                return;
+            
+            GoToAccessibilitySetting();
+            throw new System.Exception(errorMsg);
         }
 
         /// <summary>
@@ -149,12 +149,12 @@ namespace AutoLua.Droid.AutoAccessibility
 
         public static void Init(Application context)
         {
-            if (_instance == null)
+            if (_instance != null) 
+                return;
+            
+            lock (Lock)
             {
-                lock (Lock)
-                {
-                    _instance = new AutoGlobal(context);
-                }
+                _instance = new AutoGlobal(context);
             }
         }
     }

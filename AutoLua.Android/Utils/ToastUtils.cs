@@ -4,79 +4,79 @@ using Android.Widget;
 namespace AutoLua.Droid.Utils
 {
     [Android.Runtime.Preserve(AllMembers = true)]
-    public class ToastUtils
+    public static class ToastUtils
     {
-        private static Toast mToast;
-        private static Context context = AppUtils.GetAppContext;
+        private static Toast _toast;
+        private static readonly Context Context = AppUtils.GetAppContext;
 
         /********************** 非连续弹出的Toast ***********************/
-        public static void showSingleToast(int resId)
+        public static void ShowSingleToast(int resId)
         { //R.string.**
-            getSingleToast(resId, ToastLength.Short).Show();
+            GetSingleToast(resId, ToastLength.Short).Show();
         }
 
-        public static void showSingleToast(string text)
+        public static void ShowSingleToast(string text)
         {
-            getSingleToast(text, ToastLength.Short).Show();
+            GetSingleToast(text, ToastLength.Short).Show();
         }
 
-        public static void showSingleLongToast(int resId)
+        public static void ShowSingleLongToast(int resId)
         {
-            getSingleToast(resId, ToastLength.Long).Show();
+            GetSingleToast(resId, ToastLength.Long).Show();
         }
 
-        public static void showSingleLongToast(string text)
+        public static void ShowSingleLongToast(string text)
         {
-            getSingleToast(text, ToastLength.Long).Show();
+            GetSingleToast(text, ToastLength.Long).Show();
         }
 
         /*********************** 连续弹出的Toast ************************/
-        public static void showToast(int resId)
+        public static void ShowToast(int resId)
         {
-            getToast(resId, ToastLength.Short).Show();
+            GetToast(resId, ToastLength.Short).Show();
         }
 
-        public static void showToast(string text)
+        public static void ShowToast(string text)
         {
-            getToast(text, ToastLength.Short).Show();
+            GetToast(text, ToastLength.Short).Show();
         }
 
-        public static void showLongToast(int resId)
+        public static void ShowLongToast(int resId)
         {
-            getToast(resId, ToastLength.Long).Show();
+            GetToast(resId, ToastLength.Long).Show();
         }
 
-        public static void showLongToast(string text)
+        public static void ShowLongToast(string text)
         {
-            getToast(text, ToastLength.Long).Show();
+            GetToast(text, ToastLength.Long).Show();
         }
 
-        public static Toast getSingleToast(int resId, ToastLength duration)
+        private static Toast GetSingleToast(int resId, ToastLength duration)
         { // 连续调用不会连续弹出，只是替换文本
-            return getSingleToast(context.Resources.GetText(resId).ToString(), duration);
+            return GetSingleToast(Context.Resources.GetText(resId), duration);
         }
 
-        public static Toast getSingleToast(string text, ToastLength duration)
+        private static Toast GetSingleToast(string text, ToastLength duration)
         {
-            if (mToast == null)
+            if (_toast == null)
             {
-                mToast = Toast.MakeText(context, text, duration);
+                _toast = Toast.MakeText(Context, text, duration);
             }
             else
             {
-                mToast.SetText(text);
+                _toast.SetText(text);
             }
-            return mToast;
+            return _toast;
         }
 
-        public static Toast getToast(int resId, ToastLength duration)
+        private static Toast GetToast(int resId, ToastLength duration)
         { // 连续调用会连续弹出
-            return getToast(context.Resources.GetText(resId).ToString(), duration);
+            return GetToast(Context.Resources.GetText(resId), duration);
         }
 
-        public static Toast getToast(string text, ToastLength duration)
+        private static Toast GetToast(string text, ToastLength duration)
         {
-            return Toast.MakeText(context, text, duration);
+            return Toast.MakeText(Context, text, duration);
         }
     }
 }

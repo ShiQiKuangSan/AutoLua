@@ -11,7 +11,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
         /// <summary>
         /// 拦截按键事件。
         /// </summary>
-        /// <param name="key">按键。</param>
+        /// <param name="event">事件。</param>
         /// <returns>是否拦截成功。</returns>
         public bool OnInterceptKeyEvent(KeyEvent @event);
     }

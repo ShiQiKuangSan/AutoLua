@@ -14,49 +14,49 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <summary>
         /// 是否启动了监听
         /// </summary>
-        private bool IsKeyListening = false;
+        private bool _isKeyListening = false;
 
         /// <summary>
         /// 是否启动按键拦截。
         /// </summary>
-        private bool IsKeyIntercepts = false;
+        private bool _isKeyIntercepts = false;
 
         /// <summary>
         /// 是否监听Toast
         /// </summary>
-        private bool IsToastListening = false;
+        private bool _isToastListening = false;
 
         /// <summary>
         /// 是否监听通知栏
         /// </summary>
-        private bool IsNotificationListening = false;
+        private bool _isNotificationListening = false;
 
         /// <summary>
         /// 按键监听事件集合
         /// </summary>
-        private readonly IDictionary<string, Action> events;
+        private readonly IDictionary<string, Action> _events;
 
         /// <summary>
         /// 触发一次的事件集合
         /// </summary>
-        private readonly IDictionary<string, Action> eventsOnce;
+        private readonly IDictionary<string, Action> _eventsOnce;
 
         /// <summary>
         /// 拦截按键的key集合。
         /// </summary>
-        private readonly HashSet<string> interceptedKeys;
+        private readonly HashSet<string> _interceptedKeys;
 
         private const string OnKeyDownKey = "keyDown_";
         private const string OnKeyUpKey = "keyUp_";
 
-        private Action<Toast> eventToasts;
-        private Action<Notification> eventNotifications;
+        private Action<Toast> _eventToasts;
+        private Action<Notification> _eventNotifications;
 
         public Events()
         {
-            events = new Dictionary<string, Action>();
-            eventsOnce = new Dictionary<string, Action>();
-            interceptedKeys = new HashSet<string>();
+            _events = new Dictionary<string, Action>();
+            _eventsOnce = new Dictionary<string, Action>();
+            _interceptedKeys = new HashSet<string>();
 
             AutoGlobal.Instance?.KeyInterceptorEvent?.Add(new EventsInterceptorApi(this));
         }
@@ -66,14 +66,14 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         public void observeKey()
         {
-            if (IsKeyListening)
+            if (_isKeyListening)
                 return;
 
             var service = GetAccessibilityService();
             if (service.ServiceInfo.Flags == AccessibilityServiceFlags.RequestFilterKeyEvents)
                 throw new Exception("按键监听未启用，请在软件设置中开启");
 
-            IsKeyListening = true;
+            _isKeyListening = true;
             AutoGlobal.Instance?.KeyMonitorEvent?.Add(new EventsApi(this));
         }
 
@@ -83,11 +83,11 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         public void observeToast()
         {
-            if (IsToastListening)
+            if (_isToastListening)
                 return;
 
             GetAccessibilityService();
-            IsToastListening = true;
+            _isToastListening = true;
             AutoGlobal.Instance?.ToastMonitorEvent?.Add(new EventsToastApi(this));
         }
 
@@ -97,11 +97,11 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         public void observeNotification()
         {
-            if (IsNotificationListening)
+            if (_isNotificationListening)
                 return;
 
             GetAccessibilityService();
-            IsNotificationListening = true;
+            _isNotificationListening = true;
             AutoGlobal.Instance?.NotificationMonitorEvent?.Add(new EventsNotificationApi(this));
         }
 
@@ -123,10 +123,10 @@ namespace AutoLua.Droid.LuaScript.Api
 
             name = name.ToLower();
 
-            if (events.ContainsKey($"{OnKeyDownKey}{name}"))
+            if (_events.ContainsKey($"{OnKeyDownKey}{name}"))
                 return this;
 
-            events.Add($"{OnKeyDownKey}{name}", action);
+            _events.Add($"{OnKeyDownKey}{name}", action);
 
             return this;
         }
@@ -149,10 +149,10 @@ namespace AutoLua.Droid.LuaScript.Api
 
             name = name.ToLower();
 
-            if (events.ContainsKey($"{OnKeyUpKey}{name}"))
+            if (_events.ContainsKey($"{OnKeyUpKey}{name}"))
                 return this;
 
-            events.Add($"{OnKeyUpKey}{name}", action);
+            _events.Add($"{OnKeyUpKey}{name}", action);
 
             return this;
         }
@@ -177,19 +177,19 @@ namespace AutoLua.Droid.LuaScript.Api
 
             name = name.ToLower();
 
-            if (eventsOnce.ContainsKey($"{OnKeyDownKey}{name}"))
+            if (_eventsOnce.ContainsKey($"{OnKeyDownKey}{name}"))
                 return this;
 
             //调用一次回调后，删除当前按键监听
-            var OnceKeyDown = new Action(() =>
+            var onceKeyDown = new Action(() =>
             {
-                if (eventsOnce.ContainsKey($"{OnKeyDownKey}{name}"))
-                    eventsOnce.Remove($"{OnKeyDownKey}{name}");
+                if (_eventsOnce.ContainsKey($"{OnKeyDownKey}{name}"))
+                    _eventsOnce.Remove($"{OnKeyDownKey}{name}");
 
                 action.Invoke();
             });
 
-            eventsOnce.Add($"{OnKeyDownKey}{name}", OnceKeyDown);
+            _eventsOnce.Add($"{OnKeyDownKey}{name}", onceKeyDown);
 
             return this;
         }
@@ -213,19 +213,19 @@ namespace AutoLua.Droid.LuaScript.Api
 
             name = name.ToLower();
 
-            if (eventsOnce.ContainsKey($"{OnKeyUpKey}{name}"))
+            if (_eventsOnce.ContainsKey($"{OnKeyUpKey}{name}"))
                 return this;
 
             //调用一次回调后，删除当前按键监听
-            var OnceKeyDown = new Action(() =>
+            var onceKeyDown = new Action(() =>
             {
-                if (eventsOnce.ContainsKey($"{OnKeyUpKey}{name}"))
-                    eventsOnce.Remove($"{OnKeyUpKey}{name}");
+                if (_eventsOnce.ContainsKey($"{OnKeyUpKey}{name}"))
+                    _eventsOnce.Remove($"{OnKeyUpKey}{name}");
 
                 action.Invoke();
             });
 
-            eventsOnce.Add($"{OnKeyUpKey}{name}", OnceKeyDown);
+            _eventsOnce.Add($"{OnKeyUpKey}{name}", onceKeyDown);
 
             return this;
         }
@@ -240,11 +240,11 @@ namespace AutoLua.Droid.LuaScript.Api
             if (string.IsNullOrWhiteSpace(keyName))
                 throw new Exception($"removeAllKeyDown : {keyName} 是空的");
 
-            if (events.ContainsKey($"{OnKeyDownKey}{keyName}"))
-                events.Remove($"{OnKeyDownKey}{keyName}");
+            if (_events.ContainsKey($"{OnKeyDownKey}{keyName}"))
+                _events.Remove($"{OnKeyDownKey}{keyName}");
 
-            if (eventsOnce.ContainsKey($"{OnKeyDownKey}{keyName}"))
-                eventsOnce.Remove($"{OnKeyDownKey}{keyName}");
+            if (_eventsOnce.ContainsKey($"{OnKeyDownKey}{keyName}"))
+                _eventsOnce.Remove($"{OnKeyDownKey}{keyName}");
 
             return this;
         }
@@ -259,11 +259,11 @@ namespace AutoLua.Droid.LuaScript.Api
             if (string.IsNullOrWhiteSpace(keyName))
                 throw new Exception($"removeAllKeyUp : {keyName} 是空的");
 
-            if (events.ContainsKey($"{OnKeyUpKey}{keyName}"))
-                events.Remove($"{OnKeyUpKey}{keyName}");
+            if (_events.ContainsKey($"{OnKeyUpKey}{keyName}"))
+                _events.Remove($"{OnKeyUpKey}{keyName}");
 
-            if (eventsOnce.ContainsKey($"{OnKeyUpKey}{keyName}"))
-                eventsOnce.Remove($"{OnKeyUpKey}{keyName}");
+            if (_eventsOnce.ContainsKey($"{OnKeyUpKey}{keyName}"))
+                _eventsOnce.Remove($"{OnKeyUpKey}{keyName}");
 
             return this;
         }
@@ -274,7 +274,7 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <param name="enabled">是否屏蔽</param>
         public void setKeyInterceptionEnabled(bool enabled = false)
         {
-            IsKeyIntercepts = enabled;
+            _isKeyIntercepts = enabled;
         }
 
         /// <summary>
@@ -289,11 +289,11 @@ namespace AutoLua.Droid.LuaScript.Api
 
             if (enabled)
             {
-                interceptedKeys.Add(keyName);
+                _interceptedKeys.Add(keyName);
             }
             else
             {
-                interceptedKeys.Remove(keyName);
+                _interceptedKeys.Remove(keyName);
             }
         }
 
@@ -304,7 +304,7 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <param name="action"></param>
         public void onToast(Action<Toast> action)
         {
-            eventToasts = action ?? throw new Exception($"onToast : 回调函数是空的");
+            _eventToasts = action ?? throw new Exception($"onToast : 回调函数是空的");
         }
 
         /// <summary>
@@ -314,7 +314,7 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <param name="action"></param>
         public void onNotification(Action<Notification> action)
         {
-            eventNotifications = action ?? throw new Exception($"onNotification : 回调函数是空的");
+            _eventNotifications = action ?? throw new Exception($"onNotification : 回调函数是空的");
         }
 
         /// <summary>
@@ -338,11 +338,11 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         private class EventsApi : IKeyMonitorEvent
         {
-            private readonly Events events;
+            private readonly Events _events;
 
             public EventsApi(Events events)
             {
-                this.events = events;
+                this._events = events;
             }
 
             /// <summary>
@@ -363,24 +363,21 @@ namespace AutoLua.Droid.LuaScript.Api
                 {
                     case KeyEventActions.Down:
                         //按键按下事件
-                        if (events.events.ContainsKey($"{OnKeyDownKey}{code}"))
-                            events.events[$"{OnKeyDownKey}{code}"]?.Invoke();
+                        if (_events._events.ContainsKey($"{OnKeyDownKey}{code}"))
+                            _events._events[$"{OnKeyDownKey}{code}"]?.Invoke();
 
                         //一次性的按键按下事件
-                        if (events.eventsOnce.ContainsKey($"{OnKeyDownKey}{code}"))
-                            events.eventsOnce[$"{OnKeyDownKey}{code}"]?.Invoke();
+                        if (_events._eventsOnce.ContainsKey($"{OnKeyDownKey}{code}"))
+                            _events._eventsOnce[$"{OnKeyDownKey}{code}"]?.Invoke();
                         break;
                     case KeyEventActions.Up:
                         //按键弹起事件
-                        if (events.events.ContainsKey($"{OnKeyUpKey}{code}"))
-                            events.events[$"{OnKeyUpKey}{code}"]?.Invoke();
+                        if (_events._events.ContainsKey($"{OnKeyUpKey}{code}"))
+                            _events._events[$"{OnKeyUpKey}{code}"]?.Invoke();
 
                         //一次性的按键弹起事件
-                        if (events.eventsOnce.ContainsKey($"{OnKeyUpKey}{code}"))
-                            events.eventsOnce[$"{OnKeyUpKey}{code}"]?.Invoke();
-                        break;
-                    default:
-                        //其他事件
+                        if (_events._eventsOnce.ContainsKey($"{OnKeyUpKey}{code}"))
+                            _events._eventsOnce[$"{OnKeyUpKey}{code}"]?.Invoke();
                         break;
                 }
             }
@@ -391,27 +388,27 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         private class EventsInterceptorApi : IKeyInterceptorEvent
         {
-            private readonly Events events;
+            private readonly Events _events;
 
             public EventsInterceptorApi(Events events)
             {
-                this.events = events;
+                this._events = events;
             }
 
             /// <summary>
             /// 拦截按键事件。
             /// </summary>
-            /// <param name="key">按键。</param>
+            /// <param name="event">事件</param>
             /// <returns>是否拦截成功。</returns>
             public bool OnInterceptKeyEvent(KeyEvent @event)
             {
                 //启动了拦截，会使系统的音量、Home、返回等键不再具有调节音量、回到主页、返回的作用，但此时仍然能通过按键事件监听按键。
-                if (events.IsKeyIntercepts)
+                if (_events._isKeyIntercepts)
                     return true;
 
                 var code = @event.KeyCode.ToString();
 
-                return events.interceptedKeys.Contains(code);
+                return _events._interceptedKeys.Contains(code);
             }
         }
 
@@ -420,11 +417,11 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         private class EventsToastApi : IToastMonitorEvent
         {
-            private readonly Events events;
+            private readonly Events _events;
 
             public EventsToastApi(Events events)
             {
-                this.events = events;
+                this._events = events;
             }
 
             /// <summary>
@@ -433,10 +430,10 @@ namespace AutoLua.Droid.LuaScript.Api
             /// <param name="toast">回调消息。</param>
             public void OnToast(Toast toast)
             {
-                if (!events.IsToastListening)
+                if (!_events._isToastListening)
                     return;
 
-                events?.eventToasts?.Invoke(toast);
+                _events?._eventToasts?.Invoke(toast);
             }
         }
 
@@ -445,19 +442,19 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         private class EventsNotificationApi : INotificationMonitorEvent
         {
-            private readonly Events events;
+            private readonly Events _events;
 
             public EventsNotificationApi(Events events)
             {
-                this.events = events;
+                this._events = events;
             }
 
             public void OnNotification(Notification notification)
             {
-                if (!events.IsNotificationListening)
+                if (!_events._isNotificationListening)
                     return;
 
-                events?.eventNotifications?.Invoke(notification);
+                _events?._eventNotifications?.Invoke(notification);
             }
         }
     }

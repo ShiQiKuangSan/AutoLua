@@ -12,7 +12,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
         /// <summary>
         /// 监听按键的缓存
         /// </summary>
-        private readonly IList<IToastMonitorEvent> toastMonitorEvent = new List<IToastMonitorEvent>();
+        private readonly IList<IToastMonitorEvent> _toastMonitorEvent = new List<IToastMonitorEvent>();
 
         /// <summary>
         /// 添加按键监听事件。
@@ -23,7 +23,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
             if (@event == null)
                 return;
 
-            toastMonitorEvent.Add(@event);
+            _toastMonitorEvent.Add(@event);
         }
 
         /// <summary>
@@ -35,12 +35,12 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
             if (@event == null)
                 return;
 
-            toastMonitorEvent.Remove(@event);
+            _toastMonitorEvent.Remove(@event);
         }
 
         public void OnToast(Node.Toast toast)
         {
-            foreach (var item in toastMonitorEvent)
+            foreach (var item in _toastMonitorEvent)
             {
                 try
                 {
@@ -48,6 +48,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
                 }
                 catch (Exception)
                 {
+                    // ignored
                 }
             }
         }

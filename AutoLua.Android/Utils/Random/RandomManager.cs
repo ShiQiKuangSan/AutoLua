@@ -11,8 +11,8 @@ namespace AutoLua.Droid.Utils.Random
     [Android.Runtime.Preserve(AllMembers = true)]
     public sealed class RandomManager
     {
-        private static readonly RNGCryptoServiceProvider _rngCryptoServiceProvider = new RNGCryptoServiceProvider();
-        private static readonly byte[] _rngBytes = new byte[4];
+        private static readonly RNGCryptoServiceProvider RngCryptoServiceProvider = new RNGCryptoServiceProvider();
+        private static readonly byte[] RngBytes = new byte[4];
 
         /// <summary>
         /// 产生一个非负数的乱数。
@@ -20,8 +20,8 @@ namespace AutoLua.Droid.Utils.Random
         /// <returns>随机数。</returns>
         public static int CreateRandomNumber()
         {
-            _rngCryptoServiceProvider.GetBytes(_rngBytes);
-            int value = BitConverter.ToInt32(_rngBytes, 0);
+            RngCryptoServiceProvider.GetBytes(RngBytes);
+            var value = BitConverter.ToInt32(RngBytes, 0);
             if (value < 0)
             {
                 value = -value;
@@ -37,8 +37,8 @@ namespace AutoLua.Droid.Utils.Random
         /// <returns>随机数。</returns>
         public static int CreateRandomNumber(int max)
         {
-            _rngCryptoServiceProvider.GetBytes(_rngBytes);
-            int value = BitConverter.ToInt32(_rngBytes, 0);
+            RngCryptoServiceProvider.GetBytes(RngBytes);
+            var value = BitConverter.ToInt32(RngBytes, 0);
             value %= (max + 1);
             if (value < 0)
             {
@@ -55,8 +55,8 @@ namespace AutoLua.Droid.Utils.Random
         /// <returns>随机数。</returns>
         public static double CreateRandomNumber(double max)
         {
-            _rngCryptoServiceProvider.GetBytes(_rngBytes);
-            var value = BitConverter.ToInt32(_rngBytes, 0);
+            RngCryptoServiceProvider.GetBytes(RngBytes);
+            var value = BitConverter.ToInt32(RngBytes, 0);
             var c = value % (max + 1);
             if (c < 0)
             {
@@ -197,7 +197,7 @@ namespace AutoLua.Droid.Utils.Random
                 return 0;
             }
 
-            var container = isInterval ? randomIntervalDoubles(min, max) : RandomInterval(min, max);
+            var container = isInterval ? RandomIntervalDoubles(min, max) : RandomInterval(min, max);
 
             if (!container.Any())
             {
@@ -229,7 +229,7 @@ namespace AutoLua.Droid.Utils.Random
             return container;
         }
 
-        private static List<double> randomIntervalDoubles(double min, double max)
+        private static List<double> RandomIntervalDoubles(double min, double max)
         {
             var container = new List<double>();
 

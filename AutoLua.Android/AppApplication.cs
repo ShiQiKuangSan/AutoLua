@@ -8,6 +8,7 @@ using AutoLua.Droid.LuaScript;
 using AutoLua.Droid.LuaScript.Api;
 using AutoLua.Droid.Utils;
 using AutoLua.Events;
+using Java.Lang;
 using NLua;
 using static Android.App.Application;
 using Application = Android.App.Application;
@@ -51,20 +52,20 @@ namespace AutoLua.Droid
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void UnhandledExceptionHandler(object sender, RaiseThrowableEventArgs e)
+        private static void UnhandledExceptionHandler(object sender, RaiseThrowableEventArgs e)
         {
-            ToastUtils.showSingleLongToast(e.Exception.Message);
+            ToastUtils.ShowSingleLongToast(e.Exception.Message);
             LogEventDelegates.Instance.OnLog(new LogEventArgs("异常", e.Exception.Message, Xamarin.Forms.Color.Red));
         }
 
-        protected void InitLua()
+        private static void InitLua()
         {
             Lua = new Lua();
             Lua.State.Encoding = Encoding.UTF8;
             Lua.HookException += Lua_HookException;
         }
 
-        private void Lua_HookException(object sender, NLua.Event.HookExceptionEventArgs e)
+        private static void Lua_HookException(object sender, NLua.Event.HookExceptionEventArgs e)
         {
             LogEventDelegates.Instance?.OnLog(new LogEventArgs("异常", e.Exception.Message, Xamarin.Forms.Color.Red));
         }
@@ -80,6 +81,18 @@ namespace AutoLua.Droid
             LogEventDelegates.Instance?.OnLog(new LogEventArgs(type, message, color));
         }
 
+        public static T GetSystemService<T>(string service) where T : class, IJavaObject
+        {
+            var context = AppApplication.Instance;
+            var systemService = context.GetSystemService(service).JavaCast<T>();
+            if (systemService == null)
+            {
+                throw new RuntimeException("should never happen..." + service);
+            }
+
+            return systemService;
+        }
+        
         public static AppApplication Instance { get; private set; }
 
         public static Lua Lua { get; private set; }

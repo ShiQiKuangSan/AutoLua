@@ -1,7 +1,10 @@
-﻿using Android.App;
+﻿using System;
+using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
+using AutoLua.Droid.Utils;
 
 namespace AutoLua.Droid
 {

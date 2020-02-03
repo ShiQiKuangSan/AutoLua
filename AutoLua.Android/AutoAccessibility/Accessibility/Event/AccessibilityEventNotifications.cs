@@ -19,10 +19,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
         /// <param name="e"></param>
         public void Event(AccessibilityService autoAccessibilityService, AccessibilityEvent e)
         {
-            if (e == null)
-                return;
-
-            if (e.ParcelableData == null)
+            if (e?.ParcelableData == null)
                 return;
 
             if (string.IsNullOrWhiteSpace(e.PackageName))
@@ -44,11 +41,11 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Event
                 if (e.PackageName == appPackageName)
                     return;
 
-                if (e.Text.Any())
-                {
-                    var list = e.Text.Select(x => x.ToString()).ToList();
-                    AutoGlobal.Instance?.ToastMonitorEvent?.OnToast(new Toast(e.PackageName, list));
-                }
+                if (!e.Text.Any()) 
+                    return;
+                
+                var list = e.Text.Select(x => x.ToString()).ToList();
+                AutoGlobal.Instance?.ToastMonitorEvent?.OnToast(new Toast(e.PackageName, list));
             }
         }
 

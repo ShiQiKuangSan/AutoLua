@@ -7,7 +7,7 @@ using Java.IO;
 namespace AutoLua.Droid.LuaScript.Utils
 {
     [Android.Runtime.Preserve(AllMembers = true)]
-    internal class IntentUtil
+    internal static class IntentUtil
     {
         public static bool ViewFile(Context context, string path, string fileProviderAuthority)
         {

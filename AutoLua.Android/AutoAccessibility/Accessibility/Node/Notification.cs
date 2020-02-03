@@ -14,12 +14,12 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
         /// <summary>
         /// 获取通知的标题。
         /// </summary>
-        public string title;
+        public readonly string title;
 
         /// <summary>
         /// 包名.
         /// </summary>
-        public string packageName;
+        public readonly string packageName;
 
         public Notification(string packageName)
         {
@@ -39,6 +39,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
             }
             catch (Exception)
             {
+                // ignored
             }
         }
 
@@ -53,19 +54,13 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
             }
             catch (Exception)
             {
+                // ignored
             }
         }
 
         public override string ToString()
         {
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
-            {
-                return $"Notification{{ packageName = { packageName } , title= { title } , text={ text } }} ";
-            }
-            else
-            {
-                return base.ToString();
-            }
+            return Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat ? $"Notification{{ packageName = { packageName } , title= { title } , text={ text } }} " : base.ToString();
         }
 
         /// <summary>
@@ -86,7 +81,7 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
-        internal static void Clone(Android.App.Notification from, Android.App.Notification to)
+        private static void Clone(Android.App.Notification from, Android.App.Notification to)
         {
             to.When = from.When;
             to.Icon = from.Icon;
@@ -118,11 +113,12 @@ namespace AutoLua.Droid.AutoAccessibility.Accessibility.Node
             to.Defaults = from.Defaults;
             to.Flags = from.Flags;
             to.Priority = from.Priority;
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
-            {
-                to.Extras = from.Extras;
-                to.Actions = from.Actions;
-            }
+            
+            if (Build.VERSION.SdkInt < BuildVersionCodes.Kitkat) 
+                return;
+            
+            to.Extras = @from.Extras;
+            to.Actions = @from.Actions;
         }
     }
 }

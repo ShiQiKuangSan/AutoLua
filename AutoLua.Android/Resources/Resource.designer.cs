@@ -8117,6 +8117,18 @@ namespace AutoLua.Droid
 			// aapt resource value: 0x7f09002a
 			public const int RtlUnderlay_Widget_AppCompat_ActionButton_Overflow = 2131296298;
 			
+			// aapt resource value: 0x7f090207
+			public const int ScriptTheme = 2131296775;
+			
+			// aapt resource value: 0x7f090209
+			public const int ScriptTheme_AppBarOverlay = 2131296777;
+			
+			// aapt resource value: 0x7f090208
+			public const int ScriptTheme_PopupOverlay = 2131296776;
+			
+			// aapt resource value: 0x7f09020a
+			public const int ScriptTheme_Transparent = 2131296778;
+			
 			// aapt resource value: 0x7f0900d1
 			public const int TextAppearance_AppCompat = 2131296465;
 			
