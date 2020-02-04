@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AFollestad.MaterialDialogs;
 using Android.App;
 using Android.Content;
-using Android.OS;
 using Android.Views;
+using AutoLua.Droid.LuaScript.Utils.MaterialDialogs;
 using AutoLua.Droid.Utils;
-using Java.Lang;
-using Newtonsoft.Json;
 using NLua;
 using static AFollestad.MaterialDialogs.MaterialDialog;
 
@@ -26,38 +25,13 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <param name="callback">回调函数，可选。当用户点击确定时被调用</param>
         public void alert(string title, string content = "", Action callback = null)
         {
-            var context = GetActivityContext();
-
-            var result = new CallBackData();
-
-            var action = new Action(() =>
-            {
-                if (result.IsEnd)
-                    return;
-
-                result.IsEnd = true;
-                callback?.Invoke();
-            });
-
-            var builder = new Builder(context)
+            var dialog = (BlockedMaterialDialog.Builder) DialogBuilder()
+                .Alert(callback)
                 .Title(title)
-                .PositiveText("确定")
-                .DismissListener(dialog =>
-                {
-                    if (result.IsEnd)
-                        return;
+                .Content(content)
+                .PositiveText("确定");
 
-                    action.Invoke();
-                })
-                .OnAny((dialog, which) =>
-                {
-                    action.Invoke();
-                });
-
-            if (!string.IsNullOrWhiteSpace(content))
-                builder.Content(content);
-
-            Show(builder);
+            dialog.ShowAndGet<object>();
         }
 
         /// <summary>
@@ -66,70 +40,31 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <param name="title">对话框的标题。</param>
         /// <param name="content">可选，对话框的内容。默认为空。</param>
         /// <param name="callback">如果用户点击“确定”则返回 true ，否则返回 false</param>
-        public void confirm(string title, string content = "", Action<bool> callback = null)
+        public bool confirm(string title, string content = "", Action<bool> callback = null)
         {
-            var context = GetActivityContext();
-
-            var result = new CallBackData();
-
-            var action = new Action<bool>((value) =>
-            {
-                if (result.IsEnd)
-                    return;
-
-                result.IsEnd = true;
-                callback?.Invoke(value);
-            });
-
-            var builder = new MaterialDialog.Builder(context)
+            var dialog = (BlockedMaterialDialog.Builder) DialogBuilder()
+                .Confirm(callback)
                 .Title(title)
+                .Content(content)
                 .PositiveText("确定")
-                .NegativeText("取消")
-                .DismissListener(dialog =>
-                {
-                    if (result.IsEnd)
-                        return;
+                .NegativeText("取消");
 
-                    action.Invoke(false);
-                })
-                .OnAny((dialog, which) => { action.Invoke(which == DialogAction.Positive); });
-
-            if (!string.IsNullOrWhiteSpace(content))
-                builder.Content(content);
-
-            Show(builder);
+            return dialog.ShowAndGet<bool>();
         }
 
         /// <summary>
         /// 显示一个包含输入框的对话框，等待用户输入内容，并在用户点击确定时将输入的字符串返回。如果用户取消了输入，返回null。
         /// </summary>
         /// <param name="title">对话框的标题。</param>
-        /// <param name="content">输入框的初始内容，可选，默认为空。</param>
+        /// <param name="prefill">输入框的初始内容，可选，默认为空。</param>
         /// <param name="callback">回调函数，可选。当用户点击确定时被调用。</param>
-        public void rawInput(string title, string content = "", Action<string> callback = null)
+        public string rawInput(string title, string prefill = "", Action<string> callback = null)
         {
-            var context = GetActivityContext();
+            var dialog = (BlockedMaterialDialog.Builder) DialogBuilder()
+                .Title(title);
 
-            var result = new CallBackData();
-
-            var action = new Action<string>((value) =>
-            {
-                if (result.IsEnd)
-                    return;
-
-                result.IsEnd = true;
-                callback?.Invoke(value);
-            });
-
-            var builder = new Builder(context)
-              .Input(null, content, true, new InputCallback((input) => action(input)))
-              .Title(title)
-              .CancelListener(dialog =>
-              {
-                  action.Invoke(string.Empty);
-              });
-
-            Show(builder);
+            dialog.Inputs(null, prefill, true, callback);
+            return dialog.ShowAndGet<string>();
         }
 
         /// <summary>
@@ -138,9 +73,9 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <param name="title"></param>
         /// <param name="content"></param>
         /// <param name="callback"></param>
-        public void input(string title, string content = "", Action<string> callback = null)
+        public string input(string title, string content = "", Action<string> callback = null)
         {
-            rawInput(title, content, callback);
+            return rawInput(title, content, callback);
         }
 
         /// <summary>
@@ -149,46 +84,21 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <param name="title">对话框的标题。</param>
         /// <param name="items">对话框的选项列表，是一个字符串数组。</param>
         /// <param name="callback">回调函数，当用户点击确定时被调用</param>
-        public void select(string title, LuaTable items, Action<string> callback = null)
+        public string select(string title, LuaTable items, Action<string> callback = null)
         {
-            var context = GetActivityContext();
-
-            var result = new CallBackData();
-
-            var action = new Action<string>((value) =>
-            {
-                if (result.IsEnd)
-                    return;
-
-                result.IsEnd = true;
-                callback?.Invoke(value);
-            });
+            var dialog = (BlockedMaterialDialog.Builder) DialogBuilder()
+                .ItemsCallback(callback)
+                .Title(title);
 
             var list = new List<string>();
 
-            try
+            if (items != null)
             {
-                if (items != null)
-                {
-                    var str = JsonConvert.SerializeObject(items);
-
-                    var table = JsonConvert.DeserializeObject<TableLua>(str);
-
-                    list = table.Values;
-                }
-            }
-            catch (System.Exception)
-            {
-                // ignored
+                list = items.Items.Values.Select(x => x.ToString()).ToList();
             }
 
-            var builder = new MaterialDialog.Builder(context)
-                .DismissListener((dialog) => action(string.Empty))
-                .ItemsCallback((dialog, itemView, position, text) => action(text))
-                .Title(title)
-                .Items(list);
-
-            Show(builder);
+            dialog.Items(list);
+            return dialog.ShowAndGet<string>();
         }
 
         /// <summary>
@@ -198,48 +108,22 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <param name="selectedIndex">对话框的初始选项的位置，默认为0。</param>
         /// <param name="items">对话框的选项列表，是一个字符串数组。</param>
         /// <param name="callback">回调函数。当用户点击确定时被调用。</param>
-        public void singleChoice(string title, int selectedIndex, LuaTable items, Action<int, string> callback = null)
+        public string singleChoice(string title, int selectedIndex, LuaTable items, Action<int, string> callback = null)
         {
-            var context = GetActivityContext();
-
-            var result = new CallBackData();
-
-            var action = new Func<int, string, bool>((point, value) =>
-            {
-                if (result.IsEnd)
-                    return false;
-
-                result.IsEnd = true;
-                callback?.Invoke(point, value);
-                return true;
-            });
+            var dialog = (BlockedMaterialDialog.Builder) DialogBuilder()
+                .ItemsCallbackSingleChoice(selectedIndex, callback)
+                .Title(title)
+                .PositiveText("确定");
 
             var list = new List<string>();
 
-            try
+            if (items != null)
             {
-                if (items != null)
-                {
-                    var str = JsonConvert.SerializeObject(items);
-
-                    var table = JsonConvert.DeserializeObject<TableLua>(str);
-
-                    list = table.Values;
-                }
-            }
-            catch (System.Exception)
-            {
-                // ignored
+                list = items.Items.Values.Select(x => x.ToString()).ToList();
             }
 
-            var builder = new MaterialDialog.Builder(context)
-                .DismissListener((dialog) => action(0, string.Empty))
-                .ItemsCallbackSingleChoice(selectedIndex, (dialog, itemView, which, text) => action.Invoke(which, text))
-                .Title(title)
-                .PositiveText("确定")
-                .Items(list);
-
-            Show(builder);
+            dialog.Items(list);
+            return dialog.ShowAndGet<string>();
         }
 
         /// <summary>
@@ -249,61 +133,37 @@ namespace AutoLua.Droid.LuaScript.Api
         /// <param name="indices">选项列表中初始选中的项目索引的数组，默认为空数组。</param>
         /// <param name="items">对话框的选项列表，是一个字符串数组。</param>
         /// <param name="callback">回调函数，可选。当用户点击确定时被调用。</param>
-        public void multiChoice(string title, LuaTable indices, LuaTable items, Action<int[], string[]> callback = null)
+        public int[] multiChoice(string title, LuaTable indices, LuaTable items, Action<int[], string[]> callback = null)
         {
-            var context = GetActivityContext();
-
-            var result = new CallBackData();
-
-            var action = new Func<int[], string[], bool>((point, value) =>
-             {
-                 if (result.IsEnd)
-                     return false;
-
-                 result.IsEnd = true;
-                 callback?.Invoke(point, value);
-                 return true;
-             });
+            var selectedIndexs=new List<int>();
+            
+            if (indices != null)
+            {
+                selectedIndexs = items.Items.Values.Select(x =>
+                {
+                    if (int.TryParse(x.ToString(),out var res))
+                    {
+                        return res;
+                    }
+                    
+                    return -1;
+                } ).Where(x=>  x >= 0).ToList();
+            }
+            
+            var dialog = (BlockedMaterialDialog.Builder) DialogBuilder()
+                .ItemsCallbackMultiChoice(selectedIndexs.ToArray(), callback)
+                .Title(title)
+                .PositiveText("确定");
 
             var list = new List<string>();
-            var tableIndicesList = new List<int>();
-            try
+
+            if (items != null)
             {
-                if (indices != null)
-                {
-                    var strIndices = JsonConvert.SerializeObject(indices);
-                    var tableIndices = JsonConvert.DeserializeObject<TableLua>(strIndices);
-
-                    foreach (var x in tableIndices.Values)
-                    {
-                        var status = int.TryParse(x, out var res);
-
-                        if (status)
-                            tableIndicesList.Add(res);
-                    }
-                }
-                if (items != null)
-                {
-                    var str = JsonConvert.SerializeObject(items);
-
-                    var table = JsonConvert.DeserializeObject<TableLua>(str);
-
-                    list = table.Values;
-                }
-            }
-            catch (System.Exception)
-            {
-                // ignored
+                list = items.Items.Values.Select(x => x.ToString()).ToList();
             }
 
-            var builder = new Builder(context)
-                .DismissListener((dialog) => action(new int[0], new string[0]))
-                .ItemsCallbackMultiChoice(tableIndicesList.ToArray(), (dialog, which, text) => action(which, text))
-                .Title(title)
-                .PositiveText("确定")
-                .Items(list);
-
-            Show(builder);
+            dialog.Items(list);
+            return dialog.ShowAndGet<int[]>();
         }
 
         public Builder newBuilder()
@@ -314,26 +174,6 @@ namespace AutoLua.Droid.LuaScript.Api
             return builder;
         }
 
-        /// <summary>
-        /// 显示弹窗
-        /// </summary>
-        /// <param name="builder"></param>
-        /// <returns></returns>
-        private static void Show(MaterialDialog.Builder builder)
-        {
-            if (Looper.MainLooper == Looper.MyLooper())
-            {
-                builder.Show();
-            }
-            else
-            {
-                AppUtils.RunOnUI(() =>
-                {
-                    builder.Show();
-                });
-            }
-        }
-
         private Context GetActivityContext()
         {
             Context context = AppUtils.CurrentActivity;
@@ -342,6 +182,7 @@ namespace AutoLua.Droid.LuaScript.Api
             {
                 context = GetContext();
             }
+
             return context;
         }
 
@@ -350,40 +191,16 @@ namespace AutoLua.Droid.LuaScript.Api
             if (_themeWrapper != null)
                 return _themeWrapper;
 
-            _themeWrapper = new ContextThemeWrapper(AppUtils.GetAppContext.ApplicationContext, Resource.Style.Theme_AppCompat_Light);
+            _themeWrapper = new ContextThemeWrapper(AppUtils.GetAppContext.ApplicationContext,
+                Resource.Style.Theme_AppCompat_Light);
             return _themeWrapper;
         }
 
-
-        private class CallBackData
+        private BlockedMaterialDialog.Builder DialogBuilder()
         {
-            /// <summary>
-            /// 是否结束
-            /// </summary>
-            public bool IsEnd { get; set; } = false;
-        }
-
-
-        private class InputCallback : Java.Lang.Object, IInputCallback
-        {
-            private readonly Action<string> _action;
-
-            public InputCallback(Action<string> action)
-            {
-                this._action = action;
-            }
-
-            public void OnInput(MaterialDialog dialog, ICharSequence input)
-            {
-                _action.Invoke(input.ToString());
-            }
-        }
-
-        private class TableLua
-        {
-            public List<string> Keys { get; set; }
-
-            public List<string> Values { get; set; }
+            var context = GetActivityContext();
+            return (BlockedMaterialDialog.Builder) new BlockedMaterialDialog.Builder(context)
+                .Theme(Theme.Light);
         }
     }
 }

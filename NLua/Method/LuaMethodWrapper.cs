@@ -97,7 +97,7 @@ namespace NLua.Method
         {
             object[] args = _lastCalledMethod.args;
 
-                        
+
             for (int i = 0; i < _lastCalledMethod.argTypes.Length; i++)
             {
                 MethodArgs type = _lastCalledMethod.argTypes[i];
@@ -156,11 +156,12 @@ namespace NLua.Method
                     result = method.Invoke(targetObject, _lastCalledMethod.args);
 
                 _translator.Push(luaState, result);
+
             }
             catch (TargetInvocationException e)
             {
                 // Failure of method invocation
-                if (_translator.interpreter.UseTraceback) 
+                if (_translator.interpreter.UseTraceback)
                     e.GetBaseException().Data["Traceback"] = _translator.interpreter.GetDebugTraceback();
                 return SetPendingException(e.GetBaseException());
             }
@@ -237,9 +238,9 @@ namespace NLua.Method
                 candidateName = member.ReflectedType.Name + "." + member.Name;
                 var isMethod = _translator.MatchParameters(luaState, member, _lastCalledMethod, 0);
 
-                if (!isMethod) 
+                if (!isMethod)
                     continue;
-                
+
                 hasMatch = true;
                 break;
             }
@@ -264,7 +265,7 @@ namespace NLua.Method
             //need to make a concrete type of the generic method definition
             var typeArgs = new List<Type>();
 
-            ParameterInfo [] parameters = methodToCall.GetParameters();
+            ParameterInfo[] parameters = methodToCall.GetParameters();
 
             for (int i = 0; i < parameters.Length; i++)
             {
@@ -293,7 +294,7 @@ namespace NLua.Method
 
             MethodBase methodToCall = _method;
             object targetObject = _target;
-        
+
             if (!luaState.CheckStack(5))
                 throw new LuaException("Lua stack overflow");
 
@@ -302,7 +303,7 @@ namespace NLua.Method
             // Method from name
             if (methodToCall == null)
                 return CallMethodFromName(luaState);
-            
+
             // Method from MethodBase instance
             if (!methodToCall.ContainsGenericParameters)
             {
@@ -312,7 +313,7 @@ namespace NLua.Method
                     luaState.Remove(1); // Pops the receiver
                 }
 
-                if (!_translator.MatchParameters(luaState, methodToCall,  _lastCalledMethod, 0))
+                if (!_translator.MatchParameters(luaState, methodToCall, _lastCalledMethod, 0))
                 {
                     _translator.ThrowError(luaState, "方法调用的参数无效");
                     return 1;
@@ -329,7 +330,7 @@ namespace NLua.Method
 
                 _translator.MatchParameters(luaState, methodToCall, _lastCalledMethod, 0);
 
-                return CallInvokeOnGenericMethod(luaState, (MethodInfo) methodToCall, targetObject);
+                return CallInvokeOnGenericMethod(luaState, (MethodInfo)methodToCall, targetObject);
             }
 
             if (_isStatic)

@@ -1,9 +1,7 @@
-﻿using AutoLua.Droid.LuaScript;
-using AutoLua.Droid.Services;
-using AutoLua.Droid.Utils;
-using AutoLua.Events;
+﻿using AutoLua.Droid.Services;
 using AutoLua.Services;
-using System;
+using NLua.Exceptions;
+using System.Threading;
 using Xamarin.Forms;
 
 [assembly: Dependency(typeof(LuaScriptService))]
@@ -13,7 +11,31 @@ namespace AutoLua.Droid.Services
     {
         public object[] RunFile(string path)
         {
-            return string.IsNullOrWhiteSpace(path) ? null : AppApplication.Lua?.DoFile(path);
+            if (string.IsNullOrWhiteSpace(path)) return null;
+
+            try
+            {
+                AppApplication.LuaThread = new Thread(() =>
+                 {
+                     try
+                     {
+                         AppApplication.Lua?.DoFile(path);
+                     }
+                     catch (LuaException e)
+                     {
+                         AppApplication.OnLog("异常", e.Message, Color.Red);
+                     }
+                 });
+
+                AppApplication.LuaThread.Start();
+
+                return null;
+            }
+            catch (LuaException e)
+            {
+                AppApplication.OnLog("异常", e.ToString(), Color.Red);
+                return null;
+            }
         }
 
         public object[] RunProject(string path)

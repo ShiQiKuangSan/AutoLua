@@ -83,7 +83,7 @@ namespace AutoLua.Droid
 
         public static T GetSystemService<T>(string service) where T : class, IJavaObject
         {
-            var context = AppApplication.Instance;
+            var context = Instance;
             var systemService = context.GetSystemService(service).JavaCast<T>();
             if (systemService == null)
             {
@@ -96,6 +96,8 @@ namespace AutoLua.Droid
         public static AppApplication Instance { get; private set; }
 
         public static Lua Lua { get; private set; }
+
+        public static System.Threading.Thread LuaThread { get; set; }
     }
 
     public class SimpleActivityLifecycleCallbacks : Java.Lang.Object, IActivityLifecycleCallbacks

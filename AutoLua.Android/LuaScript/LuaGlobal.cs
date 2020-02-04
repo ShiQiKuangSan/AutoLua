@@ -1,4 +1,5 @@
-﻿using AutoLua.Droid.AutoAccessibility.Accessibility.Filter;
+﻿using AutoLua.Droid.AutoAccessibility.Accessibility;
+using AutoLua.Droid.AutoAccessibility.Accessibility.Filter;
 using AutoLua.Droid.LuaScript.Api;
 using AutoLua.Droid.LuaScript.Utils;
 
@@ -38,7 +39,7 @@ namespace AutoLua.Droid.LuaScript
             var lua = AppApplication.Lua;
             var dialogs = new Dialogs();
 
-            //选择器
+            //元素选择器
             lua["by"] = new By();
             lua["context"] = AppApplication.Instance.ApplicationContext;
             //app 操作
@@ -57,6 +58,7 @@ namespace AutoLua.Droid.LuaScript
             lua["http"] = new HttpLua();
             //顔色模塊
             lua["colors"] = new Colors();
+            //找图找色模块
             lua["images"] = new Images();
 
             _luaGlobal = new LuaGlobalMethod(AppApplication.Instance);
@@ -78,7 +80,7 @@ namespace AutoLua.Droid.LuaScript
             lua.RegisterFunction("waitForPackage", _luaGlobal, luaGlobalType.GetMethod("WaitForPackage"));
             lua.RegisterFunction("exit", _luaGlobal, luaGlobalType.GetMethod("Exit"));
             lua.RegisterFunction("print", _luaGlobal, luaGlobalType.GetMethod("Print"));
-            lua.RegisterFunction("log", _luaGlobal, luaGlobalType.GetMethod("Print"));
+            //lua.RegisterFunction("log", _luaGlobal, luaGlobalType.GetMethod("Print"));
 
             //点击
             lua.RegisterFunction("click", _luaGlobal, luaGlobalType.GetMethod("Click"));

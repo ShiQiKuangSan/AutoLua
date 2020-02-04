@@ -64,7 +64,7 @@ namespace NLua
             return lua.GetTableDict(this).GetEnumerator();
         }
 
-        public ICollection Keys
+        public ICollection<object> Keys
         {
             get
             {
@@ -77,7 +77,7 @@ namespace NLua
         }
 
 
-        public ICollection Values
+        public ICollection<object> Values
         {
             get
             {

@@ -120,6 +120,7 @@
     <Compile Include="LuaScript\LuaGlobalMethod.cs" />
     <Compile Include="LuaScript\Utils\IntentUtil.cs" />
     <Compile Include="LuaScript\Utils\LuaAppUtils.cs" />
+    <Compile Include="LuaScript\Utils\MaterialDialogs\BlockedMaterialDialog.cs" />
     <Compile Include="LuaScript\Utils\ScreenCaptures\ActivityScreenCaptureRequester.cs" />
     <Compile Include="LuaScript\Utils\ScreenCaptures\BaseScreenCaptureRequester.cs" />
     <Compile Include="LuaScript\Utils\ScreenCaptures\IScreenCaptureRequester.cs" />
@@ -141,6 +142,7 @@
     <Compile Include="Utils\IntentExtras.cs" />
     <Compile Include="Utils\Random\RandomManager.cs" />
     <Compile Include="Utils\ToastUtils.cs" />
+    <Compile Include="Utils\VolatileDispose.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -174,7 +176,7 @@
       <Name>AutoLua</Name>
     </ProjectReference>
     <ProjectReference Include="..\NLua\NLua.csproj">
-      <Project>{31e4cf86-2bd0-4699-a775-3c9604d8a770}</Project>
+      <Project>{0c2cdeba-6f3b-4a96-a285-89873629bd68}</Project>
       <Name>NLua</Name>
     </ProjectReference>
   </ItemGroup>

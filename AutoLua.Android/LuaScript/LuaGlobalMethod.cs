@@ -1,8 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.AccessibilityServices;
 using Android.Content;
+using Android.Support.V4.View;
+using Android.Views.Accessibility;
 using AutoLua.Droid.AutoAccessibility;
 using AutoLua.Droid.AutoAccessibility.Gesture;
 using AutoLua.Droid.Utils;
@@ -11,6 +16,7 @@ using AutoLua.Droid.Utils.Random;
 using AutoLua.Events;
 using Newtonsoft.Json;
 using NLua;
+using Xamarin.Forms;
 
 namespace AutoLua.Droid.LuaScript
 {
@@ -91,57 +97,65 @@ namespace AutoLua.Droid.LuaScript
                 case null:
                     return;
                 case LuaBase _:
-                {
-                    var str = message.ToString();
-                    if (str == "table")
                     {
-                        Task.Run(() =>
+                        var str = message.ToString();
+                        if (str == "table")
                         {
-                            var str1 = JsonConvert.SerializeObject(message);
-                            var msg = JsonConvert.DeserializeObject<TableLog>(str1);
-
-                            var builder = new System.Text.StringBuilder();
-
-                            builder.AppendLine();
-                            for (var i = 0; i < msg.Keys.Count; i++)
+                            Task.Run(() =>
                             {
-                                var key = msg.Keys[i];
-                                var value = msg.Values[i].ToString();
-                                var val = value == "{}" ? "function" : value;
+                                var table = message as LuaTable;
 
-                                builder.AppendLine($"\t {key} ==>> {val}");
-                            }
+                                var builder = new System.Text.StringBuilder();
 
-                            PLog(builder.ToString());
-                        });
+                                PrintTable(table, builder, "\t");
 
-                        return;
+                                PLog(builder.ToString());
+                            });
+
+                            return;
+                        }
+
+                        break;
                     }
-
-                    break;
-                }
             }
 
             PLog(message.ToString());
         }
 
-        private class TableLog
-        {
-            public TableLog(List<string> keys, List<object> values)
-            {
-                Keys = keys;
-                Values = values;
-            }
-
-            public List<string> Keys { get; private set; }
-
-            public List<object> Values { get; private set; }
-        }
 
         private void PLog(string message)
         {
             LogEventDelegates.Instance.OnLog(new LogEventArgs("正常", message, Xamarin.Forms.Color.Blue));
             Sleep(200);
+        }
+
+        private StringBuilder PrintTable(LuaTable table, StringBuilder builder, string t)
+        {
+            builder.AppendLine();
+
+            foreach (var (k, v) in table.Items)
+            {
+                var tType = v.GetType();
+
+                if (tType == typeof(LuaTable))
+                {
+                    builder.Append($"{t}[{k}] : {{");
+                    var t1 = t + "\t";
+                    PrintTable((LuaTable)v, builder, t1);
+
+                    builder.AppendLine($"{t}}}");
+                }
+                else if (tType == typeof(LuaFunction))
+                {
+                    builder.AppendLine($"{t}[{k}] : function");
+                }
+                else
+                {
+                    builder.AppendLine($"{t}[{k}] : {v.ToString()}");
+                }
+            }
+
+            return builder;
         }
 
         /// <summary>
