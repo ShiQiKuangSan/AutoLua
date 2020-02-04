@@ -24,6 +24,7 @@ namespace AutoLua.Droid.LuaScript
     internal class LuaGlobalMethod
     {
         private readonly IGesture _gesture;
+
         internal LuaGlobalMethod(Context context)
         {
             _gesture = new DefatltGesture();
@@ -96,30 +97,27 @@ namespace AutoLua.Droid.LuaScript
             {
                 case null:
                     return;
-                case LuaBase _:
+                case LuaTable table:
+                {
+                    var str = message.ToString();
+                    if (str == "table")
                     {
-                        var str = message.ToString();
-                        if (str == "table")
+                        Task.Run(() =>
                         {
-                            Task.Run(() =>
-                            {
-                                var table = message as LuaTable;
+                            var builder = new System.Text.StringBuilder();
 
-                                var builder = new System.Text.StringBuilder();
+                            PrintTable(table, builder, "\t");
 
-                                PrintTable(table, builder, "\t");
-
-                                PLog(builder.ToString());
-                            });
-
-                            return;
-                        }
-
-                        break;
+                            PLog(builder.ToString());
+                        });
                     }
+                    
+                    break;
+                }
+                default:
+                    PLog(message.ToString());
+                    break;
             }
-
-            PLog(message.ToString());
         }
 
 
@@ -129,7 +127,7 @@ namespace AutoLua.Droid.LuaScript
             Sleep(200);
         }
 
-        private StringBuilder PrintTable(LuaTable table, StringBuilder builder, string t)
+        private static StringBuilder PrintTable(LuaTable table, StringBuilder builder, string t)
         {
             builder.AppendLine();
 
@@ -141,7 +139,7 @@ namespace AutoLua.Droid.LuaScript
                 {
                     builder.Append($"{t}[{k}] : {{");
                     var t1 = t + "\t";
-                    PrintTable((LuaTable)v, builder, t1);
+                    PrintTable((LuaTable) v, builder, t1);
 
                     builder.AppendLine($"{t}}}");
                 }
@@ -149,9 +147,13 @@ namespace AutoLua.Droid.LuaScript
                 {
                     builder.AppendLine($"{t}[{k}] : function");
                 }
+                else if (tType == typeof(string))
+                {
+                    builder.AppendLine($"{t}[{k}] : '{v}'");
+                }
                 else
                 {
-                    builder.AppendLine($"{t}[{k}] : {v.ToString()}");
+                    builder.AppendLine($"{t}[{k}] : {v}");
                 }
             }
 
