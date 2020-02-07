@@ -5,6 +5,7 @@ using Android.Content;
 using Android.Text;
 using AutoLua.Droid.AutoAccessibility.Accessibility.Event;
 using Java.Lang;
+using NLua.Exceptions;
 
 namespace AutoLua.Droid.AutoAccessibility
 {
@@ -80,7 +81,7 @@ namespace AutoLua.Droid.AutoAccessibility
                 return;
             
             GoToAccessibilitySetting();
-            throw new System.Exception(errorMsg);
+            throw new LuaException(errorMsg);
         }
 
         /// <summary>

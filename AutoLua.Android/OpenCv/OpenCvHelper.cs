@@ -5,6 +5,7 @@ using OpenCvSharp;
 
 namespace AutoLua.Droid.OpenCv
 {
+    [Android.Runtime.Preserve(AllMembers = true)]
     public class OpenCvHelper
     {
         /// <summary>

@@ -7,7 +7,8 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
     /// <summary>
     /// 屏幕获取请求接口。
     /// </summary>
-    public interface IScreenCaptureRequester
+    [Android.Runtime.Preserve(AllMembers = true)]
+    public interface IScreenCaptureRequesterService
     {
         /// <summary>
         /// 取消。
@@ -20,9 +21,9 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
         void Request();
 
         /// <summary>
-        /// 设置视图回调
+        /// 设置回调
         /// </summary>
         /// <param name="callback"></param>
-        void SetOnActivityResultCallback(Action<Result,Intent> callback);
+        void SetResultCallback(Action<Result,Intent> callback);
     }
 }

@@ -6,6 +6,7 @@ using Java.Util.Concurrent.Atomic;
 
 namespace AutoLua.Droid.Utils
 {
+    [Android.Runtime.Preserve(AllMembers = true)]
     public class IntentExtras : Java.Lang.Object, ISerializable
     {
         public const string ExtraId = "AutoLua.Droid.Utils.IntentExtras.id";

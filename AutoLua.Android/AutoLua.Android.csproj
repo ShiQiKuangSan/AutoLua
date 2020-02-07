@@ -69,7 +69,7 @@
     <PackageReference Include="Rg.Plugins.Popup">
       <Version>1.2.0.223</Version>
     </PackageReference>
-    <PackageReference Include="Xamarin.Forms" Version="4.4.0.991537" />
+    <PackageReference Include="Xamarin.Forms" Version="4.4.0.991640" />
     <PackageReference Include="Xamarin.Essentials" Version="1.3.1" />
   </ItemGroup>
   <ItemGroup>
@@ -114,30 +114,34 @@
     <Compile Include="LuaScript\Api\Events.cs" />
     <Compile Include="LuaScript\Api\HttpLua.cs" />
     <Compile Include="LuaScript\Api\Images.cs" />
+    <Compile Include="LuaScript\Api\KeysApi.cs" />
     <Compile Include="LuaScript\Api\LuaFiles.cs" />
+    <Compile Include="LuaScript\Api\Media.cs" />
     <Compile Include="LuaScript\Api\ScreenMetrics.cs" />
+    <Compile Include="LuaScript\Api\Sensors.cs" />
+    <Compile Include="LuaScript\Api\SharedPreferences.cs" />
     <Compile Include="LuaScript\LuaGlobal.cs" />
     <Compile Include="LuaScript\LuaGlobalMethod.cs" />
     <Compile Include="LuaScript\Utils\IntentUtil.cs" />
     <Compile Include="LuaScript\Utils\LuaAppUtils.cs" />
     <Compile Include="LuaScript\Utils\MaterialDialogs\BlockedMaterialDialog.cs" />
-    <Compile Include="LuaScript\Utils\ScreenCaptures\ActivityScreenCaptureRequester.cs" />
-    <Compile Include="LuaScript\Utils\ScreenCaptures\BaseScreenCaptureRequester.cs" />
-    <Compile Include="LuaScript\Utils\ScreenCaptures\IScreenCaptureRequester.cs" />
+    <Compile Include="LuaScript\Utils\Medias\MediaPlayerState.cs" />
+    <Compile Include="LuaScript\Utils\Medias\MediaPlayerWrapper.cs" />
+    <Compile Include="LuaScript\Utils\Medias\MimeTypes.cs" />
+    <Compile Include="LuaScript\Utils\ScreenCaptures\ScreenCaptureRequestActivity.cs" />
+    <Compile Include="LuaScript\Utils\ScreenCaptures\ScreenCaptureRequesterService.cs" />
+    <Compile Include="LuaScript\Utils\ScreenCaptures\IScreenCaptureRequesterService.cs" />
     <Compile Include="LuaScript\Utils\ScreenCaptures\ScreenCapturer.cs" />
-    <Compile Include="LuaScript\Utils\ScreenCaptures\ScreenCaptureRequester.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="OpenCv\OpenCvHelper.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScreenCaptureRequestActivity.cs" />
     <Compile Include="Services\FileService.cs" />
     <Compile Include="Services\LuaScriptService.cs" />
     <Compile Include="Services\ToastService.cs" />
     <Compile Include="Utils\AppUtils.cs" />
-    <Compile Include="Utils\App\IDelegateHost.cs" />
-    <Compile Include="Utils\App\IOnActivityResultDelegate.cs" />
-    <Compile Include="Utils\App\Mediator.cs" />
+    <Compile Include="Utils\App\IActivityEvenet.cs" />
+    <Compile Include="Utils\App\ActivityEvenetManager.cs" />
     <Compile Include="Utils\Clip\ClipboardUtil.cs" />
     <Compile Include="Utils\IntentExtras.cs" />
     <Compile Include="Utils\Random\RandomManager.cs" />
@@ -145,6 +149,7 @@
     <Compile Include="Utils\VolatileDispose.cs" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidAsset Include="Assets\LuaJson.lua" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
     <None Include="Properties\AndroidManifest.xml" />

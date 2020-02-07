@@ -1,12 +1,11 @@
-﻿using System;
-using Android.App;
-using Android.Content;
+﻿using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
 
 namespace AutoLua.Droid
 {
+    [Android.Runtime.Preserve(AllMembers = true)]
     [Activity(Label = "AutoLua", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {

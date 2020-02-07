@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
+﻿using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.AccessibilityServices;
 using Android.Content;
-using Android.Support.V4.View;
-using Android.Views.Accessibility;
 using AutoLua.Droid.AutoAccessibility;
 using AutoLua.Droid.AutoAccessibility.Gesture;
 using AutoLua.Droid.Utils;
@@ -76,6 +71,11 @@ namespace AutoLua.Droid.LuaScript
         public string GetClip()
         {
             return ClipboardUtil.GetClip();
+        }
+
+        public void loadstring(string luaStr)
+        {
+            
         }
 
         /// <summary>

@@ -3,6 +3,7 @@ using NLua.Exceptions;
 
 namespace AutoLua.Droid.Utils
 {
+    [Android.Runtime.Preserve(AllMembers = true)]
     public class VolatileDispose : Object
     {
         private volatile object _value;

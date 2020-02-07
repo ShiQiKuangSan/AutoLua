@@ -18,6 +18,7 @@ using Orientation = Android.Content.Res.Orientation;
 
 namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
 {
+    [Android.Runtime.Preserve(AllMembers = true)]
     public class ScreenCapturer : Java.Lang.Object
     {
         private readonly Context _context;
@@ -216,8 +217,10 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
         /// <param name="screenDensity">屏幕密度</param>
         private void InitVirtualDisplay(int width, int height, DisplayMetricsDensity screenDensity)
         {
-            _imageReader = ImageReader.NewInstance(width, height, ImageFormatType.Rgb565, 3);
-            _virtualDisplay = _mediaProjection.CreateVirtualDisplay(Tag, width, height, (int)screenDensity,
+            _imageReader = ImageReader.NewInstance(width, height, ImageFormatType.FlexRgb888, 1);
+            var dpi = (int)screenDensity;
+            //VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR
+            _virtualDisplay = _mediaProjection.CreateVirtualDisplay(Tag, width, height, dpi,
                 DisplayFlags.Round, _imageReader.Surface, null, null);
         }
 

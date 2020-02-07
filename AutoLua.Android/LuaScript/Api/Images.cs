@@ -6,6 +6,7 @@ using Android.Content;
 using Android.Content.Res;
 using Android.Graphics;
 using Android.Media;
+using Android.Media.Projection;
 using Android.OS;
 using Android.Util;
 using Android.Views;
@@ -13,6 +14,7 @@ using AutoLua.Droid.Http;
 using AutoLua.Droid.Http.Models;
 using AutoLua.Droid.LuaScript.Utils.ScreenCaptures;
 using AutoLua.Droid.Utils;
+using AutoLua.Droid.Utils.App;
 using Java.Lang;
 using OpenCvSharp;
 using static AutoLua.Droid.LuaScript.Api.LuaFiles;
@@ -26,12 +28,20 @@ namespace AutoLua.Droid.LuaScript.Api
     [Android.Runtime.Preserve(AllMembers = true)]
     public class Images
     {
-        private IScreenCaptureRequester _screenCaptureRequester;
+        /// <summary>
+        /// 截屏请求服务。
+        /// </summary>
+        private readonly ScreenCaptureRequesterService _screenCaptureRequester;
+
+        /// <summary>
+        /// 屏幕截取。
+        /// </summary>
         private ScreenCapturer _screenCapturer;
 
         public Images()
         {
-            _screenCaptureRequester = new ScreenCaptureRequester();
+            _screenCaptureRequester = new ScreenCaptureRequesterService();
+            ActivityEvenetManager.Instance.AddDelegate(_screenCaptureRequester);
         }
 
         /// <summary>
@@ -282,41 +292,25 @@ namespace AutoLua.Droid.LuaScript.Api
                 orientation = Android.Content.Res.Orientation.Portrait;
             }
 
-            var data = new Intent(AppUtils.GetAppContext, Class.FromType(typeof(ScreenCaptureRequestActivity)));
-
-            _screenCapturer = new ScreenCapturer(data, orientation, ScreenMetrics.Instance.DeviceScreenDensity,
-                        new Handler());
-
+            //如果已获取了屏幕请求
             if (_screenCapturer != null)
             {
                 _screenCapturer.SetOrientation(orientation);
                 return;
             }
 
-            var results = false;
-
-            _screenCaptureRequester.SetOnActivityResultCallback((result, data) =>
+            //设置回调。
+            _screenCaptureRequester.SetResultCallback((result, data) =>
             {
                 if (result == Result.Ok)
                 {
                     _screenCapturer = new ScreenCapturer(data, orientation, ScreenMetrics.Instance.DeviceScreenDensity,
-                        new Handler());
+                        new Handler(Looper.MainLooper));
                 }
-
-                results = true;
             });
 
+            //请求截屏权限。
             _screenCaptureRequester.Request();
-
-            var t = new Task(() =>
-            {
-                while (!results)
-                {
-                    Thread.Sleep(200);
-                }
-            });
-            t.Start();
-            t.Wait();
         }
 
         public ImageWrapper captureScreen()

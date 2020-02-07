@@ -7,6 +7,7 @@ using Xamarin.Forms;
 [assembly: Dependency(typeof(LuaScriptService))]
 namespace AutoLua.Droid.Services
 {
+    [Android.Runtime.Preserve(AllMembers = true)]
     public class LuaScriptService : ILuaScriptService
     {
         public object[] RunFile(string path)

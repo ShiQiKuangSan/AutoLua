@@ -5,6 +5,7 @@ using Xamarin.Forms;
 [assembly: Dependency(typeof(FileService))]
 namespace AutoLua.Droid.Services
 {
+    [Android.Runtime.Preserve(AllMembers = true)]
     public class FileService : IFileService
     {
         public string GetSdCard()

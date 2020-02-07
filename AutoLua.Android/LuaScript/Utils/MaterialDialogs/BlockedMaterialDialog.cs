@@ -10,6 +10,7 @@ using Object = Java.Lang.Object;
 
 namespace AutoLua.Droid.LuaScript.Utils.MaterialDialogs
 {
+    [Android.Runtime.Preserve(AllMembers = true)]
     public class BlockedMaterialDialog : MaterialDialog
     {
         protected BlockedMaterialDialog(MaterialDialog.Builder builder) : base(builder)
@@ -57,7 +58,10 @@ namespace AutoLua.Droid.LuaScript.Utils.MaterialDialogs
 
             public Builder(Context context) : base(context)
             {
-                _resultBox = new VolatileDispose();
+                if (Looper.MainLooper != Looper.MyLooper())
+                {
+                    _resultBox = new VolatileDispose();
+                }
             }
 
             public MaterialDialog.Builder Inputs(string hint, string prefill, bool allowEmptyInput,

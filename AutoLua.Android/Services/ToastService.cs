@@ -8,6 +8,7 @@ using Application = Android.App.Application;
 [assembly: Dependency(typeof(ToastService))]
 namespace AutoLua.Droid.Services
 {
+    [Android.Runtime.Preserve(AllMembers = true)]
     public class ToastService : IToastService
     {
         public void LongAlert(string message)

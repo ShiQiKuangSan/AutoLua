@@ -1,7 +1,8 @@
-﻿using AutoLua.Droid.AutoAccessibility.Accessibility;
-using AutoLua.Droid.AutoAccessibility.Accessibility.Filter;
+﻿using AutoLua.Droid.AutoAccessibility.Accessibility.Filter;
 using AutoLua.Droid.LuaScript.Api;
 using AutoLua.Droid.LuaScript.Utils;
+using System.IO;
+using Xamarin.Forms;
 
 namespace AutoLua.Droid.LuaScript
 {
@@ -39,13 +40,32 @@ namespace AutoLua.Droid.LuaScript
             var lua = AppApplication.Lua;
             var dialogs = new Dialogs();
 
+            //加载文件
+
+            var assets = AppApplication.Instance.Assets;
+
+            try
+            {
+                using (var sr = new StreamReader(assets.Open("LuaJson.Lua")))
+                {
+                    var str = sr.ReadToEnd();
+
+                    lua.DoString(str);
+                }
+            }
+            catch (System.Exception)
+            {
+                AppApplication.OnLog("异常", "加载 json模块失败", Color.Red);
+            }
+            
+
             //元素选择器
             lua["by"] = new By();
             lua["context"] = AppApplication.Instance.ApplicationContext;
             //app 操作
             lua["app"] = new LuaAppUtils(AppApplication.Instance);
             //设备信息
-            lua["device"] = new Device();
+            lua["device"] = new Api.Device();
             //弹窗
             lua["dialogs"] = dialogs;
             //脚本系统
@@ -60,7 +80,15 @@ namespace AutoLua.Droid.LuaScript
             lua["colors"] = new Colors();
             //找图找色模块
             lua["images"] = new Images();
-
+            //无障碍服务手势
+            lua["keys"] = new KeysApi();
+            //多媒体
+            lua["media"] = new Media();
+            //传感器
+            lua["sensors"] = new Sensors();
+            //本地存储
+            lua["storages"] = new SharedPreferences();
+            
             _luaGlobal = new LuaGlobalMethod(AppApplication.Instance);
 
             var luaGlobalType = typeof(LuaGlobalMethod);
@@ -80,7 +108,7 @@ namespace AutoLua.Droid.LuaScript
             lua.RegisterFunction("waitForPackage", _luaGlobal, luaGlobalType.GetMethod("WaitForPackage"));
             lua.RegisterFunction("exit", _luaGlobal, luaGlobalType.GetMethod("Exit"));
             lua.RegisterFunction("print", _luaGlobal, luaGlobalType.GetMethod("Print"));
-            //lua.RegisterFunction("log", _luaGlobal, luaGlobalType.GetMethod("Print"));
+            lua.RegisterFunction("log", _luaGlobal, luaGlobalType.GetMethod("Print"));
 
             //点击
             lua.RegisterFunction("click", _luaGlobal, luaGlobalType.GetMethod("Click"));

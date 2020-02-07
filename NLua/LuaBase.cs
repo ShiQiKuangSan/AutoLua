@@ -22,6 +22,7 @@ namespace NLua
             lua = _lua;
             return true;
         }
+
         protected LuaBase(int reference, Lua lua)
         {
             _lua = lua;
