@@ -31,20 +31,11 @@ namespace AutoLua.Droid
             ScreenMetrics.Instance.Init();
             
             AppUtils.Init(this);
-            InitLua();
 
             this.RegisterActivityLifecycleCallbacks(new SimpleActivityLifecycleCallbacks());
 
             //初始化无障碍服务
             AutoGlobal.Init(this);
-            //初始化lua全局函数
-            LuaGlobal.Instance.Init();
-        }
-        
-        private static void InitLua()
-        {
-            Lua = new Lua();
-            Lua.State.Encoding = Encoding.UTF8;
         }
 
         /// <summary>
@@ -72,7 +63,7 @@ namespace AutoLua.Droid
         
         public static AppApplication Instance { get; private set; }
 
-        public static Lua Lua { get; private set; }
+        public static Lua Lua { get; set; }
 
         public static System.Threading.Thread LuaThread { get; set; }
     }

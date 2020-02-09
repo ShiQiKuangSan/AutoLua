@@ -47,7 +47,7 @@ namespace AutoLua.Droid.Utils
                     AppApplication.LuaThread.Suspend();
 #pragma warning restore 618
                 }
-                catch (InterruptedException e)
+                catch (Exception e)
                 {
                     throw new LuaException(e.Message);
                 }
@@ -60,7 +60,7 @@ namespace AutoLua.Droid.Utils
         }
 
 
-        public T BlockedGetOrThrow<T>(LuaException exception, long timeout, T defaultValue)
+        public T BlockedGetOrThrow<T>(T defaultValue)
         {
             lock (this)
             {
@@ -74,7 +74,7 @@ namespace AutoLua.Droid.Utils
                     AppApplication.LuaThread.Suspend();
 #pragma warning restore 618
                 }
-                catch (InterruptedException e)
+                catch (Exception e)
                 {
                     throw new LuaException(e.Message);
                 }

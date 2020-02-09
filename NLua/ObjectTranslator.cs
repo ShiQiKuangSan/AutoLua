@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Runtime.InteropServices;
 using KeraLua;
 
@@ -24,7 +25,7 @@ namespace NLua
         // Compare cache entries by exact reference to avoid unwanted aliases
         private class ReferenceComparer : IEqualityComparer<object>
         {
-            public new bool Equals(object x, object y)
+            bool IEqualityComparer<object>.Equals(object x, object y)
             {
                 if (x != null && y != null && x.GetType() == y.GetType() && x.GetType().IsValueType && y.GetType().IsValueType)
                     return x.Equals(y); // Special case for boxed value types
@@ -37,45 +38,43 @@ namespace NLua
             }
         }
 
-        private static readonly LuaNativeFunction _registerTableFunction = RegisterTable;
-        private static readonly LuaNativeFunction _unregisterTableFunction = UnregisterTable;
-        private static readonly LuaNativeFunction _getMethodSigFunction = GetMethodSignature;
-        private static readonly LuaNativeFunction _getConstructorSigFunction = GetConstructorSignature;
-        private static readonly LuaNativeFunction _importTypeFunction = ImportType;
-        private static readonly LuaNativeFunction _loadAssemblyFunction = LoadAssembly;
-        private static readonly LuaNativeFunction _ctypeFunction = CType;
-        private static readonly LuaNativeFunction _enumFromIntFunction = EnumFromInt;
+        private static readonly LuaNativeFunction RegisterTableFunction = RegisterTable;
+        private static readonly LuaNativeFunction UnregisterTableFunction = UnregisterTable;
+        private static readonly LuaNativeFunction GetMethodSigFunction = GetMethodSignature;
+        private static readonly LuaNativeFunction GetConstructorSigFunction = GetConstructorSignature;
+        private static readonly LuaNativeFunction ImportTypeFunction = ImportType;
+        private static readonly LuaNativeFunction LoadAssemblyFunction = LoadAssembly;
+        private static readonly LuaNativeFunction CtypeFunction = CType;
+        private static readonly LuaNativeFunction EnumFromIntFunction = EnumFromInt;
 
         // object to object #
-        readonly Dictionary<object, int> _objectsBackMap = new Dictionary<object, int>(new ReferenceComparer());
+        private readonly Dictionary<object, int> _objectsBackMap = new Dictionary<object, int>(new ReferenceComparer());
         // object # to object (FIXME - it should be possible to get object address as an object #)
-        readonly Dictionary<int, object> _objects = new Dictionary<int, object>();
+        private readonly Dictionary<int, object> _objects = new Dictionary<int, object>();
 
-        readonly ConcurrentQueue<int> finalizedReferences = new ConcurrentQueue<int>();
+        private readonly ConcurrentQueue<int> _finalizedReferences = new ConcurrentQueue<int>();
 
-        internal EventHandlerContainer PendingEvents = new EventHandlerContainer();
-        MetaFunctions metaFunctions;
-        List<Assembly> assemblies;
-        internal CheckType typeChecker;
-        internal Lua interpreter;
+        internal readonly EventHandlerContainer PendingEvents = new EventHandlerContainer();
+        private readonly List<Assembly> _assemblies;
+        internal readonly CheckType TypeChecker;
+        internal readonly Lua _interpreter;
         /// <summary>
         /// We want to ensure that objects always have a unique ID
         /// </summary>
-        int _nextObj;
+        private int _nextObj;
 
-        public MetaFunctions MetaFunctionsInstance => metaFunctions;
-        public Lua Interpreter => interpreter;
-        public IntPtr Tag => _tagPtr;
+        public MetaFunctions MetaFunctionsInstance { get; }
 
-        readonly IntPtr _tagPtr;
+        public Lua Interpreter => _interpreter;
+        public IntPtr Tag { get; }
 
         public ObjectTranslator(Lua interpreter, LuaState luaState)
         {
-            _tagPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(int)));
-            this.interpreter = interpreter;
-            typeChecker = new CheckType(this);
-            metaFunctions = new MetaFunctions(this);
-            assemblies = new List<Assembly>();
+            Tag = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(int)));
+            this._interpreter = interpreter;
+            TypeChecker = new CheckType(this);
+            MetaFunctionsInstance = new MetaFunctions(this);
+            _assemblies = new List<Assembly>();
 
             CreateLuaObjectList(luaState);
             CreateIndexingMetaFunction(luaState);
@@ -89,7 +88,7 @@ namespace NLua
         /*
          * Sets up the list of objects in the Lua side
          */
-        private void CreateLuaObjectList(LuaState luaState)
+        private static void CreateLuaObjectList(LuaState luaState)
         {
             luaState.PushString("luaNet_objects");
             luaState.NewTable();
@@ -105,7 +104,7 @@ namespace NLua
          * Registers the indexing function of CLR objects
          * passed to Lua
          */
-        private void CreateIndexingMetaFunction(LuaState luaState)
+        private static void CreateIndexingMetaFunction(LuaState luaState)
         {
             luaState.PushString("luaNet_indexfunction");
             luaState.DoString(MetaFunctions.LuaIndexFunction);
@@ -116,7 +115,7 @@ namespace NLua
          * Creates the metatable for superclasses (the base
          * field of registered tables)
          */
-        private void CreateBaseClassMetatable(LuaState luaState)
+        private static void CreateBaseClassMetatable(LuaState luaState)
         {
             luaState.NewMetaTable("luaNet_searchbase");
             luaState.PushString("__gc");
@@ -137,7 +136,7 @@ namespace NLua
         /*
          * Creates the metatable for type references
          */
-        private void CreateClassMetatable(LuaState luaState)
+        private static void CreateClassMetatable(LuaState luaState)
         {
             luaState.NewMetaTable("luaNet_class");
             luaState.PushString("__gc");
@@ -161,32 +160,32 @@ namespace NLua
         /*
          * Registers the global functions used by NLua
          */
-        private void SetGlobalFunctions(LuaState luaState)
+        private static void SetGlobalFunctions(LuaState luaState)
         {
             luaState.PushCFunction(MetaFunctions.IndexFunction);
             luaState.SetGlobal("get_object_member");
-            luaState.PushCFunction(_importTypeFunction);
+            luaState.PushCFunction(ImportTypeFunction);
             luaState.SetGlobal("import_type");
-            luaState.PushCFunction(_loadAssemblyFunction);
+            luaState.PushCFunction(LoadAssemblyFunction);
             luaState.SetGlobal("load_assembly");
-            luaState.PushCFunction(_registerTableFunction);
+            luaState.PushCFunction(RegisterTableFunction);
             luaState.SetGlobal("make_object");
-            luaState.PushCFunction(_unregisterTableFunction);
+            luaState.PushCFunction(UnregisterTableFunction);
             luaState.SetGlobal("free_object");
-            luaState.PushCFunction(_getMethodSigFunction);
+            luaState.PushCFunction(GetMethodSigFunction);
             luaState.SetGlobal("get_method_bysig");
-            luaState.PushCFunction(_getConstructorSigFunction);
+            luaState.PushCFunction(GetConstructorSigFunction);
             luaState.SetGlobal("get_constructor_bysig");
-            luaState.PushCFunction(_ctypeFunction);
+            luaState.PushCFunction(CtypeFunction);
             luaState.SetGlobal("ctype");
-            luaState.PushCFunction(_enumFromIntFunction);
+            luaState.PushCFunction(EnumFromIntFunction);
             luaState.SetGlobal("enum");
         }
 
         /*
          * Creates the metatable for delegates
          */
-        private void CreateFunctionMetatable(LuaState luaState)
+        private static void CreateFunctionMetatable(LuaState luaState)
         {
             luaState.NewMetaTable("luaNet_function");
             luaState.PushString("__gc");
@@ -222,15 +221,15 @@ namespace NLua
                 case string message:
                 {
                     // Wrap Lua error (just a string) and store the error location
-                    if (interpreter.UseTraceback) 
-                        message += Environment.NewLine + interpreter.GetDebugTraceback();
+                    if (_interpreter.UseTraceback) 
+                        message += Environment.NewLine + _interpreter.GetDebugTraceback();
                     e = new LuaScriptException(message, errLocation);
                     break;
                 }
                 case Exception ex:
                 {
                     // Wrap generic .NET exception as an InnerException and store the error location
-                    if (interpreter.UseTraceback) ex.Data["Traceback"] = interpreter.GetDebugTraceback();
+                    if (_interpreter.UseTraceback) ex.Data["Traceback"] = _interpreter.GetDebugTraceback();
                     e = new LuaScriptException(ex.Message, errLocation);
                     break;
                 }
@@ -258,7 +257,7 @@ namespace NLua
         {
             try
             {
-                string assemblyName = luaState.ToString(1, false);
+                var assemblyName = luaState.ToString(1, false);
                 Assembly assembly = null;
                 Exception exception = null;
 
@@ -287,11 +286,14 @@ namespace NLua
                     }
                     if (assembly == null)
                     {
-                        AssemblyName mscor = assemblies[0].GetName();
-                        AssemblyName name = new AssemblyName();
-                        name.Name = assemblyName;
-                        name.CultureInfo = mscor.CultureInfo;
-                        name.Version = mscor.Version;
+                        var mscor = _assemblies[0].GetName();
+                        var name = new AssemblyName
+                        {
+                            Name = assemblyName, 
+                            CultureInfo = mscor.CultureInfo, 
+                            Version = mscor.Version
+                        };
+                        
                         name.SetPublicKeyToken(mscor.GetPublicKeyToken());
                         name.SetPublicKey(mscor.GetPublicKey());
                         assembly = Assembly.Load(name);
@@ -302,8 +304,8 @@ namespace NLua
                     if (exception != null)
                         ThrowError(luaState, exception);
                 }
-                if (assembly != null && !assemblies.Contains(assembly))
-                    assemblies.Add(assembly);
+                if (assembly != null && !_assemblies.Contains(assembly))
+                    _assemblies.Add(assembly);
             }
             catch (Exception e)
             {
@@ -314,14 +316,7 @@ namespace NLua
 
         internal Type FindType(string className)
         {
-            foreach (var assembly in assemblies)
-            {
-                var klass = assembly.GetType(className);
-
-                if (klass != null)
-                    return klass;
-            }
-            return null;
+            return _assemblies.Select(assembly => assembly.GetType(className)).FirstOrDefault(klass => klass != null);
         }
 
         public bool TryGetExtensionMethod(Type type, string name, out MethodInfo method)
@@ -330,9 +325,9 @@ namespace NLua
             return method != null;
         }
 
-        public MethodInfo GetExtensionMethod(Type type, string name)
+        private MethodInfo GetExtensionMethod(Type type, string name)
         {
-            return type.GetExtensionMethod(name, assemblies);
+            return type.GetExtensionMethod(name, _assemblies);
         }
 
         /*
@@ -351,7 +346,7 @@ namespace NLua
 
         private int ImportTypeInternal(LuaState luaState)
         {
-            string className = luaState.ToString(1, false);
+            var className = luaState.ToString(1, false);
             var klass = FindType(className);
 
             if (klass != null)
@@ -385,8 +380,8 @@ namespace NLua
                 return 0;
             }
 
-            LuaTable luaTable = GetTable(luaState, 1);
-            string superclassName = luaState.ToString(2, false);
+            var luaTable = GetTable(luaState, 1);
+            var superclassName = luaState.ToString(2, false);
 
             if (string.IsNullOrEmpty(superclassName))
             {
@@ -404,7 +399,7 @@ namespace NLua
 
             // Creates and pushes the object in the stack, setting
             // it as the  metatable of the first argument
-            object obj = CodeGeneration.Instance.GetClassInstance(klass, luaTable);
+            var obj = CodeGeneration.Instance.GetClassInstance(klass, luaTable);
             PushObject(luaState, obj, "luaNet_metatable");
             luaState.NewTable();
             luaState.PushString("__index");
@@ -418,7 +413,7 @@ namespace NLua
             // Pushes the object again, this time as the base field
             // of the table and with the luaNet_searchbase metatable
             luaState.PushString("base");
-            int index = AddObject(obj);
+            var index = AddObject(obj);
             PushNewObject(luaState, obj, index, "luaNet_searchbase");
             luaState.RawSet(1);
 
@@ -450,18 +445,22 @@ namespace NLua
 
             luaState.PushString("__index");
             luaState.GetTable(-2);
-            object obj = GetRawNetObject(luaState, -1);
+            var obj = GetRawNetObject(luaState, -1);
 
             if (obj == null)
                 ThrowError(luaState, "unregister_table: arg 不是一个有效的 table");
 
-            var luaTableField = obj.GetType().GetField("__luaInterface_luaTable");
+            if (obj != null)
+            {
+                var luaTableField = obj.GetType().GetField("__luaInterface_luaTable");
 
-            if (luaTableField == null)
-                ThrowError(luaState, "unregister_table: arg 不是一个有效的 table");
+                if (luaTableField == null)
+                    ThrowError(luaState, "unregister_table: arg 不是一个有效的 table");
 
-            // ReSharper disable once PossibleNullReferenceException
-            luaTableField.SetValue(obj, null);
+                // ReSharper disable once PossibleNullReferenceException
+                luaTableField.SetValue(obj, null);
+            }
+
             luaState.PushNil();
             luaState.SetMetaTable(1);
             luaState.PushString("base");
@@ -489,7 +488,7 @@ namespace NLua
         {
             ProxyType klass;
             object target;
-            int udata = luaState.CheckUObject(1, "luaNet_class");
+            var udata = luaState.CheckUObject(1, "luaNet_class");
 
             if (udata != -1)
             {
@@ -510,10 +509,10 @@ namespace NLua
                 klass = new ProxyType(target.GetType());
             }
 
-            string methodName = luaState.ToString(2, false);
+            var methodName = luaState.ToString(2, false);
             var signature = new Type[luaState.GetTop() - 2];
 
-            for (int i = 0; i < signature.Length; i++)
+            for (var i = 0; i < signature.Length; i++)
                 signature[i] = FindType(luaState.ToString(i + 3, false));
 
             try
@@ -521,7 +520,7 @@ namespace NLua
                 var method = klass.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static |
                     BindingFlags.Instance, signature);
                 var wrapper = new LuaMethodWrapper(this, target, klass, method);
-                LuaNativeFunction invokeDelegate = wrapper.InvokeFunction;
+                var invokeDelegate = wrapper.InvokeFunction;
                 PushFunction(luaState, invokeDelegate);
             }
             catch (Exception e)
@@ -550,7 +549,7 @@ namespace NLua
         private int GetConstructorSignatureInternal(LuaState luaState)
         {
             ProxyType klass = null;
-            int udata = luaState.CheckUObject(1, "luaNet_class");
+            var udata = luaState.CheckUObject(1, "luaNet_class");
 
             if (udata != -1)
                 klass = (ProxyType)_objects[udata];
@@ -560,15 +559,18 @@ namespace NLua
 
             var signature = new Type[luaState.GetTop() - 1];
 
-            for (int i = 0; i < signature.Length; i++)
+            for (var i = 0; i < signature.Length; i++)
                 signature[i] = FindType(luaState.ToString(i + 2, false));
 
             try
             {
-                ConstructorInfo constructor = klass.UnderlyingSystemType.GetConstructor(signature);
-                var wrapper = new LuaMethodWrapper(this, null, klass, constructor);
-                var invokeDelegate = wrapper.InvokeFunction;
-                PushFunction(luaState, invokeDelegate);
+                if (klass != null)
+                {
+                    var constructor = klass.UnderlyingSystemType.GetConstructor(signature);
+                    var wrapper = new LuaMethodWrapper(this, null, klass, constructor);
+                    var invokeDelegate = wrapper.InvokeFunction;
+                    PushFunction(luaState, invokeDelegate);
+                }
             }
             catch (Exception e)
             {
@@ -599,9 +601,9 @@ namespace NLua
          * Pushes a CLR object into the Lua stack as an userdata
          * with the provided metatable
          */
-        internal void PushObject(LuaState luaState, object o, string metatable)
+        private void PushObject(LuaState luaState, object o, string metatable)
         {
-            int index = -1;
+            var index = -1;
 
             // Pushes nil
             if (o == null)
@@ -611,7 +613,7 @@ namespace NLua
             }
 
             // Object already in the list of Lua objects? Push the stored reference.
-            bool found = (!o.GetType().IsValueType || o.GetType().IsEnum) && _objectsBackMap.TryGetValue(o, out index);
+            var found = (!o.GetType().IsValueType || o.GetType().IsEnum) && _objectsBackMap.TryGetValue(o, out index);
 
             if (found)
             {
@@ -658,7 +660,7 @@ namespace NLua
                     luaState.PushString("cache");
                     luaState.NewTable();
                     luaState.RawSet(-3);
-                    luaState.PushLightUserData(_tagPtr);
+                    luaState.PushLightUserData(Tag);
                     luaState.PushNumber(1);
                     luaState.RawSet(-3);
                     luaState.PushString("__index");
@@ -694,7 +696,7 @@ namespace NLua
             luaState.Remove(-2);
         }
 
-        void RegisterCallMethodForDelegate(LuaState luaState, object o)
+        private static void RegisterCallMethodForDelegate(LuaState luaState, object o)
         {
             if (!(o is Delegate))
                 return;
@@ -704,7 +706,7 @@ namespace NLua
             luaState.RawSet(-3);
         }
 
-        void RegisterOperatorsFunctions(LuaState luaState, Type type)
+        private static void RegisterOperatorsFunctions(LuaState luaState, Type type)
         {
             if (type.HasAdditionOperator())
             {
@@ -754,12 +756,13 @@ namespace NLua
                 luaState.PushCFunction(MetaFunctions.LessThanFunction);
                 luaState.RawSet(-3);
             }
-            if (type.HasLessThanOrEqualOperator())
-            {
-                luaState.PushString("__le");
-                luaState.PushCFunction(MetaFunctions.LessThanOrEqualFunction);
-                luaState.RawSet(-3);
-            }
+
+            if (!type.HasLessThanOrEqualOperator()) 
+                return;
+            
+            luaState.PushString("__le");
+            luaState.PushCFunction(MetaFunctions.LessThanOrEqualFunction);
+            luaState.RawSet(-3);
         }
 
         /*
@@ -768,8 +771,8 @@ namespace NLua
          */
         internal object GetAsType(LuaState luaState, int stackPos, Type paramType)
         {
-            var extractor = typeChecker.CheckLuaType(luaState, stackPos, paramType);
-            return extractor != null ? extractor(luaState, stackPos) : null;
+            var extractor = TypeChecker.CheckLuaType(luaState, stackPos, paramType);
+            return extractor?.Invoke(luaState, stackPos);
         }
 
         /// <summary>
@@ -778,8 +781,7 @@ namespace NLua
         /// <param name = "udata"></param>
         internal void CollectObject(int udata)
         {
-            object o;
-            bool found = _objects.TryGetValue(udata, out o);
+            var found = _objects.TryGetValue(udata, out var o);
 
             // The other variant of collectObject might have gotten here first, in that case we will silently ignore the missing entry
             if (found)
@@ -801,7 +803,7 @@ namespace NLua
         private int AddObject(object obj)
         {
             // New object: inserts it in the list
-            int index = _nextObj++;
+            var index = _nextObj++;
             _objects[index] = obj;
 
             if (!obj.GetType().IsValueType || obj.GetType().IsEnum)
@@ -815,7 +817,7 @@ namespace NLua
          */
         internal object GetObject(LuaState luaState, int index)
         {
-            LuaType type = luaState.Type(index);
+            var type = luaState.Type(index);
 
             switch (type)
             {
@@ -836,7 +838,7 @@ namespace NLua
                         return GetFunction(luaState, index);
                 case LuaType.UserData:
                     {
-                        int udata = luaState.ToNetObject(index, Tag);
+                        var udata = luaState.ToNetObject(index, Tag);
                         return udata != -1 ? _objects[udata] : GetUserData(luaState, index);
                     }
                 default:
@@ -853,10 +855,10 @@ namespace NLua
             CleanFinalizedReferences(luaState);
 
             luaState.PushCopy(index);
-            int reference = luaState.Ref(LuaRegistry.Index);
+            var reference = luaState.Ref(LuaRegistry.Index);
             if (reference == -1)
                 return null;
-            return new LuaTable(reference, interpreter);
+            return new LuaTable(reference, _interpreter);
         }
 
         /*
@@ -868,10 +870,10 @@ namespace NLua
             CleanFinalizedReferences(luaState);
 
             luaState.PushCopy(index);
-            int reference = luaState.Ref(LuaRegistry.Index);
+            var reference = luaState.Ref(LuaRegistry.Index);
             if (reference == -1)
                 return null;
-            return new LuaUserData(reference, interpreter);
+            return new LuaUserData(reference, _interpreter);
         }
 
         /*
@@ -883,10 +885,10 @@ namespace NLua
             CleanFinalizedReferences(luaState);
 
             luaState.PushCopy(index);
-            int reference = luaState.Ref(LuaRegistry.Index);
+            var reference = luaState.Ref(LuaRegistry.Index);
             if (reference == -1)
                 return null;
-            return new LuaFunction(reference, interpreter);
+            return new LuaFunction(reference, _interpreter);
         }
 
         /*
@@ -895,7 +897,7 @@ namespace NLua
          */
         internal object GetNetObject(LuaState luaState, int index)
         {
-            int idx = luaState.ToNetObject(index, Tag);
+            var idx = luaState.ToNetObject(index, Tag);
             return idx != -1 ? _objects[idx] : null;
         }
 
@@ -905,7 +907,7 @@ namespace NLua
          */
         internal object GetRawNetObject(LuaState luaState, int index)
         {
-            int udata = luaState.RawNetObj(index);
+            var udata = luaState.RawNetObj(index);
             return udata != -1 ? _objects[udata] : null;
         }
 
@@ -916,13 +918,13 @@ namespace NLua
          */
         internal object[] PopValues(LuaState luaState, int oldTop)
         {
-            int newTop = luaState.GetTop();
+            var newTop = luaState.GetTop();
 
             if (oldTop == newTop)
                 return null;
 
             var returnValues = new List<object>();
-            for (int i = oldTop + 1; i <= newTop; i++)
+            for (var i = oldTop + 1; i <= newTop; i++)
                 returnValues.Add(GetObject(luaState, i));
 
             luaState.SetTop(oldTop);
@@ -936,20 +938,16 @@ namespace NLua
          */
         internal object[] PopValues(LuaState luaState, int oldTop, Type[] popTypes)
         {
-            int newTop = luaState.GetTop();
+            var newTop = luaState.GetTop();
 
             if (oldTop == newTop)
                 return null;
 
-            int iTypes;
             var returnValues = new List<object>();
 
-            if (popTypes[0] == typeof(void))
-                iTypes = 1;
-            else
-                iTypes = 0;
+            var iTypes = popTypes[0] == typeof(void) ? 1 : 0;
 
-            for (int i = oldTop + 1; i <= newTop; i++)
+            for (var i = oldTop + 1; i <= newTop; i++)
             {
                 returnValues.Add(GetAsType(luaState, i, popTypes[iTypes]));
                 iTypes++;
@@ -963,13 +961,12 @@ namespace NLua
         // else if (o is ILuaGeneratedType)
         private static bool IsILua(object o)
         {
-            if (o is ILuaGeneratedType)
-            {
-                // Make sure we are _really_ ILuaGenerated
-                var typ = o.GetType();
-                return typ.GetInterface("ILuaGeneratedType", true) != null;
-            }
-            return false;
+            if (!(o is ILuaGeneratedType)) 
+                return false;
+            
+            // Make sure we are _really_ ILuaGenerated
+            var typ = o.GetType();
+            return typ.GetInterface("ILuaGeneratedType", true) != null;
         }
 
         /*
@@ -977,46 +974,75 @@ namespace NLua
          */
         internal void Push(LuaState luaState, object o)
         {
-            if (o == null)
-                luaState.PushNil();
-            else if (o is sbyte sb)
-                luaState.PushInteger(sb);
-            else if(o is byte bt)
-                luaState.PushInteger(bt);
-            else if(o is short s)
-                luaState.PushInteger(s);
-            else if (o is ushort us)
-                luaState.PushInteger(us);
-            else if (o is int i)
-                luaState.PushInteger(i);
-            else if (o is uint ui)
-                luaState.PushInteger(ui);
-            else if (o is long l)
-                luaState.PushInteger(l);
-            else if (o is ulong ul)
-                luaState.PushInteger((long)ul);
-            else if (o is char ch)
-                luaState.PushInteger(ch);
-            else if (o is float fl)
-                luaState.PushNumber(fl);
-            else if(o is decimal dc)
-                luaState.PushNumber((double)dc);
-            else if(o is double db)
-                luaState.PushNumber(db);
-            else if (o is string str)
-                luaState.PushString(str);
-            else if (o is bool b)
-                luaState.PushBoolean(b);
-            else if (IsILua(o))
-                ((ILuaGeneratedType)o).LuaInterfaceGetLuaTable().Push(luaState);
-            else if (o is LuaTable table)
-                table.Push(luaState);
-            else if (o is LuaNativeFunction nativeFunction)
-                PushFunction(luaState, nativeFunction);
-            else if (o is LuaFunction luaFunction)
-                luaFunction.Push(luaState);
-            else
-                PushObject(luaState, o, "luaNet_metatable");
+            switch (o)
+            {
+                case null:
+                    luaState.PushNil();
+                    break;
+                case sbyte sb:
+                    luaState.PushInteger(sb);
+                    break;
+                case byte bt:
+                    luaState.PushInteger(bt);
+                    break;
+                case short s:
+                    luaState.PushInteger(s);
+                    break;
+                case ushort us:
+                    luaState.PushInteger(us);
+                    break;
+                case int i:
+                    luaState.PushInteger(i);
+                    break;
+                case uint ui:
+                    luaState.PushInteger(ui);
+                    break;
+                case long l:
+                    luaState.PushInteger(l);
+                    break;
+                case ulong ul:
+                    luaState.PushInteger((long)ul);
+                    break;
+                case char ch:
+                    luaState.PushInteger(ch);
+                    break;
+                case float fl:
+                    luaState.PushNumber(fl);
+                    break;
+                case decimal dc:
+                    luaState.PushNumber((double)dc);
+                    break;
+                case double db:
+                    luaState.PushNumber(db);
+                    break;
+                case string str:
+                    luaState.PushString(str);
+                    break;
+                case bool b:
+                    luaState.PushBoolean(b);
+                    break;
+                default:
+                {
+                    if (IsILua(o))
+                        ((ILuaGeneratedType)o).LuaInterfaceGetLuaTable().Push(luaState);
+                    else switch (o)
+                    {
+                        case LuaTable table:
+                            table.Push(luaState);
+                            break;
+                        case LuaNativeFunction nativeFunction:
+                            PushFunction(luaState, nativeFunction);
+                            break;
+                        case LuaFunction luaFunction:
+                            luaFunction.Push(luaState);
+                            break;
+                        default:
+                            PushObject(luaState, o, "luaNet_metatable");
+                            break;
+                    }
+                    break;
+                }
+            }
         }
 
         /*
@@ -1025,17 +1051,17 @@ namespace NLua
          */
         internal bool MatchParameters(LuaState luaState, MethodBase method, MethodCache methodCache, int skipParam)
         {
-            return metaFunctions.MatchParameters(luaState, method, methodCache, skipParam);
+            return MetaFunctionsInstance.MatchParameters(luaState, method, methodCache, skipParam);
         }
 
-        internal Array TableToArray(LuaState luaState, ExtractValue extractValue, Type paramArrayType, int startIndex, int count)
+        internal static Array TableToArray(LuaState luaState, ExtractValue extractValue, Type paramArrayType, int startIndex, int count)
         {
-            return metaFunctions.TableToArray(luaState, extractValue, paramArrayType, ref startIndex, count);
+            return MetaFunctions.TableToArray(luaState, extractValue, paramArrayType, ref startIndex, count);
         }
 
         private Type TypeOf(LuaState luaState, int idx)
         {
-            int udata = luaState.CheckUObject(idx, "luaNet_class");
+            var udata = luaState.CheckUObject(idx, "luaNet_class");
             if (udata == -1)
                 return null;
 
@@ -1043,7 +1069,7 @@ namespace NLua
             return pt.UnderlyingSystemType;
         }
 
-        static int PushError(LuaState luaState, string msg)
+        private static int PushError(LuaState luaState, string msg)
         {
             luaState.PushNil();
             luaState.PushString(msg);
@@ -1060,9 +1086,9 @@ namespace NLua
             return translator.CTypeInternal(state);
         }
 
-        int CTypeInternal(LuaState luaState)
+        private int CTypeInternal(LuaState luaState)
         {
-            Type t = TypeOf(luaState,1);
+            var t = TypeOf(luaState,1);
             if (t == null)
                 return PushError(luaState, "Not a CLR Class");
 
@@ -1080,37 +1106,40 @@ namespace NLua
             return translator.EnumFromIntInternal(state);
         }
 
-        int EnumFromIntInternal(LuaState luaState)
+        private int EnumFromIntInternal(LuaState luaState)
         {
-            Type t = TypeOf(luaState, 1);
+            var t = TypeOf(luaState, 1);
             if (t == null || !t.IsEnum)
                 return PushError(luaState, "Not an Enum.");
 
             object res = null;
-            LuaType lt = luaState.Type(2);
-            if (lt == LuaType.Number)
+            var lt = luaState.Type(2);
+            switch (lt)
             {
-                int ival = (int)luaState.ToNumber(2);
-                res = Enum.ToObject(t, ival);
-            }
-            else if (lt == LuaType.String)
-            {
-                string sflags = luaState.ToString(2, false);
-                string err = null;
-                try
+                case LuaType.Number:
                 {
-                    res = Enum.Parse(t, sflags, true);
+                    var ital = (int)luaState.ToNumber(2);
+                    res = Enum.ToObject(t, ital);
+                    break;
                 }
-                catch (ArgumentException e)
+                case LuaType.String:
                 {
-                    err = e.Message;
+                    var flags = luaState.ToString(2, false);
+                    string err = null;
+                    try
+                    {
+                        res = Enum.Parse(t, flags, true);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        err = e.Message;
+                    }
+                    if (err != null)
+                        return PushError(luaState, err);
+                    break;
                 }
-                if (err != null)
-                    return PushError(luaState, err);
-            }
-            else
-            {
-                return PushError(luaState, "Second argument must be a integer or a string.");
+                default:
+                    return PushError(luaState, "Second argument must be a integer or a string.");
             }
             PushObject(luaState, res, "luaNet_metatable");
             return 1;
@@ -1118,17 +1147,15 @@ namespace NLua
 
         internal void AddFinalizedReference(int reference)
         {
-            finalizedReferences.Enqueue(reference);
+            _finalizedReferences.Enqueue(reference);
         }
 
-        void CleanFinalizedReferences(LuaState state)
+        private void CleanFinalizedReferences(LuaState state)
         {
-            if (finalizedReferences.Count == 0)
+            if (_finalizedReferences.Count == 0)
                 return;
 
-            int reference;
-
-            while (finalizedReferences.TryDequeue(out reference))
+            while (_finalizedReferences.TryDequeue(out var reference))
                 state.Unref(LuaRegistry.Index, reference);
         }
     }

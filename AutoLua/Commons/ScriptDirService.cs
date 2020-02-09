@@ -1,5 +1,4 @@
 ﻿using AutoLua.Views.Scripts.Models;
-using AutoLua.Views.Scripts.ViewCell;
 using System.Collections.ObjectModel;
 using Xamarin.Forms;
 
@@ -22,12 +21,6 @@ namespace AutoLua.Commons
             foreach (var item in files)
             {
                 items.Add(item);
-            }
-
-            if (listView != null)
-            {
-                listView.ItemTemplate = new DataTemplate(() => new ViewCell { View = new ScriptDirViewCell() });
-                listView.RowHeight = 60;
             }
 
             listView.EndRefresh();

@@ -10,13 +10,9 @@ namespace NLua.Method
          */
         public static LuaFunction GetTableFunction(LuaTable luaTable, string name)
         {
-            if (luaTable == null)
-                return null;
-
-            var funcObj = luaTable.RawGet(name) as LuaFunction;
-
-            if (funcObj != null)
+            if (luaTable?.RawGet(name) is LuaFunction funcObj)
                 return funcObj;
+            
             return null;
         }
 
@@ -30,7 +26,7 @@ namespace NLua.Method
             // has the positions of out parameters
             object returnValue;
             int iRefArgs;
-            object[] returnValues = function.Call(inArgs, returnTypes);
+            var returnValues = function.Call(inArgs, returnTypes);
 
             if (returnTypes[0] == typeof(void))
             {
@@ -43,9 +39,9 @@ namespace NLua.Method
                 iRefArgs = 1;
             }
 
-            for (int i = 0; i < outArgs.Length; i++)
+            foreach (var t in outArgs)
             {
-                args[outArgs[i]] = returnValues[iRefArgs];
+                args[t] = returnValues[iRefArgs];
                 iRefArgs++;
             }
 

@@ -7,9 +7,9 @@ namespace NLua
      * its methods (the type of the returned value and out/ref
      * parameters).
      */
-    struct LuaClassType
+    internal struct LuaClassType
     {
-        public Type klass;
-        public Type[][] returnTypes;
+        public Type Klass;
+        public Type[][] ReturnTypes;
     }
 }

@@ -40,7 +40,7 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
         /// </summary>
         private volatile Looper _imageAcquireLooper;
 
-        private volatile AtomicReference _cachedImage = new AtomicReference();
+        private readonly AtomicReference _cachedImage = new AtomicReference();
 
         private volatile Image _underUsingImage;
 

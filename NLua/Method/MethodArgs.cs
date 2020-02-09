@@ -5,7 +5,7 @@ namespace NLua.Method
 	/*
 	 * Parameter information
 	 */
-	class MethodArgs
+	internal class MethodArgs
 	{
 		// Position of parameter
 		public int Index;

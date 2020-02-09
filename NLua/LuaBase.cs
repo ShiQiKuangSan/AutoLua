@@ -8,8 +8,8 @@ namespace NLua
     public abstract class LuaBase : IDisposable
     {
         private bool _disposed;
-        protected readonly int _Reference;
-        Lua _lua;
+        protected readonly int Reference;
+        private Lua _lua;
 
         protected bool TryGet(out Lua lua)
         {
@@ -26,7 +26,7 @@ namespace NLua
         protected LuaBase(int reference, Lua lua)
         {
             _lua = lua;
-            _Reference = reference;
+            Reference = reference;
         }
 
         ~LuaBase()
@@ -40,24 +40,24 @@ namespace NLua
             GC.SuppressFinalize(this);
         }
 
-        void DisposeLuaReference(bool finalized)
+        private void DisposeLuaReference(bool finalized)
         {
             if (_lua == null)
                 return;
-            Lua lua;
-            if (!TryGet(out lua))
+            if (!TryGet(out var lua))
                 return;
 
-            lua.DisposeInternal(_Reference, finalized);
+            lua.DisposeInternal(Reference, finalized);
         }
-        public virtual void Dispose(bool disposeManagedResources)
+
+        protected virtual void Dispose(bool disposeManagedResources)
         {
             if (_disposed)
                 return;
 
-            bool finalized = !disposeManagedResources;
+            var finalized = !disposeManagedResources;
 
-            if (_Reference != 0)
+            if (Reference != 0)
             {
                 DisposeLuaReference(finalized);
             }
@@ -68,20 +68,18 @@ namespace NLua
 
         public override bool Equals(object o)
         {
-            var reference = o as LuaBase;
-            if (reference == null)
+            if (!(o is LuaBase reference))
                 return false;
 
-            Lua lua;
-            if (!TryGet(out lua))
+            if (!TryGet(out var lua))
                 return false;
 
-            return lua.CompareRef(reference._Reference, _Reference);
+            return lua.CompareRef(reference.Reference, Reference);
         }
 
         public override int GetHashCode()
         {
-            return _Reference;
+            return Reference;
         }
     }
 }

@@ -287,7 +287,7 @@ namespace AutoLua.Droid.LuaScript.Api
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public string[] listDir(string path, Action<string> action = null)
+        public string[] listDir(string path)
         {
             return PFiles.ListDir(this.path(path));
         }

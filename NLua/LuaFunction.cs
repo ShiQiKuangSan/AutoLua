@@ -8,16 +8,16 @@ namespace NLua
 {
     public class LuaFunction : LuaBase
     {
-        internal readonly LuaNativeFunction function;
+        private readonly LuaNativeFunction _function;
 
         public LuaFunction(int reference, Lua interpreter):base(reference, interpreter)
         {
-            function = null;
+            _function = null;
         }
 
         public LuaFunction(LuaNativeFunction nativeFunction, Lua interpreter):base (0, interpreter)
         {
-            function = nativeFunction;
+            _function = nativeFunction;
         }
 
         /*
@@ -26,8 +26,7 @@ namespace NLua
          */
         internal object[] Call(object[] args, Type[] returnTypes)
         {
-            Lua lua;
-            if (!TryGet(out lua))
+            if (!TryGet(out var lua))
                 return null;
 
             return lua.CallFunction(this, args, returnTypes);
@@ -39,8 +38,7 @@ namespace NLua
          */
         public object[] Call(params object[] args)
         {
-            Lua lua;
-            if (!TryGet(out lua))
+            if (!TryGet(out var lua))
                 return null;
 
             return lua.CallFunction(this, args);
@@ -51,14 +49,13 @@ namespace NLua
          */
         internal void Push(LuaState luaState)
         {
-            Lua lua;
-            if (!TryGet(out lua))
+            if (!TryGet(out var lua))
                 return;
 
-            if (_Reference != 0)
-                luaState.RawGetInteger(LuaRegistry.Index, _Reference);
+            if (Reference != 0)
+                luaState.RawGetInteger(LuaRegistry.Index, Reference);
             else
-                lua.PushCSFunction(function);
+                lua.PushCSFunction(_function);
         }
 
         public override string ToString()
@@ -68,24 +65,21 @@ namespace NLua
 
         public override bool Equals(object o)
         {
-            var l = o as LuaFunction;
-
-            if (l == null)
+            if (!(o is LuaFunction l))
                 return false;
 
-            Lua lua;
-            if (!TryGet(out lua))
+            if (!TryGet(out var lua))
                 return false;
 
-            if (_Reference != 0 && l._Reference != 0)
-                return lua.CompareRef(l._Reference, _Reference);
+            if (Reference != 0 && l.Reference != 0)
+                return lua.CompareRef(l.Reference, Reference);
 
-            return function == l.function;
+            return _function == l._function;
         }
 
         public override int GetHashCode()
         {
-            return _Reference != 0 ? _Reference : function.GetHashCode();
+            return Reference != 0 ? Reference : _function.GetHashCode();
         }
     }
 }

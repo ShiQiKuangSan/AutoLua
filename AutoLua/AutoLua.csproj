@@ -11,14 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Views\Scripts\新建文件夹\**" />
-    <EmbeddedResource Remove="Views\Scripts\新建文件夹\**" />
-    <None Remove="Views\Scripts\新建文件夹\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="OpenCvSharp4" Version="4.2.0.20200108" />
+    <PackageReference Include="OpenCvSharp4" Version="4.2.0.20200208" />
     <PackageReference Include="Rg.Plugins.Popup" Version="1.2.0.223" />
     <PackageReference Include="Xamarin.Forms" Version="4.4.0.991640" />
     <PackageReference Include="Xamarin.Essentials" Version="1.3.1" />

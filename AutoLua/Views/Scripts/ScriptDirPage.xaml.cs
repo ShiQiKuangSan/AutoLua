@@ -13,18 +13,19 @@ namespace AutoLua.Views.Scripts
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ScriptDirPage : ContentPage
     {
-        private readonly IToastService toastService = DependencyService.Get<IToastService>();
-        private readonly ScriptDirService dirService;
+        private readonly IToastService _toastService = DependencyService.Get<IToastService>();
+        private readonly ScriptDirService _dirService;
 
-        private readonly ObservableCollection<ScriptFileModel> items = new ObservableCollection<ScriptFileModel>();
+        private readonly ObservableCollection<ScriptFileModel> _items = new ObservableCollection<ScriptFileModel>();
 
         public ScriptDirPage()
         {
             InitializeComponent();
             App.Pages.Add("ScriptDirPage", this);
-            dirService = new ScriptDirService(ScriptItems);
+            _dirService = new ScriptDirService(ScriptItems);
 
-            ScriptItems.ItemsSource = items;
+            ScriptItems.RowHeight = 60;
+            ScriptItems.ItemsSource = _items;
             ScriptItems.SelectionMode = ListViewSelectionMode.None;
             ScriptItems.RefreshControlColor = Color.Red;
 
@@ -51,11 +52,11 @@ namespace AutoLua.Views.Scripts
             if (string.IsNullOrWhiteSpace(fileName))
                 return;
 
-            var file = $"{dirService.GetPath()}/{fileName}/";
+            var file = $"{_dirService.GetPath()}/{fileName}/";
 
             if (Directory.Exists(file))
             {
-                toastService.ShortAlert("项目已存在");
+                _toastService.ShortAlert("项目已存在");
                 return;
             }
 
@@ -70,7 +71,7 @@ namespace AutoLua.Views.Scripts
         private void UpdateScript()
         {
             //刷新目录
-            dirService.UpdateScripts(items);
+            _dirService.UpdateScripts(_items);
         }
     }
 }

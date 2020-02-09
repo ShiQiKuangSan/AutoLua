@@ -1,26 +1,25 @@
 using System;
 using System.Threading;
 using System.Reflection;
-
 using System.Reflection.Emit;
 using System.Collections.Generic;
+using System.Linq;
 using NLua.Method;
 
 namespace NLua
 {
-    class CodeGeneration
+    internal class CodeGeneration
     {
         private readonly Dictionary<Type, LuaClassType> _classCollection = new Dictionary<Type, LuaClassType>();
         private readonly Dictionary<Type, Type> _delegateCollection = new Dictionary<Type, Type>();
 
 #if !NETSTANDARD
-        private Dictionary<Type, Type> eventHandlerCollection = new Dictionary<Type, Type>();
-        private Type eventHandlerParent = typeof(LuaEventHandler);
-        private Type delegateParent = typeof(LuaDelegate);
-        private Type classHelper = typeof(LuaClassHelper);
-        private AssemblyBuilder newAssembly;
-        private ModuleBuilder newModule;
-        private int luaClassNumber = 1;
+        private readonly Dictionary<Type, Type> _eventHandlerCollection = new Dictionary<Type, Type>();
+        private readonly Type _eventHandlerParent = typeof(LuaEventHandler);
+        private readonly Type _delegateParent = typeof(LuaDelegate);
+        private readonly Type _classHelper = typeof(LuaClassHelper);
+        private readonly ModuleBuilder _newModule;
+        private int _luaClassNumber = 1;
 #endif
 
         static CodeGeneration()
@@ -30,15 +29,17 @@ namespace NLua
         private CodeGeneration()
         {
             // Create an assembly name
-            var assemblyName = new AssemblyName();
-            assemblyName.Name = "NLua_generatedcode";
+            var assemblyName = new AssemblyName
+            {
+                Name = "NLua_generatedcode"
+            };
             // Create a new assembly with one module.
 #if NETCOREAPP
             newAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             newModule = newAssembly.DefineDynamicModule("NLua_generatedcode");
 #elif !NETSTANDARD
-            newAssembly = Thread.GetDomain().DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-            newModule = newAssembly.DefineDynamicModule("NLua_generatedcode");
+            var newAssembly = Thread.GetDomain().DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+            _newModule = newAssembly.DefineDynamicModule("NLua_generatedcode");
 #endif
         }
 
@@ -58,28 +59,29 @@ namespace NLua
             string typeName;
             lock (this)
             {
-                typeName = "LuaGeneratedClass" + luaClassNumber;
-                luaClassNumber++;
+                typeName = "LuaGeneratedClass" + _luaClassNumber;
+                _luaClassNumber++;
             }
 
             // Define a public class in the assembly, called typeName
-            var myType = newModule.DefineType(typeName, TypeAttributes.Public, eventHandlerParent);
+            var myType = _newModule.DefineType(typeName, TypeAttributes.Public, _eventHandlerParent);
 
             // Defines the handler method. Its signature is void(object, <subclassofEventArgs>)
             var paramTypes = new Type[2];
             paramTypes[0] = typeof(object);
             paramTypes[1] = eventHandlerType;
             var returnType = typeof(void);
-            var handleMethod = myType.DefineMethod("HandleEvent", MethodAttributes.Public | MethodAttributes.HideBySig, returnType, paramTypes);
+            var handleMethod = myType.DefineMethod("HandleEvent", MethodAttributes.Public | MethodAttributes.HideBySig,
+                returnType, paramTypes);
 
             // Emits the IL for the method. It loads the arguments
             // and calls the handleEvent method of the base class
-            ILGenerator generator = handleMethod.GetILGenerator();
+            var generator = handleMethod.GetILGenerator();
             generator.Emit(OpCodes.Ldarg_0);
             generator.Emit(OpCodes.Ldarg_1);
             generator.Emit(OpCodes.Ldarg_2);
-            var miGenericEventHandler = eventHandlerParent.GetMethod("HandleEvent");
-            generator.Emit(OpCodes.Call, miGenericEventHandler);
+            var miGenericEventHandler = _eventHandlerParent.GetMethod("HandleEvent");
+            generator.Emit(OpCodes.Call, miGenericEventHandler ?? throw new InvalidOperationException());
             // returns
             generator.Emit(OpCodes.Ret);
             // creates the new type
@@ -99,25 +101,28 @@ namespace NLua
             string typeName;
             lock (this)
             {
-                typeName = "LuaGeneratedClass" + luaClassNumber;
-                luaClassNumber++;
+                typeName = "LuaGeneratedClass" + _luaClassNumber;
+                _luaClassNumber++;
             }
 
             // Define a public class in the assembly, called typeName
-            var myType = newModule.DefineType(typeName, TypeAttributes.Public, delegateParent);
+            var myType = _newModule.DefineType(typeName, TypeAttributes.Public, _delegateParent);
 
             // Defines the delegate method with the same signature as the
             // Invoke method of delegateType
             var invokeMethod = delegateType.GetMethod("Invoke");
+            if (invokeMethod == null)
+                return myType.CreateType(); // creates the new type
+
             var paramInfo = invokeMethod.GetParameters();
             var paramTypes = new Type[paramInfo.Length];
             var returnType = invokeMethod.ReturnType;
 
             // Counts out and ref params, for use later
-            int nOutParams = 0;
-            int nOutAndRefParams = 0;
+            var nOutParams = 0;
+            var nOutAndRefParams = 0;
 
-            for (int i = 0; i < paramTypes.Length; i++)
+            for (var i = 0; i < paramTypes.Length; i++)
             {
                 paramTypes[i] = paramInfo[i].ParameterType;
 
@@ -128,16 +133,16 @@ namespace NLua
                     nOutAndRefParams++;
             }
 
-            int[] refArgs = new int[nOutAndRefParams];
+            var refArgs = new int[nOutAndRefParams];
             var delegateMethod = myType.DefineMethod("CallFunction", invokeMethod.Attributes, returnType, paramTypes);
 
             // Generates the IL for the method
-            ILGenerator generator = delegateMethod.GetILGenerator();
+            var generator = delegateMethod.GetILGenerator();
             generator.DeclareLocal(typeof(object[])); // original arguments
             generator.DeclareLocal(typeof(object[])); // with out-only arguments removed
             generator.DeclareLocal(typeof(int[])); // indexes of out and ref arguments
 
-            if (!(returnType == typeof(void)))  // return value
+            if (!(returnType == typeof(void))) // return value
                 generator.DeclareLocal(returnType);
             else
                 generator.DeclareLocal(typeof(object));
@@ -162,10 +167,11 @@ namespace NLua
 
                 if (paramTypes[iArgs].IsByRef)
                 {
-                    if (paramTypes[iArgs].GetElementType().IsValueType)
+                    var elm = paramTypes[iArgs].GetElementType() ?? throw new InvalidOperationException();
+                    if (elm.IsValueType)
                     {
-                        generator.Emit(OpCodes.Ldobj, paramTypes[iArgs].GetElementType());
-                        generator.Emit(OpCodes.Box, paramTypes[iArgs].GetElementType());
+                        generator.Emit(OpCodes.Ldobj, elm);
+                        generator.Emit(OpCodes.Box, elm);
                     }
                     else
                         generator.Emit(OpCodes.Ldind_Ref);
@@ -188,7 +194,7 @@ namespace NLua
                     iOutArgs++;
                 }
 
-                if (paramInfo[iArgs].IsIn || (!paramInfo[iArgs].IsOut))
+                if (!paramInfo[iArgs].IsIn && (paramInfo[iArgs].IsOut)) continue;
                 {
                     generator.Emit(OpCodes.Ldloc_1);
                     generator.Emit(OpCodes.Ldc_I4, iInArgs);
@@ -196,10 +202,11 @@ namespace NLua
 
                     if (paramTypes[iArgs].IsByRef)
                     {
-                        if (paramTypes[iArgs].GetElementType().IsValueType)
+                        var elm= paramTypes[iArgs].GetElementType() ?? throw new InvalidOperationException();
+                        if (elm.IsValueType)
                         {
-                            generator.Emit(OpCodes.Ldobj, paramTypes[iArgs].GetElementType());
-                            generator.Emit(OpCodes.Box, paramTypes[iArgs].GetElementType());
+                            generator.Emit(OpCodes.Ldobj, elm);
+                            generator.Emit(OpCodes.Box, elm);
                         }
                         else
                             generator.Emit(OpCodes.Ldind_Ref);
@@ -220,8 +227,8 @@ namespace NLua
             generator.Emit(OpCodes.Ldloc_0);
             generator.Emit(OpCodes.Ldloc_1);
             generator.Emit(OpCodes.Ldloc_2);
-            var miGenericEventHandler = delegateParent.GetMethod("CallFunction");
-            generator.Emit(OpCodes.Call, miGenericEventHandler);
+            var miGenericEventHandler = _delegateParent.GetMethod("CallFunction");
+            generator.Emit(OpCodes.Call, miGenericEventHandler ?? throw new InvalidOperationException());
 
             // Stores return value
             if (returnType == typeof(void))
@@ -240,22 +247,23 @@ namespace NLua
             generator.Emit(OpCodes.Stloc_3);
 
             // Stores new value of out and ref params
-            for (int i = 0; i < refArgs.Length; i++)
+            foreach (var t in refArgs)
             {
-                generator.Emit(OpCodes.Ldarg, refArgs[i] + 1);
+                generator.Emit(OpCodes.Ldarg, t + 1);
                 generator.Emit(OpCodes.Ldloc_0);
-                generator.Emit(OpCodes.Ldc_I4, refArgs[i]);
+                generator.Emit(OpCodes.Ldc_I4, t);
                 generator.Emit(OpCodes.Ldelem_Ref);
 
-                if (paramTypes[refArgs[i]].GetElementType().IsValueType)
+                var elm = paramTypes[t].GetElementType() ?? throw new InvalidOperationException();
+                if (elm.IsValueType)
                 {
-                    generator.Emit(OpCodes.Unbox, paramTypes[refArgs[i]].GetElementType());
-                    generator.Emit(OpCodes.Ldobj, paramTypes[refArgs[i]].GetElementType());
-                    generator.Emit(OpCodes.Stobj, paramTypes[refArgs[i]].GetElementType());
+                    generator.Emit(OpCodes.Unbox, elm);
+                    generator.Emit(OpCodes.Ldobj, elm);
+                    generator.Emit(OpCodes.Stobj, elm);
                 }
                 else
                 {
-                    generator.Emit(OpCodes.Castclass, paramTypes[refArgs[i]].GetElementType());
+                    generator.Emit(OpCodes.Castclass, elm);
                     generator.Emit(OpCodes.Stind_Ref);
                 }
             }
@@ -265,16 +273,17 @@ namespace NLua
                 generator.Emit(OpCodes.Ldloc_3);
 
             generator.Emit(OpCodes.Ret);
+
             return myType.CreateType(); // creates the new type
 #endif
         }
 
-        void GetReturnTypesFromClass(Type klass, out Type[][] returnTypes)
+        private void GetReturnTypesFromClass(Type klass, out Type[][] returnTypes)
         {
             var classMethods = klass.GetMethods();
             returnTypes = new Type[classMethods.Length][];
 
-            int i = 0;
+            var i = 0;
 
             foreach (var method in classMethods)
             {
@@ -297,44 +306,47 @@ namespace NLua
          */
         public void GenerateClass(Type klass, out Type newType, out Type[][] returnTypes)
         {
-
 #if NETSTANDARD
             throw new NotImplementedException (" Emit not available on .NET Standard ");
 #else
             string typeName;
             lock (this)
             {
-                typeName = "LuaGeneratedClass" + luaClassNumber;
-                luaClassNumber++;
+                typeName = "LuaGeneratedClass" + _luaClassNumber;
+                _luaClassNumber++;
             }
 
             TypeBuilder myType;
             // Define a public class in the assembly, called typeName
             if (klass.IsInterface)
-                myType = newModule.DefineType(typeName, TypeAttributes.Public, typeof(object), new Type[] {
+                myType = _newModule.DefineType(typeName, TypeAttributes.Public, typeof(object), new[]
+                {
                     klass,
                     typeof(ILuaGeneratedType)
                 });
             else
-                myType = newModule.DefineType(typeName, TypeAttributes.Public, klass, new Type[] { typeof(ILuaGeneratedType) });
+                myType = _newModule.DefineType(typeName, TypeAttributes.Public, klass,
+                    new[] {typeof(ILuaGeneratedType)});
 
             // Field that stores the Lua table
             var luaTableField = myType.DefineField("__luaInterface_luaTable", typeof(LuaTable), FieldAttributes.Public);
             // Field that stores the return types array
-            var returnTypesField = myType.DefineField("__luaInterface_returnTypes", typeof(Type[][]), FieldAttributes.Public);
+            var returnTypesField =
+                myType.DefineField("__luaInterface_returnTypes", typeof(Type[][]), FieldAttributes.Public);
             // Generates the constructor for the new type, it takes a Lua table and an array
             // of return types and stores them in the respective fields
-            var constructor = myType.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new Type[] {
+            var constructor = myType.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new[]
+            {
                 typeof(LuaTable),
                 typeof(Type[][])
             });
-            ILGenerator generator = constructor.GetILGenerator();
+            var generator = constructor.GetILGenerator();
             generator.Emit(OpCodes.Ldarg_0);
 
             if (klass.IsInterface)
-                generator.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes));
+                generator.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes) ?? throw new InvalidOperationException());
             else
-                generator.Emit(OpCodes.Call, klass.GetConstructor(Type.EmptyTypes));
+                generator.Emit(OpCodes.Call, klass.GetConstructor(Type.EmptyTypes) ?? throw new InvalidOperationException());
 
             generator.Emit(OpCodes.Ldarg_0);
             generator.Emit(OpCodes.Ldarg_1);
@@ -346,31 +358,35 @@ namespace NLua
             // Generates overriden versions of the klass' public virtual methods
             var classMethods = klass.GetMethods();
             returnTypes = new Type[classMethods.Length][];
-            int i = 0;
+            var i = 0;
 
             foreach (var method in classMethods)
             {
                 if (klass.IsInterface)
                 {
-                    GenerateMethod(myType, method, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot,
+                    GenerateMethod(myType, method,
+                        MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot,
                         i, luaTableField, returnTypesField, false, out returnTypes[i]);
                     i++;
                 }
                 else
                 {
-                    if (!method.IsPrivate && !method.IsFinal && method.IsVirtual)
-                    {
-                        GenerateMethod(myType, method, (method.Attributes | MethodAttributes.NewSlot) ^ MethodAttributes.NewSlot, i,
-                            luaTableField, returnTypesField, true, out returnTypes[i]);
-                        i++;
-                    }
+                    if (method.IsPrivate || method.IsFinal || !method.IsVirtual)
+                        continue;
+                    
+                    GenerateMethod(myType, method,
+                        (method.Attributes | MethodAttributes.NewSlot) ^ MethodAttributes.NewSlot, i,
+                        luaTableField, returnTypesField, true, out returnTypes[i]);
+                    i++;
                 }
             }
 
             // Generates an implementation of the luaInterfaceGetLuaTable method
             var returnTableMethod = myType.DefineMethod("LuaInterfaceGetLuaTable",
-                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual, typeof(LuaTable), new Type[0]);
-            myType.DefineMethodOverride(returnTableMethod, typeof(ILuaGeneratedType).GetMethod("LuaInterfaceGetLuaTable"));
+                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual, typeof(LuaTable),
+                new Type[0]);
+            myType.DefineMethodOverride(returnTableMethod,
+                typeof(ILuaGeneratedType).GetMethod("LuaInterfaceGetLuaTable") ?? throw new InvalidOperationException());
             generator = returnTableMethod.GetILGenerator();
             generator.Emit(OpCodes.Ldfld, luaTableField);
             generator.Emit(OpCodes.Ret);
@@ -378,7 +394,7 @@ namespace NLua
 #endif
         }
 
-        void GetReturnTypesFromMethod(MethodInfo method, out Type[] returnTypes)
+        private static void GetReturnTypesFromMethod(MethodInfo method, out Type[] returnTypes)
         {
             var paramInfo = method.GetParameters();
             var paramTypes = new Type[paramInfo.Length];
@@ -386,24 +402,20 @@ namespace NLua
 
             // Counts out and ref parameters, for later use, 
             // and creates the list of return types
-            int nOutParams = 0;
-            int nOutAndRefParams = 0;
             var returnType = method.ReturnType;
             returnTypesList.Add(returnType);
 
-            for (int i = 0; i < paramTypes.Length; i++)
+            for (var i = 0; i < paramTypes.Length; i++)
             {
                 paramTypes[i] = paramInfo[i].ParameterType;
 
                 if (!paramInfo[i].IsIn && paramInfo[i].IsOut)
                 {
-                    nOutParams++;
                 }
 
                 if (paramTypes[i].IsByRef)
                 {
                     returnTypesList.Add(paramTypes[i].GetElementType());
-                    nOutAndRefParams++;
                 }
             }
 
@@ -427,25 +439,25 @@ namespace NLua
 
             // Counts out and ref parameters, for later use, 
             // and creates the list of return types
-            int nOutParams = 0;
-            int nOutAndRefParams = 0;
+            var nOutParams = 0;
+            var nOutAndRefParams = 0;
             var returnType = method.ReturnType;
             returnTypesList.Add(returnType);
 
-            for (int i = 0; i < paramTypes.Length; i++)
+            for (var i = 0; i < paramTypes.Length; i++)
             {
                 paramTypes[i] = paramInfo[i].ParameterType;
                 if (!paramInfo[i].IsIn && paramInfo[i].IsOut)
                     nOutParams++;
 
-                if (paramTypes[i].IsByRef)
-                {
-                    returnTypesList.Add(paramTypes[i].GetElementType());
-                    nOutAndRefParams++;
-                }
+                if (!paramTypes[i].IsByRef) 
+                    continue;
+                
+                returnTypesList.Add(paramTypes[i].GetElementType());
+                nOutAndRefParams++;
             }
 
-            int[] refArgs = new int[nOutAndRefParams];
+            var refArgs = new int[nOutAndRefParams];
             returnTypes = returnTypesList.ToArray();
 
             // Generates a version of the method that calls the base implementation
@@ -455,10 +467,10 @@ namespace NLua
                 var baseMethod = myType.DefineMethod("__luaInterface_base_" + method.Name,
                     MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.HideBySig,
                     returnType, paramTypes);
-                ILGenerator generatorBase = baseMethod.GetILGenerator();
+                var generatorBase = baseMethod.GetILGenerator();
                 generatorBase.Emit(OpCodes.Ldarg_0);
 
-                for (int i = 0; i < paramTypes.Length; i++)
+                for (var i = 0; i < paramTypes.Length; i++)
                     generatorBase.Emit(OpCodes.Ldarg, i + 1);
 
                 generatorBase.Emit(OpCodes.Call, method);
@@ -474,10 +486,10 @@ namespace NLua
 
             // If it's an implementation of an interface tells what method it
             // is overriding
-            if (myType.BaseType.Equals(typeof(object)))
+            if (myType.BaseType != null && myType.BaseType == typeof(object))
                 myType.DefineMethodOverride(methodImpl, method);
 
-            ILGenerator generator = methodImpl.GetILGenerator();
+            var generator = methodImpl.GetILGenerator();
             generator.DeclareLocal(typeof(object[])); // original arguments
             generator.DeclareLocal(typeof(object[])); // with out-only arguments removed
             generator.DeclareLocal(typeof(int[])); // indexes of out and ref arguments
@@ -512,10 +524,11 @@ namespace NLua
 
                 if (paramTypes[iArgs].IsByRef)
                 {
-                    if (paramTypes[iArgs].GetElementType().IsValueType)
+                    var elm = paramTypes[iArgs].GetElementType() ?? throw new InvalidOperationException();
+                    if (elm.IsValueType)
                     {
-                        generator.Emit(OpCodes.Ldobj, paramTypes[iArgs].GetElementType());
-                        generator.Emit(OpCodes.Box, paramTypes[iArgs].GetElementType());
+                        generator.Emit(OpCodes.Ldobj, elm);
+                        generator.Emit(OpCodes.Box, elm);
                     }
                     else
                         generator.Emit(OpCodes.Ldind_Ref);
@@ -538,7 +551,7 @@ namespace NLua
                     iOutArgs++;
                 }
 
-                if (paramInfo[iArgs].IsIn || (!paramInfo[iArgs].IsOut))
+                if (!paramInfo[iArgs].IsIn && (paramInfo[iArgs].IsOut)) continue;
                 {
                     generator.Emit(OpCodes.Ldloc_1);
                     generator.Emit(OpCodes.Ldc_I4, iInArgs);
@@ -546,10 +559,11 @@ namespace NLua
 
                     if (paramTypes[iArgs].IsByRef)
                     {
-                        if (paramTypes[iArgs].GetElementType().IsValueType)
+                        var elm = paramTypes[iArgs].GetElementType() ?? throw new InvalidOperationException();
+                        if (elm.IsValueType)
                         {
-                            generator.Emit(OpCodes.Ldobj, paramTypes[iArgs].GetElementType());
-                            generator.Emit(OpCodes.Box, paramTypes[iArgs].GetElementType());
+                            generator.Emit(OpCodes.Ldobj, elm);
+                            generator.Emit(OpCodes.Box, elm);
                         }
                         else
                             generator.Emit(OpCodes.Ldind_Ref);
@@ -570,7 +584,7 @@ namespace NLua
             generator.Emit(OpCodes.Ldarg_0);
             generator.Emit(OpCodes.Ldfld, luaTableField);
             generator.Emit(OpCodes.Ldstr, method.Name);
-            generator.Emit(OpCodes.Call, classHelper.GetMethod("GetTableFunction"));
+            generator.Emit(OpCodes.Call, _classHelper.GetMethod("GetTableFunction") ?? throw new InvalidOperationException());
             var lab1 = generator.DefineLabel();
             generator.Emit(OpCodes.Dup);
             generator.Emit(OpCodes.Brtrue_S, lab1);
@@ -581,7 +595,7 @@ namespace NLua
             {
                 generator.Emit(OpCodes.Ldarg_0);
 
-                for (int i = 0; i < paramTypes.Length; i++)
+                for (var i = 0; i < paramTypes.Length; i++)
                     generator.Emit(OpCodes.Ldarg, i + 1);
 
                 generator.Emit(OpCodes.Call, method);
@@ -606,7 +620,7 @@ namespace NLua
             generator.Emit(OpCodes.Ldelem_Ref);
             generator.Emit(OpCodes.Ldloc_1);
             generator.Emit(OpCodes.Ldloc_2);
-            generator.Emit(OpCodes.Call, classHelper.GetMethod("CallFunction"));
+            generator.Emit(OpCodes.Call, _classHelper.GetMethod("CallFunction") ?? throw new InvalidOperationException());
             generator.MarkLabel(lab2);
 
             // Stores the function return value
@@ -626,22 +640,23 @@ namespace NLua
             generator.Emit(OpCodes.Stloc_3);
 
             // Sets return values of out and ref parameters
-            for (int i = 0; i < refArgs.Length; i++)
+            foreach (var t in refArgs)
             {
-                generator.Emit(OpCodes.Ldarg, refArgs[i] + 1);
+                generator.Emit(OpCodes.Ldarg, t + 1);
                 generator.Emit(OpCodes.Ldloc_0);
-                generator.Emit(OpCodes.Ldc_I4, refArgs[i]);
+                generator.Emit(OpCodes.Ldc_I4, t);
                 generator.Emit(OpCodes.Ldelem_Ref);
 
-                if (paramTypes[refArgs[i]].GetElementType().IsValueType)
+                var elm = paramTypes[t].GetElementType() ?? throw new InvalidOperationException();
+                if (elm.IsValueType)
                 {
-                    generator.Emit(OpCodes.Unbox, paramTypes[refArgs[i]].GetElementType());
-                    generator.Emit(OpCodes.Ldobj, paramTypes[refArgs[i]].GetElementType());
-                    generator.Emit(OpCodes.Stobj, paramTypes[refArgs[i]].GetElementType());
+                    generator.Emit(OpCodes.Unbox, elm);
+                    generator.Emit(OpCodes.Ldobj, elm);
+                    generator.Emit(OpCodes.Stobj, elm);
                 }
                 else
                 {
-                    generator.Emit(OpCodes.Castclass, paramTypes[refArgs[i]].GetElementType());
+                    generator.Emit(OpCodes.Castclass, elm);
                     generator.Emit(OpCodes.Stind_Ref);
                 }
             }
@@ -664,15 +679,15 @@ namespace NLua
 #else
             Type eventConsumerType;
 
-            if (eventHandlerCollection.ContainsKey(eventHandlerType))
-                eventConsumerType = eventHandlerCollection[eventHandlerType];
+            if (_eventHandlerCollection.ContainsKey(eventHandlerType))
+                eventConsumerType = _eventHandlerCollection[eventHandlerType];
             else
             {
                 eventConsumerType = GenerateEvent(eventHandlerType);
-                eventHandlerCollection[eventHandlerType] = eventConsumerType;
+                _eventHandlerCollection[eventHandlerType] = eventConsumerType;
             }
 
-            var luaEventHandler = (LuaEventHandler)Activator.CreateInstance(eventConsumerType);
+            var luaEventHandler = (LuaEventHandler) Activator.CreateInstance(eventConsumerType);
             luaEventHandler.Handler = eventHandler;
             return luaEventHandler;
 #endif
@@ -685,11 +700,14 @@ namespace NLua
 
         public void RegisterLuaClassType(Type klass, Type luaClass)
         {
-            var luaClassType = new LuaClassType();
-            luaClassType.klass = luaClass;
-            GetReturnTypesFromClass(klass, out luaClassType.returnTypes);
+            var luaClassType = new LuaClassType
+            {
+                Klass = luaClass
+            };
+            GetReturnTypesFromClass(klass, out luaClassType.ReturnTypes);
             _classCollection[klass] = luaClassType;
         }
+
         /*
          * Gets a delegate with delegateType that calls the luaFunc Lua function
          * Caches the generated type.
@@ -710,15 +728,14 @@ namespace NLua
             }
 
             var methodInfo = delegateType.GetMethod("Invoke");
-            returnTypes.Add(methodInfo.ReturnType);
-
-            foreach (ParameterInfo paramInfo in methodInfo.GetParameters())
+            if (methodInfo != null)
             {
-                if (paramInfo.ParameterType.IsByRef)
-                    returnTypes.Add(paramInfo.ParameterType);
+                returnTypes.Add(methodInfo.ReturnType);
+
+                returnTypes.AddRange(from paramInfo in methodInfo.GetParameters() where paramInfo.ParameterType.IsByRef select paramInfo.ParameterType);
             }
 
-            var luaDelegate = (LuaDelegate)Activator.CreateInstance(luaDelegateType);
+            var luaDelegate = (LuaDelegate) Activator.CreateInstance(luaDelegateType);
             luaDelegate.Function = luaFunc;
             luaDelegate.ReturnTypes = returnTypes.ToArray();
             return Delegate.CreateDelegate(delegateType, luaDelegate, "CallFunction");
@@ -739,13 +756,14 @@ namespace NLua
             else
             {
                 luaClassType = new LuaClassType();
-                GenerateClass(klass, out luaClassType.klass, out luaClassType.returnTypes);
+                GenerateClass(klass, out luaClassType.Klass, out luaClassType.ReturnTypes);
                 _classCollection[klass] = luaClassType;
             }
 
-            return Activator.CreateInstance(luaClassType.klass, new object[] {
+            return Activator.CreateInstance(luaClassType.Klass, new object[]
+            {
                 luaTable,
-                luaClassType.returnTypes
+                luaClassType.ReturnTypes
             });
         }
     }

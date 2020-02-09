@@ -46,6 +46,11 @@
     <WarningLevel>4</WarningLevel>
     <AndroidManagedSymbols>true</AndroidManagedSymbols>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
+    <AndroidLinkMode>Full</AndroidLinkMode>
+    <AndroidLinkSkip>KeraLua;</AndroidLinkSkip>
+    <AndroidSupportedAbis />
+    <AndroidCreatePackagePerAbi>true</AndroidCreatePackagePerAbi>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
@@ -64,7 +69,7 @@
       <Version>12.0.3</Version>
     </PackageReference>
     <PackageReference Include="OpenCvSharp4">
-      <Version>4.2.0.20200108</Version>
+      <Version>4.2.0.20200208</Version>
     </PackageReference>
     <PackageReference Include="Rg.Plugins.Popup">
       <Version>1.2.0.223</Version>
@@ -120,8 +125,11 @@
     <Compile Include="LuaScript\Api\ScreenMetrics.cs" />
     <Compile Include="LuaScript\Api\Sensors.cs" />
     <Compile Include="LuaScript\Api\SharedPreferences.cs" />
+    <Compile Include="LuaScript\Api\ThreadApi.cs" />
+    <Compile Include="LuaScript\Api\TimerApi.cs" />
     <Compile Include="LuaScript\LuaGlobal.cs" />
     <Compile Include="LuaScript\LuaGlobalMethod.cs" />
+    <Compile Include="LuaScript\ScriptExecuteActivity.cs" />
     <Compile Include="LuaScript\Utils\IntentUtil.cs" />
     <Compile Include="LuaScript\Utils\LuaAppUtils.cs" />
     <Compile Include="LuaScript\Utils\MaterialDialogs\BlockedMaterialDialog.cs" />

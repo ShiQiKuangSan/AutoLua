@@ -19,8 +19,9 @@ namespace AutoLua.Views.Scripts.ViewCell
 
         private void run_script(object sender, System.EventArgs e)
         {
-            var imgBut = sender as ImageButton;
-
+            if (!(sender is ImageButton imgBut)) 
+                return;
+            
             var stack = imgBut.Parent;
             var grid = stack?.Parent;
 
@@ -48,8 +49,7 @@ namespace AutoLua.Views.Scripts.ViewCell
 
             LogEventDelegates.Instance.OnLog(new LogEventArgs("运行", $"运行 {label.Text ?? string.Empty} 脚本", Color.Blue));
 
-
-            var obj = luaScriptService.RunFile(luaLb.Text);
+            luaScriptService.RunFile(luaLb.Text);
         }
     }
 }

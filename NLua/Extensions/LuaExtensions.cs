@@ -6,7 +6,7 @@ using LuaState=KeraLua.Lua;
 
 namespace NLua.Extensions
 {
-    static class LuaExtensions
+    internal static class LuaExtensions
     {
         public static bool CheckMetaTable(this LuaState state, int index, IntPtr tag)
         {
@@ -15,7 +15,7 @@ namespace NLua.Extensions
 
             state.PushLightUserData(tag);
             state.RawGet(-2);
-            bool isNotNil = !state.IsNil(-1);
+            var isNotNil = !state.IsNil(-1);
             state.SetTop(-3);
             return isNotNil;
         }
@@ -43,7 +43,7 @@ namespace NLua.Extensions
 
         public static IntPtr CheckUData(this LuaState state, int ud, string name)
         {
-            IntPtr p = state.ToUserData(ud);
+            var p = state.ToUserData(ud);
             if (p == IntPtr.Zero)
                 return IntPtr.Zero;
             if (!state.GetMetaTable(ud))
@@ -51,7 +51,7 @@ namespace NLua.Extensions
 
             state.GetField(LuaRegistry.Index, name);
 
-            bool isEqual = state.RawEqual(-1, -2);
+            var isEqual = state.RawEqual(-1, -2);
 
             state.Pop(2);
 
@@ -92,13 +92,13 @@ namespace NLua.Extensions
 
         public static void NewUData(this LuaState state, int val)
         {
-            IntPtr pointer = state.NewUserData(Marshal.SizeOf(typeof(int)));
+            var pointer = state.NewUserData(Marshal.SizeOf(typeof(int)));
             Marshal.WriteInt32(pointer, val);
         }
 
         public static int RawNetObj(this LuaState state, int index)
         {
-            IntPtr pointer = state.ToUserData(index);
+            var pointer = state.ToUserData(index);
             if (pointer == IntPtr.Zero)
                 return -1;
 
@@ -107,7 +107,7 @@ namespace NLua.Extensions
 
         public static int CheckUObject(this LuaState state, int index, string name)
         {
-            IntPtr udata = state.CheckUData(index, name);
+            var udata = state.CheckUData(index, name);
             if (udata == IntPtr.Zero)
                 return -1;
 

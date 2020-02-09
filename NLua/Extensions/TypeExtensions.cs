@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace NLua.Extensions
 {
-    static class TypeExtensions
+    internal static class TypeExtensions
     {
         public static bool HasMethod(this Type t, string name)
         {
@@ -90,7 +90,7 @@ namespace NLua.Extensions
             return t.GetMethods(flags).Where(m => m.Name == name).ToArray();
         }
 
-        public static MethodInfo[] GetExtensionMethods(this Type type, string name, IEnumerable<Assembly> assemblies = null)
+        public static IEnumerable<MethodInfo> GetExtensionMethods(this Type type, string name, IEnumerable<Assembly> assemblies = null)
         {
             var types = new List<Type>();
 
@@ -98,7 +98,7 @@ namespace NLua.Extensions
 
             if (assemblies != null)
             {
-                foreach (Assembly item in assemblies)
+                foreach (var item in assemblies)
                 {
                     if (item == type.Assembly)
                         continue;

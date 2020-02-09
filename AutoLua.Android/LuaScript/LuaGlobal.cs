@@ -1,7 +1,9 @@
 ﻿using AutoLua.Droid.AutoAccessibility.Accessibility.Filter;
 using AutoLua.Droid.LuaScript.Api;
 using AutoLua.Droid.LuaScript.Utils;
+using NLua;
 using System.IO;
+using System.Text;
 using Xamarin.Forms;
 
 namespace AutoLua.Droid.LuaScript
@@ -37,6 +39,10 @@ namespace AutoLua.Droid.LuaScript
 
             IsInit = true;
 
+            AppApplication.Lua = new Lua();
+
+            AppApplication.Lua.State.Encoding = Encoding.UTF8;
+
             var lua = AppApplication.Lua;
             var dialogs = new Dialogs();
 
@@ -46,12 +52,11 @@ namespace AutoLua.Droid.LuaScript
 
             try
             {
-                using (var sr = new StreamReader(assets.Open("LuaJson.Lua")))
-                {
-                    var str = sr.ReadToEnd();
+                using var sr = new StreamReader(assets.Open("LuaJson.Lua"));
 
-                    lua.DoString(str);
-                }
+                var str = sr.ReadToEnd();
+
+                lua.DoString(str);
             }
             catch (System.Exception)
             {
@@ -120,6 +125,14 @@ namespace AutoLua.Droid.LuaScript
 
             //弹窗
             lua.RegisterFunction("alert", dialogsType, dialogsType.GetMethod("alert"));
+        }
+
+        public void Close()
+        {
+            IsInit = false;
+            AppApplication.Lua?.Close();
+            AppApplication.LuaThread?.Interrupt();
+            AppApplication.LuaThread = null;
         }
     }
 }

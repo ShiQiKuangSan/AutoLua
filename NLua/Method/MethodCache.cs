@@ -4,21 +4,18 @@ using NLua.Extensions;
 
 namespace NLua.Method
 {
-    class MethodCache
+    internal class MethodCache
     {
         public MethodCache()
         {
-            args = new object[0];
-            argTypes = new MethodArgs[0];
-            outList = new int[0];
+            Args = new object[0];
+            ArgTypes = new MethodArgs[0];
+            OutList = new int[0];
         }
         private MethodBase _cachedMethod;
 
-        public MethodBase cachedMethod {
-            get
-            {
-                return _cachedMethod;
-            }
+        public MethodBase CachedMethod {
+            get => _cachedMethod;
             set
             {
                 _cachedMethod = value;
@@ -33,10 +30,10 @@ namespace NLua.Method
 
         public bool IsReturnVoid;
         // List or arguments
-        public object[] args;
+        public object[] Args;
         // Positions of out parameters
-        public int[] outList;
+        public int[] OutList;
         // Types of parameters
-        public MethodArgs[] argTypes;
+        public MethodArgs[] ArgTypes;
     }
 }

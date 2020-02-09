@@ -15,19 +15,17 @@ namespace NLua
         public object this[string field] {
             get
             {
-                Lua lua;
-                if (!TryGet(out lua))
+                if (!TryGet(out var lua))
                     return null;
 
-                return lua.GetObject(_Reference, field);
+                return lua.GetObject(Reference, field);
             }
             set
             {
-                Lua lua;
-                if (!TryGet(out lua))
+                if (!TryGet(out var lua))
                     return;
 
-                lua.SetObject(_Reference, field, value);
+                lua.SetObject(Reference, field, value);
             }
         }
 
@@ -37,19 +35,17 @@ namespace NLua
         public object this[object field] {
             get
             {
-                Lua lua;
-                if (!TryGet(out lua))
+                if (!TryGet(out var lua))
                     return null;
 
-                return lua.GetObject(_Reference, field);
+                return lua.GetObject(Reference, field);
             }
             set
             {
-                Lua lua;
-                if (!TryGet(out lua))
+                if (!TryGet(out var lua))
                     return;
 
-                lua.SetObject(_Reference, field, value);
+                lua.SetObject(Reference, field, value);
             }
         }
 
@@ -59,8 +55,7 @@ namespace NLua
          */
         public object[] Call(params object[] args)
         {
-            Lua lua;
-            if (!TryGet(out lua))
+            if (!TryGet(out var lua))
                 return null;
 
             return lua.CallFunction(this, args);

@@ -1,4 +1,5 @@
 ﻿using AutoLua.Commons;
+using AutoLua.Events;
 using AutoLua.Services;
 using AutoLua.Views.Scripts.Models;
 using System;
@@ -13,17 +14,20 @@ namespace AutoLua.Views.Scripts
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ScriptFilePage : ContentPage
     {
-        private readonly IToastService toastService = DependencyService.Get<IToastService>();
-        private readonly ScriptFileService fileService;
+        private readonly IToastService _toastService = DependencyService.Get<IToastService>();
+        private readonly ILuaScriptService _luaScriptService = DependencyService.Get<ILuaScriptService>();
 
-        private readonly ObservableCollection<ScriptFileModel> items = new ObservableCollection<ScriptFileModel>();
+        private readonly ScriptFileService _fileService;
+
+        private readonly ObservableCollection<ScriptFileModel> _items = new ObservableCollection<ScriptFileModel>();
         public ScriptFilePage()
         {
             InitializeComponent();
             App.Pages.Add("ScriptFilePage", this);
-            fileService = new ScriptFileService(ScriptItems);
+            _fileService = new ScriptFileService(ScriptItems);
 
-            ScriptItems.ItemsSource = items;
+            ScriptItems.RowHeight = 60;
+            ScriptItems.ItemsSource = _items;
             ScriptItems.SelectionMode = ListViewSelectionMode.None;
             ScriptItems.RefreshControlColor = Color.Red;
 
@@ -51,11 +55,11 @@ namespace AutoLua.Views.Scripts
                 return;
 
 
-            var file = $"{fileService.GetPath()}/{fileName}.lua";
+            var file = $"{_fileService.GetPath()}/{fileName}.lua";
 
             if (File.Exists(file))
             {
-                toastService.ShortAlert("文件已存在");
+                _toastService.ShortAlert("文件已存在");
                 return;
             }
 
@@ -71,7 +75,42 @@ namespace AutoLua.Views.Scripts
         private void UpdateScript()
         {
             //刷新目录
-            fileService.UpdateScripts(items);
+            _fileService.UpdateScripts(_items);
+        }
+
+        private void run_script(object sender, System.EventArgs e)
+        {
+            if (!(sender is ImageButton imgBut))
+                return;
+
+            var stack = imgBut.Parent;
+            var grid = stack?.Parent;
+
+            var label = grid?.FindByName<Label>("ScripeName");
+
+            var luaLb = stack?.FindByName<Label>("LPath");
+
+            if (label == null)
+            {
+                _toastService.ShortAlert("发生未知错误");
+                return;
+            }
+
+            if (luaLb == null)
+            {
+                _toastService.ShortAlert("发生未知错误100");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(luaLb.Text))
+            {
+                _toastService.ShortAlert("脚本不存在");
+                return;
+            }
+
+            LogEventDelegates.Instance.OnLog(new LogEventArgs("运行", $"运行 {label.Text ?? string.Empty} 脚本", Color.Blue));
+
+            _luaScriptService.RunFile(luaLb.Text);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace NLua.Method
             // has the positions of out parameters
             object returnValue;
             int iRefArgs;
-            object[] returnValues = Function.Call(inArgs, ReturnTypes);
+            var returnValues = Function.Call(inArgs, ReturnTypes);
 
             if (ReturnTypes[0] == typeof(void))
             {
@@ -35,9 +35,9 @@ namespace NLua.Method
 
             // Sets the value of out and ref parameters (from
             // the values returned by the Lua function).
-            for (int i = 0; i < outArgs.Length; i++)
+            foreach (var t in outArgs)
             {
-                args[outArgs[i]] = returnValues[iRefArgs];
+                args[t] = returnValues[iRefArgs];
                 iRefArgs++;
             }
 

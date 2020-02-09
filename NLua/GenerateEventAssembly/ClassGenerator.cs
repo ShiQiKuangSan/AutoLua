@@ -3,7 +3,7 @@ using LuaState = KeraLua.Lua;
 
 namespace NLua
 {
-    class ClassGenerator
+    internal class ClassGenerator
     {
         private readonly ObjectTranslator _translator;
         private readonly Type _klass;

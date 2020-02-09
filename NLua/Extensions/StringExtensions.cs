@@ -2,12 +2,12 @@ using System.Collections.Generic;
 
 namespace NLua.Extensions
 {
-    static class StringExtensions
+    internal static class StringExtensions
     {
         public static IEnumerable<string> SplitWithEscape(this string input, char separator, char escapeCharacter)
         {
-            int start = 0;
-            int index = 0;
+            var start = 0;
+            var index = 0;
             while (index < input.Length)
             {
                 index = input.IndexOf(separator, index);
@@ -21,7 +21,7 @@ namespace NLua.Extensions
                 }
 
 
-                yield return input.Substring(start, index - start);
+                yield return input[start..index];
                 index++;
                 start = index;
             }

@@ -7,7 +7,7 @@ namespace NLua.Method
     /// <summary>
     /// We keep track of what delegates we have auto attached to an event - to allow us to cleanly exit a NLua session
     /// </summary>
-    class EventHandlerContainer : IDisposable
+    internal class EventHandlerContainer : IDisposable
     {
         private readonly Dictionary<Delegate, RegisterEventHandler> _dict = new Dictionary<Delegate, RegisterEventHandler>();
 
@@ -18,7 +18,7 @@ namespace NLua.Method
 
         public void Remove(Delegate handler)
         {
-            bool found = _dict.Remove(handler);
+            var found = _dict.Remove(handler);
             Debug.Assert(found);
         }
 
@@ -27,8 +27,8 @@ namespace NLua.Method
         /// </summary>
         public void Dispose()
         {
-            foreach (KeyValuePair<Delegate, RegisterEventHandler> pair in _dict)
-                pair.Value.RemovePending(pair.Key);
+            foreach (var (key, value) in _dict)
+                value.RemovePending(key);
 
             _dict.Clear();
         }

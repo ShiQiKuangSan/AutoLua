@@ -10,11 +10,11 @@ namespace AutoLua.Services
         /// <summary>
         /// 运行文件。
         /// </summary>
-        object[] RunFile(string path);
+        void RunFile(string path);
 
         /// <summary>
         /// 运行脚本。
         /// </summary>
-        object[] RunProject(string path);
+        void RunProject(string path);
     }
 }

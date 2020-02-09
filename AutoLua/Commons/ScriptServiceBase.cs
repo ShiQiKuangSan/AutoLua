@@ -51,9 +51,10 @@ namespace AutoLua.Commons
         {
             var items = new List<ScriptFileModel>();
             var dir = new DirectoryInfo(path);
+            var files = dir.GetFiles();
 
             //添加文件夹
-            foreach (var item in dir.GetFiles().Where(x => x.Extension == ".lua" || x.Extension == ".luac"))
+            foreach (var item in files.Where(x => x.Extension == ".lua" || x.Extension == ".luac"))
             {
                 var model = new ScriptFileModel
                 {

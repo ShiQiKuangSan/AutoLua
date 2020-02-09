@@ -5,16 +5,12 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-
 using KeraLua;
-
 using NLua.Method;
 using NLua.Extensions;
-
 #if __IOS__ || __TVOS__ || __WATCHOS__
     using ObjCRuntime;
 #endif
-
 using LuaState = KeraLua.Lua;
 using LuaNativeFunction = KeraLua.LuaFunction;
 using NLua.Exceptions;
@@ -24,16 +20,16 @@ namespace NLua
     public class MetaFunctions
     {
         public static readonly LuaNativeFunction GcFunction = CollectObject;
-        public static readonly LuaNativeFunction IndexFunction  = GetMethod;
+        public static readonly LuaNativeFunction IndexFunction = GetMethod;
         public static readonly LuaNativeFunction NewIndexFunction = SetFieldOrProperty;
-        public static readonly LuaNativeFunction BaseIndexFunction  = GetBaseMethod;
-        public static readonly LuaNativeFunction ClassIndexFunction  = GetClassMethod;
-        public static readonly LuaNativeFunction ClassNewIndexFunction  = SetClassFieldOrProperty;
-        public static readonly LuaNativeFunction ExecuteDelegateFunction  = RunFunctionDelegate;
-        public static readonly LuaNativeFunction CallConstructorFunction  = CallConstructor;
+        public static readonly LuaNativeFunction BaseIndexFunction = GetBaseMethod;
+        public static readonly LuaNativeFunction ClassIndexFunction = GetClassMethod;
+        public static readonly LuaNativeFunction ClassNewIndexFunction = SetClassFieldOrProperty;
+        public static readonly LuaNativeFunction ExecuteDelegateFunction = RunFunctionDelegate;
+        public static readonly LuaNativeFunction CallConstructorFunction = CallConstructor;
         public static readonly LuaNativeFunction ToStringFunction = ToStringLua;
         public static readonly LuaNativeFunction CallDelegateFunction = CallDelegate;
-        public static readonly LuaNativeFunction CallInvalidFunction  = CallInvalidMethod;
+        public static readonly LuaNativeFunction CallInvalidFunction = CallInvalidMethod;
 
         public static readonly LuaNativeFunction AddFunction = AddLua;
         public static readonly LuaNativeFunction SubtractFunction = SubtractLua;
@@ -42,31 +38,34 @@ namespace NLua
         public static readonly LuaNativeFunction ModulosFunction = ModLua;
         public static readonly LuaNativeFunction UnaryNegationFunction = UnaryNegationLua;
         public static readonly LuaNativeFunction EqualFunction = EqualLua;
-        public static readonly LuaNativeFunction LessThanFunction  = LessThanLua;
+        public static readonly LuaNativeFunction LessThanFunction = LessThanLua;
         public static readonly LuaNativeFunction LessThanOrEqualFunction = LessThanOrEqualLua;
 
-        readonly Dictionary<object, Dictionary<object, object>> _memberCache = new Dictionary<object, Dictionary<object, object>>();
+        readonly Dictionary<object, Dictionary<object, object>> _memberCache =
+            new Dictionary<object, Dictionary<object, object>>();
+
         readonly ObjectTranslator _translator;
 
         /*
          * __index metafunction for CLR objects. Implemented in Lua.
          */
-        public const string LuaIndexFunction = @"local function a(b,c)local d=getmetatable(b)local e=d.cache[c]if e~=nil then return e else local f,g=get_object_member(b,c)if g then d.cache[c]=f end;return f end end;return a";
-            //@"local function index(obj,name)
-            //    local meta = getmetatable(obj)
-            //    local cached = meta.cache[name]
-            //    if cached ~= nil then
-            //       return cached
-            //    else
-            //       local value,isFunc = get_object_member(obj,name)
-                   
-            //       if isFunc then
-            //        meta.cache[name]=value
-            //       end
-            //       return value
-            //     end
-            //end
-            //return index";
+        public const string LuaIndexFunction =
+            @"local function a(b,c)local d=getmetatable(b)local e=d.cache[c]if e~=nil then return e else local f,g=get_object_member(b,c)if g then d.cache[c]=f end;return f end end;return a";
+        //@"local function index(obj,name)
+        //    local meta = getmetatable(obj)
+        //    local cached = meta.cache[name]
+        //    if cached ~= nil then
+        //       return cached
+        //    else
+        //       local value,isFunc = get_object_member(obj,name)
+
+        //       if isFunc then
+        //        meta.cache[name]=value
+        //       end
+        //       return value
+        //     end
+        //end
+        //return index";
 
         public MetaFunctions(ObjectTranslator translator)
         {
@@ -83,15 +82,14 @@ namespace NLua
         {
             var state = LuaState.FromIntPtr(luaState);
             var translator = ObjectTranslatorPool.Instance.Find(state);
-            var func = (LuaNativeFunction)translator.GetRawNetObject(state, 1);
+            var func = (LuaNativeFunction) translator.GetRawNetObject(state, 1);
             state.Remove(1);
-            int result = func(luaState);
-            var exception = translator.GetObject(state, -1) as LuaScriptException;
+            var result = func(luaState);
 
-            if (exception != null)
+            if (translator.GetObject(state, -1) is LuaScriptException)
                 return state.Error();
             return result;
-         }
+        }
 
         /*
          * __gc metafunction of CLR objects.
@@ -108,7 +106,7 @@ namespace NLua
 
         private static int CollectObject(LuaState luaState, ObjectTranslator translator)
         {
-            int udata = luaState.RawNetObj(1);
+            var udata = luaState.RawNetObj(1);
 
             if (udata != -1)
                 translator.CollectObject(udata);
@@ -131,7 +129,7 @@ namespace NLua
 
         private static int ToStringLua(LuaState luaState, ObjectTranslator translator)
         {
-            object obj = translator.GetRawNetObject(luaState, 1);
+            var obj = translator.GetRawNetObject(luaState, 1);
 
             if (obj != null)
                 translator.Push(luaState, obj + ": " + obj.GetHashCode());
@@ -148,7 +146,7 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaNativeFunction))]
 #endif
-        static int AddLua(IntPtr luaState)
+        private static int AddLua(IntPtr luaState)
         {
             var state = LuaState.FromIntPtr(luaState);
             var translator = ObjectTranslatorPool.Instance.Find(state);
@@ -161,7 +159,7 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaNativeFunction))]
 #endif
-        static int SubtractLua(IntPtr luaState)
+        private static int SubtractLua(IntPtr luaState)
         {
             var state = LuaState.FromIntPtr(luaState);
             var translator = ObjectTranslatorPool.Instance.Find(state);
@@ -174,7 +172,7 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaNativeFunction))]
 #endif
-        static int MultiplyLua(IntPtr luaState)
+        private static int MultiplyLua(IntPtr luaState)
         {
             var state = LuaState.FromIntPtr(luaState);
             var translator = ObjectTranslatorPool.Instance.Find(state);
@@ -187,7 +185,7 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaNativeFunction))]
 #endif
-        static int DivideLua(IntPtr luaState)
+        private static int DivideLua(IntPtr luaState)
         {
             var state = LuaState.FromIntPtr(luaState);
             var translator = ObjectTranslatorPool.Instance.Find(state);
@@ -200,7 +198,7 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaNativeFunction))]
 #endif
-        static int ModLua(IntPtr luaState)
+        private static int ModLua(IntPtr luaState)
         {
             var state = LuaState.FromIntPtr(luaState);
             var translator = ObjectTranslatorPool.Instance.Find(state);
@@ -213,16 +211,16 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaNativeFunction))]
 #endif
-        static int UnaryNegationLua(IntPtr luaState)
+        private static int UnaryNegationLua(IntPtr luaState)
         {
             var state = LuaState.FromIntPtr(luaState);
             var translator = ObjectTranslatorPool.Instance.Find(state);
             return UnaryNegationLua(state, translator);
         }
 
-        static int UnaryNegationLua(LuaState luaState, ObjectTranslator translator)
+        private static int UnaryNegationLua(LuaState luaState, ObjectTranslator translator)
         {
-            object obj1 = translator.GetRawNetObject(luaState, 1);
+            var obj1 = translator.GetRawNetObject(luaState, 1);
 
             if (obj1 == null)
             {
@@ -230,15 +228,17 @@ namespace NLua
                 return 1;
             }
 
-            Type type = obj1.GetType();
-            MethodInfo opUnaryNegation = type.GetMethod("op_UnaryNegation");
+            var type = obj1.GetType();
+            var opUnaryNegation = type.GetMethod("op_UnaryNegation");
 
             if (opUnaryNegation == null)
             {
-                translator.ThrowError(luaState, "Cannot negate object (" + type.Name + " does not overload the operator -)");
+                translator.ThrowError(luaState,
+                    "Cannot negate object (" + type.Name + " does not overload the operator -)");
                 return 1;
             }
-            obj1 = opUnaryNegation.Invoke(obj1, new [] { obj1 });
+
+            obj1 = opUnaryNegation.Invoke(obj1, new[] {obj1});
             translator.Push(luaState, obj1);
             return 1;
         }
@@ -250,7 +250,7 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaNativeFunction))]
 #endif
-        static int EqualLua(IntPtr luaState)
+        private static int EqualLua(IntPtr luaState)
         {
             var state = LuaState.FromIntPtr(luaState);
             var translator = ObjectTranslatorPool.Instance.Find(state);
@@ -263,7 +263,7 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaNativeFunction))]
 #endif
-        static int LessThanLua(IntPtr luaState)
+        private static int LessThanLua(IntPtr luaState)
         {
             var state = LuaState.FromIntPtr(luaState);
             var translator = ObjectTranslatorPool.Instance.Find(state);
@@ -276,7 +276,7 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaNativeFunction))]
 #endif
-        static int LessThanOrEqualLua(IntPtr luaState)
+        private static int LessThanOrEqualLua(IntPtr luaState)
         {
             var state = LuaState.FromIntPtr(luaState);
             var translator = ObjectTranslatorPool.Instance.Find(state);
@@ -289,20 +289,20 @@ namespace NLua
         /// FIXME, move somewhere else
         public static void DumpStack(ObjectTranslator translator, LuaState luaState)
         {
-            int depth = luaState.GetTop();
+            var depth = luaState.GetTop();
 
             Debug.WriteLine("lua stack depth: {0}", depth);
 
-            for (int i = 1; i <= depth; i++)
+            for (var i = 1; i <= depth; i++)
             {
                 var type = luaState.Type(i);
                 // we dump stacks when deep in calls, calling typename while the stack is in flux can fail sometimes, so manually check for key types
-                string typestr = (type == LuaType.Table) ? "table" : luaState.TypeName(type);
-                string strrep = luaState.ToString(i, false);
+                var typestr = (type == LuaType.Table) ? "table" : luaState.TypeName(type);
+                var strrep = luaState.ToString(i, false);
 
                 if (type == LuaType.UserData)
                 {
-                    object obj = translator.GetRawNetObject(luaState, i);
+                    var obj = translator.GetRawNetObject(luaState, i);
                     strrep = obj.ToString();
                 }
 
@@ -330,7 +330,7 @@ namespace NLua
 
         private int GetMethodInternal(LuaState luaState)
         {
-            object obj = _translator.GetRawNetObject(luaState, 1);
+            var obj = _translator.GetRawNetObject(luaState, 1);
 
             if (obj == null)
             {
@@ -338,8 +338,8 @@ namespace NLua
                 return 1;
             }
 
-            object index = _translator.GetObject(luaState, 2);
-            string methodName = index as string; // will be null if not a string arg
+            var index = _translator.GetObject(luaState, 2);
+            var methodName = index as string; // will be null if not a string arg
             var objType = obj.GetType();
             var proxyType = new ProxyType(objType);
 
@@ -354,7 +354,7 @@ namespace NLua
             if (TryAccessByArray(luaState, objType, obj, index))
                 return 1;
 
-            int fallback = GetMethodFallback(luaState, objType, obj, index, methodName);
+            var fallback = GetMethodFallback(luaState, objType, obj, index, methodName);
             if (fallback != 0)
                 return fallback;
 
@@ -389,100 +389,110 @@ namespace NLua
             if (!objType.IsArray)
                 return false;
 
-            int intIndex = -1;
-            if (index is long l)
-                intIndex = (int)l;
-            else if (index is double d)
-                intIndex = (int)d;
+            var intIndex = index switch
+            {
+                long l => (int) l,
+                double d => (int) d,
+                _ => -1
+            };
 
             if (intIndex == -1)
                 return false;
 
-            Type type = objType.UnderlyingSystemType;
+            var type = objType.UnderlyingSystemType;
 
             if (type == typeof(long[]))
             {
-                long[] arr = (long[])obj;
-                _translator.Push(luaState, arr[intIndex]);
-                return true;
-            }
-            if (type == typeof(float[]))
-            {
-                float[] arr = (float[])obj;
-                _translator.Push(luaState, arr[intIndex]);
-                return true;
-            }
-            if (type == typeof(double[]))
-            {
-                double[] arr = (double[])obj;
-                _translator.Push(luaState, arr[intIndex]);
-                return true;
-            }
-            if (type == typeof(int[]))
-            {
-                int[] arr = (int[])obj;
-                _translator.Push(luaState, arr[intIndex]);
-                return true;
-            }
-            if (type == typeof(byte[]))
-            {
-                byte[] arr = (byte[])obj;
-                _translator.Push(luaState, arr[intIndex]);
-                return true;
-            }
-            if (type == typeof(short[]))
-            {
-                short[] arr = (short[])obj;
-                _translator.Push(luaState, arr[intIndex]);
-                return true;
-            }
-            if (type == typeof(ushort[]))
-            {
-                ushort[] arr = (ushort[])obj;
-                _translator.Push(luaState, arr[intIndex]);
-                return true;
-            }
-            if (type == typeof(ulong[]))
-            {
-                ulong[] arr = (ulong[])obj;
-                _translator.Push(luaState, arr[intIndex]);
-                return true;
-            }
-            if (type == typeof(uint[]))
-            {
-                uint[] arr = (uint[])obj;
-                _translator.Push(luaState, arr[intIndex]);
-                return true;
-            }
-            if (type == typeof(sbyte[]))
-            {
-                sbyte[] arr = (sbyte[])obj;
+                var arr = (long[]) obj;
                 _translator.Push(luaState, arr[intIndex]);
                 return true;
             }
 
-            var array = (Array)obj;
-            object element = array.GetValue(intIndex);
+            if (type == typeof(float[]))
+            {
+                var arr = (float[]) obj;
+                _translator.Push(luaState, arr[intIndex]);
+                return true;
+            }
+
+            if (type == typeof(double[]))
+            {
+                var arr = (double[]) obj;
+                _translator.Push(luaState, arr[intIndex]);
+                return true;
+            }
+
+            if (type == typeof(int[]))
+            {
+                var arr = (int[]) obj;
+                _translator.Push(luaState, arr[intIndex]);
+                return true;
+            }
+
+            if (type == typeof(byte[]))
+            {
+                var arr = (byte[]) obj;
+                _translator.Push(luaState, arr[intIndex]);
+                return true;
+            }
+
+            if (type == typeof(short[]))
+            {
+                var arr = (short[]) obj;
+                _translator.Push(luaState, arr[intIndex]);
+                return true;
+            }
+
+            if (type == typeof(ushort[]))
+            {
+                var arr = (ushort[]) obj;
+                _translator.Push(luaState, arr[intIndex]);
+                return true;
+            }
+
+            if (type == typeof(ulong[]))
+            {
+                var arr = (ulong[]) obj;
+                _translator.Push(luaState, arr[intIndex]);
+                return true;
+            }
+
+            if (type == typeof(uint[]))
+            {
+                var arr = (uint[]) obj;
+                _translator.Push(luaState, arr[intIndex]);
+                return true;
+            }
+
+            if (type == typeof(sbyte[]))
+            {
+                var arr = (sbyte[]) obj;
+                _translator.Push(luaState, arr[intIndex]);
+                return true;
+            }
+
+            var array = (Array) obj;
+            var element = array.GetValue(intIndex);
             _translator.Push(luaState, element);
             return true;
         }
 
         private int GetMethodFallback
         (LuaState luaState,
-         Type objType,
-         object obj,
-         object index,
-         string methodName)
+            Type objType,
+            object obj,
+            object index,
+            string methodName)
         {
-            object method;
-            if (!string.IsNullOrEmpty(methodName) && TryGetExtensionMethod(objType, methodName, out method))
+            if (!string.IsNullOrEmpty(methodName) && TryGetExtensionMethod(objType, methodName, out var method))
             {
                 return PushExtensionMethod(luaState, objType, obj, methodName, method);
             }
-            // Try to use get_Item to index into this .net object
-            MethodInfo[] methods = objType.GetMethods();
 
-            int res = TryIndexMethods(luaState, methods, obj, index);
+            // Try to use get_Item to index into this .net object
+            var methods = objType.GetMethods();
+
+            var res = TryIndexMethods(luaState, methods, obj, index);
             if (res != 0)
                 return res;
 
@@ -498,28 +508,30 @@ namespace NLua
                 return res;
 
             // Try find explicity interface implementation
-            MethodInfo explicitInterfaceMethod = objType.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).
-                                                 FirstOrDefault(m => m.Name == methodName && m.IsPrivate && m.IsVirtual && m.IsFinal);
+            var explicitInterfaceMethod = objType.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .FirstOrDefault(m => m.Name == methodName && m.IsPrivate && m.IsVirtual && m.IsFinal);
 
-            if (explicitInterfaceMethod != null)
-            {
-                var proxyType = new ProxyType(objType);
-                var methodWrapper = new LuaMethodWrapper(_translator, obj, proxyType, explicitInterfaceMethod);
-                var invokeDelegate = new LuaNativeFunction(methodWrapper.InvokeFunction);
+            if (explicitInterfaceMethod == null)
+                return 0;
 
-                SetMemberCache(proxyType, methodName, invokeDelegate);
+            var proxyType = new ProxyType(objType);
+            var methodWrapper = new LuaMethodWrapper(_translator, obj, proxyType, explicitInterfaceMethod);
+            var invokeDelegate = new LuaNativeFunction(methodWrapper.InvokeFunction);
 
-                _translator.PushFunction(luaState, invokeDelegate);
-                _translator.Push(luaState, true);
-                return 2;
-            }
+            SetMemberCache(proxyType, methodName, invokeDelegate);
 
-            return 0;
+            _translator.PushFunction(luaState, invokeDelegate);
+            _translator.Push(luaState, true);
+            return 2;
         }
 
-        private int TryGetValueForKeyMethods(LuaState luaState, MethodInfo[] methods, object obj, object index)
+        private int TryGetValueForKeyMethods(LuaState luaState, IEnumerable<MethodInfo> methods, object obj,
+            object index)
         {
-            foreach (MethodInfo methodInfo in methods)
+            if (index == null)
+                throw new ArgumentNullException(nameof(index));
+
+            foreach (var methodInfo in methods)
             {
                 if (methodInfo.Name != "TryGetValueForKey")
                     continue;
@@ -528,7 +540,7 @@ namespace NLua
                 if (methodInfo.GetParameters().Length != 2)
                     continue;
 
-                ParameterInfo[] actualParams = methodInfo.GetParameters();
+                var actualParams = methodInfo.GetParameters();
 
                 // Get the index in a form acceptable to the getter
                 index = _translator.GetAsType(luaState, 2, actualParams[0].ParameterType);
@@ -537,14 +549,14 @@ namespace NLua
                 if (index == null)
                     break;
 
-                object[] args = new object[2];
+                var args = new object[2];
 
                 // Just call the indexer - if out of bounds an exception will happen
                 args[0] = index;
 
                 try
                 {
-                    bool found = (bool)methodInfo.Invoke(obj, args);
+                    var found = (bool) methodInfo.Invoke(obj, args);
 
                     if (!found)
                     {
@@ -566,13 +578,17 @@ namespace NLua
                     return 1;
                 }
             }
+
             return 0;
         }
 
 
-        private int TryIndexMethods(LuaState luaState, MethodInfo [] methods, object obj, object index)
+        private int TryIndexMethods(LuaState luaState, IEnumerable<MethodInfo> methods, object obj, object index)
         {
-            foreach (MethodInfo methodInfo in methods)
+            if (index == null)
+                throw new ArgumentNullException(nameof(index));
+
+            foreach (var methodInfo in methods)
             {
                 if (methodInfo.Name != "get_Item")
                     continue;
@@ -581,7 +597,7 @@ namespace NLua
                 if (methodInfo.GetParameters().Length != 1)
                     continue;
 
-                ParameterInfo[] actualParams = methodInfo.GetParameters();
+                var actualParams = methodInfo.GetParameters();
 
                 // Get the index in a form acceptable to the getter
                 index = _translator.GetAsType(luaState, 2, actualParams[0].ParameterType);
@@ -590,14 +606,14 @@ namespace NLua
                 if (index == null)
                     break;
 
-                object[] args = new object[1];
+                var args = new object[1];
 
                 // Just call the indexer - if out of bounds an exception will happen
                 args[0] = index;
 
                 try
                 {
-                    object result = methodInfo.Invoke(obj, args);
+                    var result = methodInfo.Invoke(obj, args);
                     _translator.Push(luaState, result);
                     return 1;
                 }
@@ -612,6 +628,7 @@ namespace NLua
                     return 1;
                 }
             }
+
             return 0;
         }
 
@@ -632,7 +649,7 @@ namespace NLua
 
         private int GetBaseMethodInternal(LuaState luaState)
         {
-            object obj = _translator.GetRawNetObject(luaState, 1);
+            var obj = _translator.GetRawNetObject(luaState, 1);
 
             if (obj == null)
             {
@@ -640,7 +657,7 @@ namespace NLua
                 return 2;
             }
 
-            string methodName = luaState.ToString(2, false);
+            var methodName = luaState.ToString(2, false);
 
             if (string.IsNullOrEmpty(methodName))
             {
@@ -649,7 +666,8 @@ namespace NLua
                 return 2;
             }
 
-            GetMember(luaState, new ProxyType(obj.GetType()), obj, "__luaInterface_base_" + methodName, BindingFlags.Instance);
+            GetMember(luaState, new ProxyType(obj.GetType()), obj, "__luaInterface_base_" + methodName,
+                BindingFlags.Instance);
             luaState.SetTop(-2);
 
             if (luaState.Type(-1) == LuaType.Nil)
@@ -668,20 +686,21 @@ namespace NLua
         /// <param name="objType"></param>
         /// <param name="methodName"></param>
         /// <returns></returns>
-        bool IsMemberPresent(ProxyType objType, string methodName)
+        private bool IsMemberPresent(ProxyType objType, string methodName)
         {
-            object cachedMember = CheckMemberCache(objType, methodName);
+            var cachedMember = CheckMemberCache(objType, methodName);
 
             if (cachedMember != null)
                 return true;
 
-            var members = objType.GetMember(methodName, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
+            var members = objType.GetMember(methodName,
+                BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
             return members.Length > 0;
         }
 
-        bool TryGetExtensionMethod(Type type, string name, out object method)
+        private bool TryGetExtensionMethod(Type type, string name, out object method)
         {
-            object cachedMember = CheckMemberCache(type, name);
+            var cachedMember = CheckMemberCache(type, name);
 
             if (cachedMember != null)
             {
@@ -689,24 +708,21 @@ namespace NLua
                 return true;
             }
 
-            MethodInfo methodInfo;
-            bool found = _translator.TryGetExtensionMethod(type, name, out methodInfo);
+            var found = _translator.TryGetExtensionMethod(type, name, out var methodInfo);
             method = methodInfo;
             return found;
         }
 
-        int PushExtensionMethod(LuaState luaState, Type type, object obj, string name, object method)
+        private int PushExtensionMethod(LuaState luaState, Type type, object obj, string name, object method)
         {
-            var cachedMember = method as LuaNativeFunction;
-
-            if (cachedMember != null)
+            if (method is LuaNativeFunction cachedMember)
             {
                 _translator.PushFunction(luaState, cachedMember);
                 _translator.Push(luaState, true);
                 return 2;
             }
 
-            var methodInfo = (MethodInfo)method;
+            var methodInfo = (MethodInfo) method;
             var methodWrapper = new LuaMethodWrapper(_translator, obj, new ProxyType(type), methodInfo);
             var invokeDelegate = new LuaNativeFunction(methodWrapper.InvokeFunction);
 
@@ -723,163 +739,180 @@ namespace NLua
          * Uses reflection to find members, and stores the reflected MemberInfo object in
          * a cache (indexed by the type of the object and the name of the member).
          */
-        int GetMember(LuaState luaState, ProxyType objType, object obj, string methodName, BindingFlags bindingType)
+        private int GetMember(LuaState luaState, ProxyType objType, object obj, string methodName,
+            BindingFlags bindingType)
         {
-            bool implicitStatic = false;
-            MemberInfo member = null;
-            object cachedMember = CheckMemberCache(objType, methodName);
-
-            if (cachedMember is LuaNativeFunction)
+            while (true)
             {
-                _translator.PushFunction(luaState, (LuaNativeFunction)cachedMember);
-                _translator.Push(luaState, true);
-                return 2;
-            }
-            if (cachedMember != null)
-                member = (MemberInfo)cachedMember;
-            else
-            {
-                var members = objType.GetMember(methodName, bindingType | BindingFlags.Public);
+                var implicitStatic = false;
+                MemberInfo member = null;
+                var cachedMember = CheckMemberCache(objType, methodName);
 
-                if (members.Length > 0)
-                    member = members[0];
+                if (cachedMember is LuaNativeFunction function)
+                {
+                    _translator.PushFunction(luaState, function);
+                    _translator.Push(luaState, true);
+                    return 2;
+                }
+
+                if (cachedMember != null)
+                    member = (MemberInfo) cachedMember;
                 else
                 {
-                    // If we can't find any suitable instance members, try to find them as statics - but we only want to allow implicit static
-                    members = objType.GetMember(methodName, bindingType | BindingFlags.Static | BindingFlags.Public);
+                    var members = objType.GetMember(methodName, bindingType | BindingFlags.Public);
 
                     if (members.Length > 0)
-                    {
                         member = members[0];
-                        implicitStatic = true;
-                    }
-                }
-            }
-
-            if (member != null)
-            {
-                if (member.MemberType == MemberTypes.Field)
-                {
-                    var field = (FieldInfo)member;
-
-                    if (cachedMember == null)
-                        SetMemberCache(objType, methodName, member);
-
-                    try
-                    {
-                        var value = field.GetValue(obj);
-                        _translator.Push(luaState, value);
-                    }
-                    catch
-                    {
-                        Debug.WriteLine("[Exception] Fail to get field value");
-                        luaState.PushNil();
-                    }
-                }
-                else if (member.MemberType == MemberTypes.Property)
-                {
-                    var property = (PropertyInfo)member;
-                    if (cachedMember == null)
-                        SetMemberCache(objType, methodName, member);
-
-                    try
-                    {
-                        object value = property.GetValue(obj, null);
-                        _translator.Push(luaState, value);
-                    }
-                    catch (ArgumentException)
-                    {
-                        // If we can't find the getter in our class, recurse up to the base class and see
-                        // if they can help.
-                        if (objType.UnderlyingSystemType != typeof(object))
-                            return GetMember(luaState, new ProxyType(objType.UnderlyingSystemType.BaseType), obj, methodName, bindingType);
-                        luaState.PushNil();
-                    }
-                    catch (TargetInvocationException e)
-                    {  // Convert this exception into a Lua error
-                        ThrowError(luaState, e);
-                        luaState.PushNil();
-                    }
-                }
-                else if (member.MemberType == MemberTypes.Event)
-                {
-                    var eventInfo = (EventInfo)member;
-                    if (cachedMember == null)
-                        SetMemberCache(objType, methodName, member);
-
-                    _translator.Push(luaState, new RegisterEventHandler(_translator.PendingEvents, obj, eventInfo));
-                }
-                else if (!implicitStatic)
-                {
-                    if (member.MemberType == MemberTypes.NestedType && member.DeclaringType != null)
-                    {
-                        if (cachedMember == null)
-                            SetMemberCache(objType, methodName, member);
-
-                        // Find the name of our class
-                        string name = member.Name;
-                        Type decType = member.DeclaringType;
-
-                        // Build a new long name and try to find the type by name
-                        string longName = decType.FullName + "+" + name;
-                        var nestedType = _translator.FindType(longName);
-                        _translator.PushType(luaState, nestedType);
-                    }
                     else
                     {
-                        // Member type must be 'method'
-                        var methodWrapper = new LuaMethodWrapper(_translator, objType, methodName, bindingType);
-                        var wrapper = methodWrapper.InvokeFunction;
+                        // If we can't find any suitable instance members, try to find them as statics - but we only want to allow implicit static
+                        members = objType.GetMember(methodName,
+                            bindingType | BindingFlags.Static | BindingFlags.Public);
 
-                        if (cachedMember == null)
-                            SetMemberCache(objType, methodName, wrapper);
+                        if (members.Length > 0)
+                        {
+                            member = members[0];
+                            implicitStatic = true;
+                        }
+                    }
+                }
 
-                        _translator.PushFunction(luaState, wrapper);
-                        _translator.Push(luaState, true);
-                        return 2;
+                if (member != null)
+                {
+                    switch (member.MemberType)
+                    {
+                        case MemberTypes.Field:
+                        {
+                            var field = (FieldInfo) member;
+
+                            if (cachedMember == null) SetMemberCache(objType, methodName, member);
+
+                            try
+                            {
+                                var value = field.GetValue(obj);
+                                _translator.Push(luaState, value);
+                            }
+                            catch
+                            {
+                                Debug.WriteLine("[Exception] Fail to get field value");
+                                luaState.PushNil();
+                            }
+
+                            break;
+                        }
+                        case MemberTypes.Property:
+                        {
+                            var property = (PropertyInfo) member;
+                            if (cachedMember == null) SetMemberCache(objType, methodName, member);
+
+                            try
+                            {
+                                var value = property.GetValue(obj, null);
+                                _translator.Push(luaState, value);
+                            }
+                            catch (ArgumentException)
+                            {
+                                // If we can't find the getter in our class, recurse up to the base class and see
+                                // if they can help.
+                                if (objType.UnderlyingSystemType != typeof(object))
+                                    return GetMember(luaState, new ProxyType(objType.UnderlyingSystemType.BaseType),
+                                        obj, methodName, bindingType);
+                                luaState.PushNil();
+                            }
+                            catch (TargetInvocationException e)
+                            {
+                                // Convert this exception into a Lua error
+                                ThrowError(luaState, e);
+                                luaState.PushNil();
+                            }
+
+                            break;
+                        }
+                        case MemberTypes.Event:
+                        {
+                            var eventInfo = (EventInfo) member;
+                            if (cachedMember == null) SetMemberCache(objType, methodName, member);
+
+                            _translator.Push(luaState,
+                                new RegisterEventHandler(_translator.PendingEvents, obj, eventInfo));
+                            break;
+                        }
+                        default:
+                        {
+                            if (!implicitStatic)
+                            {
+                                if (member.MemberType == MemberTypes.NestedType && member.DeclaringType != null)
+                                {
+                                    if (cachedMember == null) SetMemberCache(objType, methodName, member);
+
+                                    // Find the name of our class
+                                    var name = member.Name;
+                                    var decType = member.DeclaringType;
+
+                                    // Build a new long name and try to find the type by name
+                                    var longName = decType.FullName + "+" + name;
+                                    var nestedType = _translator.FindType(longName);
+                                    _translator.PushType(luaState, nestedType);
+                                }
+                                else
+                                {
+                                    // Member type must be 'method'
+                                    var methodWrapper =
+                                        new LuaMethodWrapper(_translator, objType, methodName, bindingType);
+                                    var wrapper = methodWrapper.InvokeFunction;
+
+                                    if (cachedMember == null) SetMemberCache(objType, methodName, wrapper);
+
+                                    _translator.PushFunction(luaState, wrapper);
+                                    _translator.Push(luaState, true);
+                                    return 2;
+                                }
+                            }
+                            else
+                            {
+                                // If we reach this point we found a static method, but can't use it in this context because the user passed in an instance
+                                _translator.ThrowError(luaState, "无法将实例传递给静态方法 " + methodName);
+                            }
+
+                            break;
+                        }
                     }
                 }
                 else
                 {
-                    // If we reach this point we found a static method, but can't use it in this context because the user passed in an instance
-                    _translator.ThrowError(luaState, "无法将实例传递给静态方法 " + methodName);
+                    if (objType.UnderlyingSystemType != typeof(object))
+                    {
+                        objType = new ProxyType(objType.UnderlyingSystemType.BaseType);
+                        continue;
+                    }
+
+                    // We want to throw an exception because merely returning 'nil' in this case
+                    // is not sufficient.  valid data members may return nil and therefore there must be some
+                    // way to know the member just doesn't exist.
+                    _translator.ThrowError(luaState, "未知的成员名字 " + methodName);
+                    return 1;
                 }
-            }
-            else
-            {
-                if (objType.UnderlyingSystemType != typeof(object))
-                    return GetMember(luaState, new ProxyType(objType.UnderlyingSystemType.BaseType), obj, methodName, bindingType);
 
-                // We want to throw an exception because merely returning 'nil' in this case
-                // is not sufficient.  valid data members may return nil and therefore there must be some
-                // way to know the member just doesn't exist.
-                _translator.ThrowError(luaState, "未知的成员名字 " + methodName);
-                return 1;
+                // Push false because we are NOT returning a function (see luaIndexFunction)
+                _translator.Push(luaState, false);
+                return 2;
             }
-
-            // Push false because we are NOT returning a function (see luaIndexFunction)
-            _translator.Push(luaState, false);
-            return 2;
         }
 
         /*
          * Checks if a MemberInfo object is cached, returning it or null.
          */
-        object CheckMemberCache(Type objType, string memberName)
+        private object CheckMemberCache(Type objType, string memberName)
         {
             return CheckMemberCache(new ProxyType(objType), memberName);
         }
 
-        object CheckMemberCache(ProxyType objType, string memberName)
+        private object CheckMemberCache(ProxyType objType, string memberName)
         {
-            Dictionary<object, object> members;
-
-            if (!_memberCache.TryGetValue(objType, out members))
+            if (!_memberCache.TryGetValue(objType, out var members))
                 return null;
 
-            object memberValue;
-
-            if (members == null || !members.TryGetValue(memberName, out memberValue))
+            if (members == null || !members.TryGetValue(memberName, out var memberValue))
                 return null;
 
             return memberValue;
@@ -888,17 +921,16 @@ namespace NLua
         /*
          * Stores a MemberInfo object in the member cache.
          */
-        void SetMemberCache(Type objType, string memberName, object member)
+        private void SetMemberCache(Type objType, string memberName, object member)
         {
             SetMemberCache(new ProxyType(objType), memberName, member);
         }
 
-        void SetMemberCache(ProxyType objType, string memberName, object member)
+        private void SetMemberCache(ProxyType objType, string memberName, object member)
         {
             Dictionary<object, object> members;
-            Dictionary<object, object> memberCacheValue;
 
-            if (_memberCache.TryGetValue(objType, out memberCacheValue))
+            if (_memberCache.TryGetValue(objType, out var memberCacheValue))
             {
                 members = memberCacheValue;
             }
@@ -929,7 +961,7 @@ namespace NLua
 
         private int SetFieldOrPropertyInternal(LuaState luaState)
         {
-            object target = _translator.GetRawNetObject(luaState, 1);
+            var target = _translator.GetRawNetObject(luaState, 1);
 
             if (target == null)
             {
@@ -940,20 +972,20 @@ namespace NLua
             var type = target.GetType();
 
             // First try to look up the parameter as a property name
-            string detailMessage;
-            bool didMember = TrySetMember(luaState, new ProxyType(type), target, BindingFlags.Instance, out detailMessage);
+            var didMember = TrySetMember(luaState, new ProxyType(type), target, BindingFlags.Instance,
+                out var detailMessage);
 
             if (didMember)
-                return 0;      // Must have found the property name
+                return 0; // Must have found the property name
 
             // We didn't find a property name, now see if we can use a [] style this accessor to set array contents
             try
             {
                 if (type.IsArray && luaState.IsNumber(2))
                 {
-                    int index = (int)luaState.ToNumber(2);
-                    var arr = (Array)target;
-                    object val = _translator.GetAsType(luaState, 3, arr.GetType().GetElementType());
+                    var index = (int) luaState.ToNumber(2);
+                    var arr = (Array) target;
+                    var val = _translator.GetAsType(luaState, 3, arr.GetType().GetElementType());
                     arr.SetValue(val, index);
                 }
                 else
@@ -966,11 +998,11 @@ namespace NLua
                         var valueType = args[1].ParameterType;
 
                         // The new value the user specified 
-                        object val = _translator.GetAsType(luaState, 3, valueType);
+                        var val = _translator.GetAsType(luaState, 3, valueType);
                         var indexType = args[0].ParameterType;
-                        object index = _translator.GetAsType(luaState, 2, indexType);
+                        var index = _translator.GetAsType(luaState, 2, indexType);
 
-                        object[] methodArgs = new object[2];
+                        var methodArgs = new object[2];
 
                         // Just call the indexer - if out of bounds an exception will happen
                         methodArgs[0] = index;
@@ -978,7 +1010,8 @@ namespace NLua
                         setter.Invoke(target, methodArgs);
                     }
                     else
-                        _translator.ThrowError(luaState, detailMessage); // Pass the original message from trySetMember because it is probably best
+                        _translator.ThrowError(luaState,
+                            detailMessage); // Pass the original message from trySetMember because it is probably best
                 }
             }
             catch (Exception e)
@@ -996,10 +1029,12 @@ namespace NLua
         /// <param name="targetType"></param>
         /// <param name="target"></param>
         /// <param name="bindingType"></param>
+        /// <param name="detailMessage"></param>
         /// <returns>false if unable to find the named member, true for success</returns>
-        bool TrySetMember(LuaState luaState, ProxyType targetType, object target, BindingFlags bindingType, out string detailMessage)
+        private bool TrySetMember(LuaState luaState, ProxyType targetType, object target, BindingFlags bindingType,
+            out string detailMessage)
         {
-            detailMessage = null;   // No error yet
+            detailMessage = null; // No error yet
 
             // If not already a string just return - we don't want to call tostring - which has the side effect of 
             // changing the lua typecode to string
@@ -1012,7 +1047,7 @@ namespace NLua
             }
 
             // We only look up property names by string
-            string fieldName = luaState.ToString(2, false);
+            var fieldName = luaState.ToString(2, false);
             if (string.IsNullOrEmpty(fieldName) || !(char.IsLetter(fieldName[0]) || fieldName[0] == '_'))
             {
                 detailMessage = "Invalid property name";
@@ -1020,7 +1055,7 @@ namespace NLua
             }
 
             // Find our member via reflection or the cache
-            var member = (MemberInfo)CheckMemberCache(targetType, fieldName);
+            var member = (MemberInfo) CheckMemberCache(targetType, fieldName);
             if (member == null)
             {
                 var members = targetType.GetMember(fieldName, bindingType | BindingFlags.Public);
@@ -1035,41 +1070,44 @@ namespace NLua
                 SetMemberCache(targetType, fieldName, member);
             }
 
-            if (member.MemberType == MemberTypes.Field)
+            switch (member.MemberType)
             {
-                var field = (FieldInfo)member;
-                object val = _translator.GetAsType(luaState, 3, field.FieldType);
-
-                try
+                case MemberTypes.Field:
                 {
-                    field.SetValue(target, val);
-                }
-                catch (Exception e)
-                {
-                    ThrowError(luaState, e);
-                }
+                    var field = (FieldInfo) member;
+                    var val = _translator.GetAsType(luaState, 3, field.FieldType);
 
-                return true;
+                    try
+                    {
+                        field.SetValue(target, val);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowError(luaState, e);
+                    }
+
+                    return true;
+                }
+                case MemberTypes.Property:
+                {
+                    var property = (PropertyInfo) member;
+                    var val = _translator.GetAsType(luaState, 3, property.PropertyType);
+
+                    try
+                    {
+                        property.SetValue(target, val, null);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowError(luaState, e);
+                    }
+
+                    return true;
+                }
+                default:
+                    detailMessage = "'" + fieldName + "' is not a .net field or property";
+                    return false;
             }
-            if (member.MemberType == MemberTypes.Property)
-            {
-                var property = (PropertyInfo)member;
-                object val = _translator.GetAsType(luaState, 3, property.PropertyType);
-
-                try
-                {
-                    property.SetValue(target, val, null);
-                }
-                catch (Exception e)
-                {
-                    ThrowError(luaState, e);
-                }
-
-                return true;
-            }
-
-            detailMessage = "'" + fieldName + "' is not a .net field or property";
-            return false;
         }
 
         /*
@@ -1078,8 +1116,7 @@ namespace NLua
          */
         private int SetMember(LuaState luaState, ProxyType targetType, object target, BindingFlags bindingType)
         {
-            string detail;
-            bool success = TrySetMember(luaState, targetType, target, bindingType, out detail);
+            var success = TrySetMember(luaState, targetType, target, bindingType, out var detail);
 
             if (!success)
                 _translator.ThrowError(luaState, detail);
@@ -1093,12 +1130,11 @@ namespace NLua
         /// <param name="e"></param>
         /// <param name="luaState"></param>
         /// We try to look into the exception to give the most meaningful description
-        void ThrowError(LuaState luaState, Exception e)
+        private void ThrowError(LuaState luaState, Exception e)
         {
             // If we got inside a reflection show what really happened
-            var te = e as TargetInvocationException;
 
-            if (te != null)
+            if (e is TargetInvocationException te)
                 e = te.InnerException;
 
             _translator.ThrowError(luaState, e);
@@ -1120,29 +1156,26 @@ namespace NLua
 
         private int GetClassMethodInternal(LuaState luaState)
         {
-            var klass = _translator.GetRawNetObject(luaState, 1) as ProxyType;
-
-            if (klass == null)
+            if (!(_translator.GetRawNetObject(luaState, 1) is ProxyType klass))
             {
                 _translator.ThrowError(luaState, "试图索引无效的类型引用");
                 return 1;
             }
-            
+
             if (luaState.IsNumber(2))
             {
-                int size = (int)luaState.ToNumber(2);
+                var size = (int) luaState.ToNumber(2);
                 _translator.Push(luaState, Array.CreateInstance(klass.UnderlyingSystemType, size));
                 return 1;
             }
 
-            string methodName = luaState.ToString(2, false);
+            var methodName = luaState.ToString(2, false);
 
-            if (string.IsNullOrEmpty(methodName))
-            {
-                luaState.PushNil();
-                return 1;
-            }
-            return GetMember(luaState, klass, null, methodName, BindingFlags.Static);
+            if (!string.IsNullOrEmpty(methodName))
+                return GetMember(luaState, klass, null, methodName, BindingFlags.Static);
+
+            luaState.PushNil();
+            return 1;
         }
 
         /*
@@ -1161,15 +1194,11 @@ namespace NLua
 
         private int SetClassFieldOrPropertyInternal(LuaState luaState)
         {
-            var target = _translator.GetRawNetObject(luaState, 1) as ProxyType;
+            if (_translator.GetRawNetObject(luaState, 1) is ProxyType target)
+                return SetMember(luaState, target, null, BindingFlags.Static);
 
-            if (target == null)
-            {
-                _translator.ThrowError(luaState, "试图索引无效的类型引用");
-                return 1;
-            }
-
-            return SetMember(luaState, target, null, BindingFlags.Static);
+            _translator.ThrowError(luaState, "试图索引无效的类型引用");
+            return 1;
         }
 
         /*
@@ -1178,15 +1207,14 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaNativeFunction))]
 #endif
-        static int CallDelegate(IntPtr state)
+        private static int CallDelegate(IntPtr state)
         {
             var luaState = LuaState.FromIntPtr(state);
             var translator = ObjectTranslatorPool.Instance.Find(luaState);
             var instance = translator.MetaFunctionsInstance;
-            int result = instance.CallDelegateInternal(luaState);
-            var exception = translator.GetObject(luaState, -1) as LuaScriptException;
+            var result = instance.CallDelegateInternal(luaState);
 
-            if (exception != null)
+            if (translator.GetObject(luaState, -1) is LuaScriptException)
                 return luaState.Error();
 
             return result;
@@ -1198,7 +1226,7 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaNativeFunction))]
 #endif
-        static int CallInvalidMethod(IntPtr state)
+        private static int CallInvalidMethod(IntPtr state)
         {
             var luaState = LuaState.FromIntPtr(state);
             var translator = ObjectTranslatorPool.Instance.Find(luaState);
@@ -1207,7 +1235,7 @@ namespace NLua
             return 1;
         }
 
-        int CallDelegateInternal(LuaState luaState)
+        private int CallDelegateInternal(LuaState luaState)
         {
             var del = _translator.GetRawNetObject(luaState, 1) as Delegate;
 
@@ -1222,16 +1250,16 @@ namespace NLua
 
             var validDelegate = new MethodCache();
             MethodBase methodDelegate = del.Method;
-            bool isOk = MatchParameters(luaState, methodDelegate, validDelegate, 0);
+            var isOk = MatchParameters(luaState, methodDelegate, validDelegate, 0);
 
             if (isOk)
             {
                 object result;
 
                 if (methodDelegate.IsStatic)
-                    result = methodDelegate.Invoke(null, validDelegate.args);
+                    result = methodDelegate.Invoke(null, validDelegate.Args);
                 else
-                    result = methodDelegate.Invoke(del.Target, validDelegate.args);
+                    result = methodDelegate.Invoke(del.Target, validDelegate.Args);
 
                 _translator.Push(luaState, result);
                 return 1;
@@ -1272,18 +1300,18 @@ namespace NLua
             var validConstructor = new MethodCache();
 
             luaState.Remove(1);
-            ConstructorInfo[] constructors = klass.UnderlyingSystemType.GetConstructors();
+            var constructors = klass.UnderlyingSystemType.GetConstructors();
 
             foreach (var constructor in constructors)
             {
-                bool isConstructor = MatchParameters(luaState, constructor, validConstructor, 0);
+                var isConstructor = MatchParameters(luaState, constructor, validConstructor, 0);
 
                 if (!isConstructor)
                     continue;
 
                 try
                 {
-                    _translator.Push(luaState, constructor.Invoke(validConstructor.args));
+                    _translator.Push(luaState, constructor.Invoke(validConstructor.Args));
                 }
                 catch (TargetInvocationException e)
                 {
@@ -1294,12 +1322,13 @@ namespace NLua
                 {
                     luaState.PushNil();
                 }
+
                 return 1;
             }
 
             if (klass.UnderlyingSystemType.IsValueType)
             {
-                int numLuaParams = luaState.GetTop();
+                var numLuaParams = luaState.GetTop();
                 if (numLuaParams == 0)
                 {
                     _translator.Push(luaState, Activator.CreateInstance(klass.UnderlyingSystemType));
@@ -1307,42 +1336,43 @@ namespace NLua
                 }
             }
 
-            string constructorName = constructors.Length == 0 ? "unknown" : constructors[0].Name;
+            var constructorName = constructors.Length == 0 ? "unknown" : constructors[0].Name;
             _translator.ThrowError(luaState, $"{klass.UnderlyingSystemType} 不包含构造函数({constructorName}) 参数匹配");
             luaState.PushNil();
             return 1;
         }
 
-        static bool IsInteger(double x)
+        private static bool IsInteger(double x)
         {
             return Math.Ceiling(x) == x;
         }
 
-        static object GetTargetObject(LuaState luaState, string operation, ObjectTranslator translator)
+        private static object GetTargetObject(LuaState luaState, string operation, ObjectTranslator translator)
         {
             Type t;
-            object target = translator.GetRawNetObject(luaState, 1);
+            var target = translator.GetRawNetObject(luaState, 1);
             if (target != null)
             {
                 t = target.GetType();
                 if (t.HasMethod(operation))
                     return target;
             }
+
             target = translator.GetRawNetObject(luaState, 2);
-            if (target != null)
-            {
-                t = target.GetType();
-                if (t.HasMethod(operation))
-                    return target;
-            }
-            return null;
+
+            if (target == null)
+                return null;
+
+            t = target.GetType();
+
+            return t.HasMethod(operation) ? target : null;
         }
 
-        static int MatchOperator(LuaState luaState, string operation, ObjectTranslator translator)
+        private static int MatchOperator(LuaState luaState, string operation, ObjectTranslator translator)
         {
             var validOperator = new MethodCache();
 
-            object target = GetTargetObject(luaState, operation, translator);
+            var target = GetTargetObject(luaState, operation, translator);
 
             if (target == null)
             {
@@ -1351,21 +1381,22 @@ namespace NLua
                 return 1;
             }
 
-            Type type = target.GetType();
-            var operators = type.GetMethods(operation, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+            var type = target.GetType();
+            var operators =
+                type.GetMethods(operation, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
 
             foreach (var op in operators)
             {
-                bool isOk = translator.MatchParameters(luaState, op, validOperator, 0);
+                var isOk = translator.MatchParameters(luaState, op, validOperator, 0);
 
                 if (!isOk)
                     continue;
 
                 object result;
                 if (op.IsStatic)
-                    result = op.Invoke(null, validOperator.args);
+                    result = op.Invoke(null, validOperator.Args);
                 else
-                    result = op.Invoke(target, validOperator.args);
+                    result = op.Invoke(target, validOperator.Args);
                 translator.Push(luaState, result);
                 return 1;
             }
@@ -1375,7 +1406,8 @@ namespace NLua
             return 1;
         }
 
-        internal Array TableToArray(LuaState luaState, ExtractValue extractValue, Type paramArrayType, ref int startIndex, int count)
+        internal static Array TableToArray(LuaState luaState, ExtractValue extractValue, Type paramArrayType,
+            ref int startIndex, int count)
         {
             Array paramArray;
 
@@ -1385,23 +1417,22 @@ namespace NLua
             var luaParamValue = extractValue(luaState, startIndex);
             startIndex++;
 
-            if (luaParamValue is LuaTable)
+            if (luaParamValue is LuaTable table)
             {
-                LuaTable table = (LuaTable)luaParamValue;
-                IDictionaryEnumerator tableEnumerator = table.GetEnumerator();
+                var tableEnumerator = table.GetEnumerator();
                 tableEnumerator.Reset();
                 paramArray = Array.CreateInstance(paramArrayType, table.Values.Count);
 
-                int paramArrayIndex = 0;
+                var paramArrayIndex = 0;
 
                 while (tableEnumerator.MoveNext())
                 {
-                    object value = tableEnumerator.Value;
+                    var value = tableEnumerator.Value;
 
                     if (paramArrayType == typeof(object))
                     {
-                        if (value != null && value is double && IsInteger((double)value))
-                            value = Convert.ToInt32((double)value);
+                        if (value != null && value is double && IsInteger((double) value))
+                            value = Convert.ToInt32((double) value);
                     }
 
                     paramArray.SetValue(Convert.ChangeType(value, paramArrayType), paramArrayIndex);
@@ -1414,17 +1445,15 @@ namespace NLua
 
                 paramArray.SetValue(luaParamValue, 0);
 
-                for (int i = 1; i < count; i++)
+                for (var i = 1; i < count; i++)
                 {
                     var value = extractValue(luaState, startIndex);
                     paramArray.SetValue(value, i);
                     startIndex++;
                 }
-
             }
 
             return paramArray;
-
         }
 
         /*
@@ -1435,41 +1464,44 @@ namespace NLua
         internal bool MatchParameters(LuaState luaState, MethodBase method, MethodCache methodCache, int skipParam)
         {
             var paramInfo = method.GetParameters();
-            int currentLuaParam = 1;
-            int nLuaParams = luaState.GetTop() - skipParam;
+            var currentLuaParam = 1;
+            var nLuaParams = luaState.GetTop() - skipParam;
             var paramList = new List<object>();
             var outList = new List<int>();
             var argTypes = new List<MethodArgs>();
 
             foreach (var currentNetParam in paramInfo)
             {
-                if (!currentNetParam.IsIn && currentNetParam.IsOut)  // Skips out params 
+                if (!currentNetParam.IsIn && currentNetParam.IsOut) // Skips out params 
                 {
                     paramList.Add(null);
                     outList.Add(paramList.Count - 1);
                     continue;
-                }  // Type does not match, ignore if the parameter is optional
+                } // Type does not match, ignore if the parameter is optional
 
-                ExtractValue extractValue;
-                if (IsParamsArray(luaState, nLuaParams, currentLuaParam, currentNetParam, out extractValue))
+                if (IsParamsArray(luaState, nLuaParams, currentLuaParam, currentNetParam, out var extractValue))
                 {
-                    int count = (nLuaParams - currentLuaParam) + 1;
-                    Type paramArrayType = currentNetParam.ParameterType.GetElementType();
+                    var count = (nLuaParams - currentLuaParam) + 1;
+                    var paramArrayType = currentNetParam.ParameterType.GetElementType();
 
-                    Array paramArray = TableToArray(luaState, extractValue, paramArrayType, ref currentLuaParam, count);
+                    var paramArray = TableToArray(luaState, extractValue, paramArrayType, ref currentLuaParam, count);
                     paramList.Add(paramArray);
-                    int index = paramList.LastIndexOf(paramArray);
-                    var methodArg = new MethodArgs();
-                    methodArg.Index = index;
-                    methodArg.ExtractValue = extractValue;
-                    methodArg.IsParamsArray = true;
-                    methodArg.ParameterType = paramArrayType;
+                    var index = paramList.LastIndexOf(paramArray);
+
+                    var methodArg = new MethodArgs
+                    {
+                        Index = index,
+                        ExtractValue = extractValue,
+                        IsParamsArray = true,
+                        ParameterType = paramArrayType
+                    };
                     argTypes.Add(methodArg);
                     continue;
                 }
-                
+
                 if (currentLuaParam > nLuaParams)
-                {   // Adds optional parameters
+                {
+                    // Adds optional parameters
                     if (!currentNetParam.IsOptional)
                         return false;
                     paramList.Add(currentNetParam.DefaultValue);
@@ -1477,14 +1509,18 @@ namespace NLua
                 }
 
                 if (IsTypeCorrect(luaState, currentLuaParam, currentNetParam, out extractValue))
-                {   // Type checking
+                {
+                    // Type checking
                     var value = extractValue(luaState, currentLuaParam);
                     paramList.Add(value);
-                    int index = paramList.Count - 1;
-                    var methodArg = new MethodArgs();
-                    methodArg.Index = index;
-                    methodArg.ExtractValue = extractValue;
-                    methodArg.ParameterType = currentNetParam.ParameterType;
+                    var index = paramList.Count - 1;
+                    var methodArg = new MethodArgs
+                    {
+                        Index = index,
+                        ExtractValue = extractValue, 
+                        ParameterType = currentNetParam.ParameterType
+                    };
+
                     argTypes.Add(methodArg);
 
                     if (currentNetParam.ParameterType.IsByRef)
@@ -1494,22 +1530,19 @@ namespace NLua
                     continue;
                 }
 
-                if (currentNetParam.IsOptional)
-                {
-                    paramList.Add(currentNetParam.DefaultValue);
-                    continue;
-                }
-
-                return false;
+                if (!currentNetParam.IsOptional)
+                    return false;
+                
+                paramList.Add(currentNetParam.DefaultValue);
             }
 
             if (currentLuaParam != nLuaParams + 1) // Number of parameters does not match
                 return false;
-            
-            methodCache.args = paramList.ToArray();
-            methodCache.cachedMethod = method;
-            methodCache.outList = outList.ToArray();
-            methodCache.argTypes = argTypes.ToArray();
+
+            methodCache.Args = paramList.ToArray();
+            methodCache.CachedMethod = method;
+            methodCache.OutList = outList.ToArray();
+            methodCache.ArgTypes = argTypes.ToArray();
 
             return true;
         }
@@ -1522,38 +1555,42 @@ namespace NLua
         /// <param name="currentNetParam"></param>
         /// <param name="extractValue"></param>
         /// <returns></returns>
-        private bool IsTypeCorrect(LuaState luaState, int currentLuaParam, ParameterInfo currentNetParam, out ExtractValue extractValue)
+        private bool IsTypeCorrect(LuaState luaState, int currentLuaParam, ParameterInfo currentNetParam,
+            out ExtractValue extractValue)
         {
-            extractValue = _translator.typeChecker.CheckLuaType(luaState, currentLuaParam, currentNetParam.ParameterType);
+            extractValue =
+                _translator.TypeChecker.CheckLuaType(luaState, currentLuaParam, currentNetParam.ParameterType);
             return extractValue != null;
         }
 
-        private bool IsParamsArray(LuaState luaState, int nLuaParams, int currentLuaParam, ParameterInfo currentNetParam, out ExtractValue extractValue)
+        private bool IsParamsArray(LuaState luaState, int nLuaParams, int currentLuaParam,
+            ParameterInfo currentNetParam, out ExtractValue extractValue)
         {
             extractValue = null;
 
             if (!currentNetParam.GetCustomAttributes(typeof(ParamArrayAttribute), false).Any())
                 return false;
 
-            bool isParamArray = nLuaParams < currentLuaParam;
+            var isParamArray = nLuaParams < currentLuaParam;
 
-            LuaType  luaType = luaState.Type(currentLuaParam);
+            var luaType = luaState.Type(currentLuaParam);
 
             if (luaType == LuaType.Table)
             {
-                extractValue = _translator.typeChecker.GetExtractor(typeof(LuaTable));
+                extractValue = _translator.TypeChecker.GetExtractor(typeof(LuaTable));
                 if (extractValue != null)
                     return true;
             }
             else
             {
-                Type paramElementType = currentNetParam.ParameterType.GetElementType();
+                var paramElementType = currentNetParam.ParameterType.GetElementType();
 
-                extractValue = _translator.typeChecker.CheckLuaType(luaState, currentLuaParam, paramElementType);
+                extractValue = _translator.TypeChecker.CheckLuaType(luaState, currentLuaParam, paramElementType);
 
                 if (extractValue != null)
                     return true;
             }
+
             return isParamArray;
         }
     }

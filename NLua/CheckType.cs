@@ -7,11 +7,12 @@ using NLua.Extensions;
 namespace NLua
 {
     using LuaState = KeraLua.Lua;
-    sealed class CheckType
+
+    internal sealed class CheckType
     {
-        readonly Dictionary<Type, ExtractValue> _extractValues = new Dictionary<Type, ExtractValue>();
-        readonly ExtractValue _extractNetObject;
-        readonly ObjectTranslator _translator;
+        private readonly Dictionary<Type, ExtractValue> _extractValues = new Dictionary<Type, ExtractValue>();
+        private readonly ExtractValue _extractNetObject;
+        private readonly ObjectTranslator _translator;
 
         public CheckType(ObjectTranslator translator)
         {
@@ -53,17 +54,17 @@ namespace NLua
             if (paramType.IsByRef)
                 paramType = paramType.GetElementType();
 
-            return _extractValues.ContainsKey(paramType) ? _extractValues[paramType] : _extractNetObject;
+            return _extractValues.ContainsKey(paramType ?? throw new ArgumentNullException(nameof(paramType))) ? _extractValues[paramType] : _extractNetObject;
         }
 
         internal ExtractValue CheckLuaType(LuaState luaState, int stackPos, Type paramType)
         {
-            LuaType luatype = luaState.Type(stackPos);
+            var luatype = luaState.Type(stackPos);
 
             if (paramType.IsByRef)
                 paramType = paramType.GetElementType();
 
-            var underlyingType = Nullable.GetUnderlyingType(paramType);
+            var underlyingType = Nullable.GetUnderlyingType(paramType ?? throw new ArgumentNullException(nameof(paramType)));
 
             if (underlyingType != null)
             {
@@ -71,16 +72,16 @@ namespace NLua
             }
 
 
-            bool netParamIsNumeric = paramType == typeof(int) ||
-                                     paramType == typeof(uint) ||
-                                     paramType == typeof(long) ||
-                                     paramType == typeof(ulong) ||
-                                     paramType == typeof(short) ||
-                                     paramType == typeof(ushort) ||
-                                     paramType == typeof(float) ||
-                                     paramType == typeof(double) ||
-                                     paramType == typeof(decimal) ||
-                                     paramType == typeof(byte);
+            var netParamIsNumeric = paramType == typeof(int) ||
+                                    paramType == typeof(uint) ||
+                                    paramType == typeof(long) ||
+                                    paramType == typeof(ulong) ||
+                                    paramType == typeof(short) ||
+                                    paramType == typeof(ushort) ||
+                                    paramType == typeof(float) ||
+                                    paramType == typeof(double) ||
+                                    paramType == typeof(decimal) ||
+                                    paramType == typeof(byte);
 
             // If it is a nullable
             if (underlyingType != null)
@@ -101,20 +102,24 @@ namespace NLua
             //CP: Added support for generic parameters
             if (paramType.IsGenericParameter)
             {
-                if (luatype == LuaType.Boolean)
-                    return _extractValues[typeof(bool)];
-                if (luatype == LuaType.String)
-                    return _extractValues[typeof(string)];
-                if (luatype == LuaType.Table)
-                    return _extractValues[typeof(LuaTable)];
-                if (luatype == LuaType.UserData)
-                    return _extractValues[typeof(object)];
-                if (luatype == LuaType.Function)
-                    return _extractValues[typeof(LuaFunction)];
-                if (luatype == LuaType.Number)
-                    return _extractValues[typeof(double)];
+                switch (luatype)
+                {
+                    case LuaType.Boolean:
+                        return _extractValues[typeof(bool)];
+                    case LuaType.String:
+                        return _extractValues[typeof(string)];
+                    case LuaType.Table:
+                        return _extractValues[typeof(LuaTable)];
+                    case LuaType.UserData:
+                        return _extractValues[typeof(object)];
+                    case LuaType.Function:
+                        return _extractValues[typeof(LuaFunction)];
+                    case LuaType.Number:
+                        return _extractValues[typeof(double)];
+                }
             }
-            bool netParamIsString = paramType == typeof(string) || paramType == typeof(char[]) || paramType == typeof(byte[]);
+            
+            var netParamIsString = paramType == typeof(string) || paramType == typeof(char[]) || paramType == typeof(byte[]);
 
             if (netParamIsNumeric)
             {
@@ -161,7 +166,7 @@ namespace NLua
             {
                 if (luaState.GetMetaField(stackPos, "__index") != LuaType.Nil)
                 {
-                    object obj = _translator.GetNetObject(luaState, -1);
+                    var obj = _translator.GetNetObject(luaState, -1);
                     luaState.SetTop(-2);
                     if (obj != null && paramType.IsInstanceOfType(obj))
                         return _extractNetObject;
@@ -171,7 +176,7 @@ namespace NLua
             }
             else
             {
-                object obj = _translator.GetNetObject(luaState, stackPos);
+                var obj = _translator.GetNetObject(luaState, stackPos);
                 if (obj != null && paramType.IsInstanceOfType(obj))
                     return _extractNetObject;
             }
@@ -185,7 +190,7 @@ namespace NLua
          * index stackPos as the desired type if it can, or null
          * otherwise.
          */
-        private object GetAsSbyte(LuaState luaState, int stackPos)
+        private static object GetAsSbyte(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -196,7 +201,7 @@ namespace NLua
             return (sbyte)luaState.ToNumber(stackPos);
         }
 
-        private object GetAsByte(LuaState luaState, int stackPos)
+        private static object GetAsByte(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -207,7 +212,7 @@ namespace NLua
             return (byte)luaState.ToNumber(stackPos);
         }
 
-        private object GetAsShort(LuaState luaState, int stackPos)
+        private static object GetAsShort(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -218,7 +223,7 @@ namespace NLua
             return (short)luaState.ToNumber(stackPos);
         }
 
-        private object GetAsUshort(LuaState luaState, int stackPos)
+        private static object GetAsUshort(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -229,7 +234,7 @@ namespace NLua
             return (ushort)luaState.ToNumber(stackPos);
         }
 
-        private object GetAsInt(LuaState luaState, int stackPos)
+        private static object GetAsInt(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -240,7 +245,7 @@ namespace NLua
             return (int)luaState.ToNumber(stackPos);
         }
 
-        private object GetAsUint(LuaState luaState, int stackPos)
+        private static object GetAsUint(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -251,7 +256,7 @@ namespace NLua
             return (uint)luaState.ToNumber(stackPos);
         }
 
-        private object GetAsLong(LuaState luaState, int stackPos)
+        private static object GetAsLong(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -262,7 +267,7 @@ namespace NLua
             return (long)luaState.ToNumber(stackPos);
         }
 
-        private object GetAsUlong(LuaState luaState, int stackPos)
+        private static object GetAsUlong(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -273,7 +278,7 @@ namespace NLua
             return (ulong)luaState.ToNumber(stackPos);
         }
 
-        private object GetAsDouble(LuaState luaState, int stackPos)
+        private static object GetAsDouble(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -284,7 +289,7 @@ namespace NLua
             return luaState.ToNumber(stackPos);
         }
 
-        private object GetAsChar(LuaState luaState, int stackPos)
+        private static object GetAsChar(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -295,7 +300,7 @@ namespace NLua
             return (char)luaState.ToNumber(stackPos);
         }
 
-        private object GetAsFloat(LuaState luaState, int stackPos)
+        private static object GetAsFloat(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -306,7 +311,7 @@ namespace NLua
             return (float)luaState.ToNumber(stackPos);
         }
 
-        private object GetAsDecimal(LuaState luaState, int stackPos)
+        private static object GetAsDecimal(LuaState luaState, int stackPos)
         {
             if (!luaState.IsNumericType(stackPos))
                 return null;
@@ -317,29 +322,29 @@ namespace NLua
             return (decimal)luaState.ToNumber(stackPos);
         }
 
-        private object GetAsBoolean(LuaState luaState, int stackPos)
+        private static object GetAsBoolean(LuaState luaState, int stackPos)
         {
             return luaState.ToBoolean(stackPos);
         }
 
-        private object GetAsCharArray(LuaState luaState, int stackPos)
+        private static object GetAsCharArray(LuaState luaState, int stackPos)
         {
             if (!luaState.IsString(stackPos))
                 return null;
-            string retVal = luaState.ToString(stackPos, false);
+            var retVal = luaState.ToString(stackPos, false);
             return retVal.ToCharArray();
         }
 
-        private object GetAsByteArray(LuaState luaState, int stackPos)
+        private static object GetAsByteArray(LuaState luaState, int stackPos)
         {
             if (!luaState.IsString(stackPos))
                 return null;
 
-            byte [] retVal = luaState.ToBuffer(stackPos, false);
+            var retVal = luaState.ToBuffer(stackPos, false);
             return retVal;
         }
 
-        private object GetAsString(LuaState luaState, int stackPos)
+        private static object GetAsString(LuaState luaState, int stackPos)
         {
             if (!luaState.IsString(stackPos))
                 return null;
@@ -361,7 +366,7 @@ namespace NLua
             return _translator.GetUserData(luaState, stackPos);
         }
 
-        public object GetAsObject(LuaState luaState, int stackPos)
+        private object GetAsObject(LuaState luaState, int stackPos)
         {
             if (luaState.Type(stackPos) == LuaType.Table)
             {
@@ -377,13 +382,13 @@ namespace NLua
                 }
             }
 
-            object obj = _translator.GetObject(luaState, stackPos);
+            var obj = _translator.GetObject(luaState, stackPos);
             return obj;
         }
 
-        public object GetAsNetObject(LuaState luaState, int stackPos)
+        private object GetAsNetObject(LuaState luaState, int stackPos)
         {
-            object obj = _translator.GetNetObject(luaState, stackPos);
+            var obj = _translator.GetNetObject(luaState, stackPos);
 
             if (obj != null || luaState.Type(stackPos) != LuaType.Table)
                 return obj;

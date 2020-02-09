@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace NLua.Method
 {
-    class RegisterEventHandler
+    internal class RegisterEventHandler
     {
         private readonly EventHandlerContainer _pendingEvents;
         private readonly EventInfo _eventInfo;
@@ -21,7 +21,7 @@ namespace NLua.Method
          */
         public Delegate Add(LuaFunction function)
         {
-            Delegate handlerDelegate = CodeGeneration.Instance.GetDelegate(_eventInfo.EventHandlerType, function);
+            var handlerDelegate = CodeGeneration.Instance.GetDelegate(_eventInfo.EventHandlerType, function);
             return Add(handlerDelegate);
         }
 

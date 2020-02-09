@@ -20,17 +20,15 @@ namespace NLua
         public object this[string field] {
             get
             {
-                Lua lua;
-                if (!TryGet(out lua))
+                if (!TryGet(out var lua))
                     return null;
-                return lua.GetObject(_Reference, field);
+                return lua.GetObject(Reference, field);
             }
             set
             {
-                Lua lua;
-                if (!TryGet(out lua))
+                if (!TryGet(out var lua))
                     return;
-                lua.SetObject(_Reference, field, value);
+                lua.SetObject(Reference, field, value);
             }
         }
 
@@ -40,26 +38,23 @@ namespace NLua
         public object this[object field] {
             get
             {
-                Lua lua;
-                if (!TryGet(out lua))
+                if (!TryGet(out var lua))
                     return null;
 
-                return lua.GetObject(_Reference, field);
+                return lua.GetObject(Reference, field);
             }
             set
             {
-                Lua lua;
-                if (!TryGet(out lua))
+                if (!TryGet(out var lua))
                     return;
 
-                lua.SetObject(_Reference, field, value);
+                lua.SetObject(Reference, field, value);
             }
         }
 
         public IDictionaryEnumerator GetEnumerator()
         {
-            Lua lua;
-            if (!TryGet(out lua))
+            if (!TryGet(out var lua))
                 return null;
 
             return lua.GetTableDict(this).GetEnumerator();
@@ -69,8 +64,7 @@ namespace NLua
         {
             get
             {
-                Lua lua;
-                if (!TryGet(out lua))
+                if (!TryGet(out var lua))
                     return null;
 
                 return lua.GetTableDict(this).Keys;
@@ -82,8 +76,7 @@ namespace NLua
         {
             get
             {
-                Lua lua;
-                if (!TryGet(out lua))
+                if (!TryGet(out var lua))
                     return null;
 
                 return lua.GetTableDict(this).Values;
@@ -94,8 +87,7 @@ namespace NLua
         {
             get
             {
-                Lua lua;
-                if (!TryGet(out lua))
+                if (!TryGet(out var lua))
                     return null;
                 return lua.GetTableDict(this);
             }
@@ -107,11 +99,10 @@ namespace NLua
          */
         internal object RawGet(string field)
         {
-            Lua lua;
-            if (!TryGet(out lua))
+            if (!TryGet(out var lua))
                 return null;
 
-            return lua.RawGetObject(_Reference, field);
+            return lua.RawGetObject(Reference, field);
         }
 
         /*
@@ -119,7 +110,7 @@ namespace NLua
          */
         internal void Push(LuaState luaState)
         {
-            luaState.GetRef(_Reference);
+            luaState.GetRef(Reference);
         }
 
         public override string ToString()
