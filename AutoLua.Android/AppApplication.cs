@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Text;
 using Android.App;
 using Android.OS;
 using Android.Runtime;
 using AutoLua.Droid.AutoAccessibility;
-using AutoLua.Droid.LuaScript;
 using AutoLua.Droid.LuaScript.Api;
 using AutoLua.Droid.Utils;
 using AutoLua.Events;
-using NLua;
 using static Android.App.Application;
 using Application = Android.App.Application;
 using Exception = System.Exception;
@@ -63,7 +60,7 @@ namespace AutoLua.Droid
         
         public static AppApplication Instance { get; private set; }
 
-        public static Lua Lua { get; set; }
+        public static dynamic Lua { get; set; }
 
         public static System.Threading.Thread LuaThread { get; set; }
     }

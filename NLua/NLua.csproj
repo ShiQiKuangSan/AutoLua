@@ -47,6 +47,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckType.cs" />
+    <Compile Include="DynamicLua\DynamicArray.cs" />
+    <Compile Include="DynamicLua\DynamicLua.cs" />
+    <Compile Include="DynamicLua\DynamicLuaFunction.cs" />
+    <Compile Include="DynamicLua\DynamicLuaTable.cs" />
+    <Compile Include="DynamicLua\LuaHelper.cs" />
     <Compile Include="Event\DebugHookEventArgs.cs" />
     <Compile Include="Event\HookExceptionEventArgs.cs" />
     <Compile Include="Exceptions\LuaException.cs" />

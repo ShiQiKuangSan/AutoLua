@@ -7,6 +7,12 @@ namespace AutoLua.Droid.Utils
     public class VolatileDispose : Object
     {
         private volatile object _value;
+        private volatile Thread _thread;
+
+        public VolatileDispose()
+        {
+            _thread = Thread.CurrentThread();
+        }
         public T BlockedGet<T>()
         {
             lock (this)
@@ -18,7 +24,7 @@ namespace AutoLua.Droid.Utils
                 try
                 {
 #pragma warning disable 618
-                    AppApplication.LuaThread.Suspend();
+                    _thread.Suspend();
 #pragma warning restore 618
                 }
                 catch (InterruptedException e)
@@ -44,7 +50,7 @@ namespace AutoLua.Droid.Utils
                 try
                 {
 #pragma warning disable 618
-                    AppApplication.LuaThread.Suspend();
+                    _thread.Suspend();
 #pragma warning restore 618
                 }
                 catch (Exception e)
@@ -71,7 +77,7 @@ namespace AutoLua.Droid.Utils
                 try
                 {
 #pragma warning disable 618
-                    AppApplication.LuaThread.Suspend();
+                    _thread.Suspend();
 #pragma warning restore 618
                 }
                 catch (Exception e)
@@ -95,7 +101,7 @@ namespace AutoLua.Droid.Utils
         {
             _value = value;
 #pragma warning disable 618
-            AppApplication.LuaThread.Resume();
+            _thread.Resume();
 #pragma warning restore 618
         }
     }

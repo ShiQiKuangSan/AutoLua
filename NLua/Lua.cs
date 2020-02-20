@@ -761,7 +761,7 @@ namespace NLua
         /*
             * Gets a function global variable
             */
-        private LuaFunction GetFunction(string fullPath)
+        public LuaFunction GetFunction(string fullPath)
         {
             var obj = GetObjectFromPath(fullPath);
             if (obj is LuaFunction luaFunction)
@@ -803,17 +803,13 @@ namespace NLua
             * Calls the object as a function with the provided arguments, 
             * returning the function's returned values inside an array
             */
-        internal object[] CallFunction(object function, object[] args)
-        {
-            return CallFunction(function, args, null);
-        }
 
         /*
             * Calls the object as a function with the provided arguments and
             * casting returned values to the types in returnTypes before returning
             * them in an array
             */
-        internal object[] CallFunction(object function, object[] args, Type[] returnTypes)
+        internal object[] CallFunction(object function, object[] args, Type[] returnTypes = null)
         {
             var nArgs = 0;
             var oldTop = _luaState.GetTop();
