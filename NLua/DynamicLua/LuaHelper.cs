@@ -24,7 +24,6 @@ namespace NLua.DynamicLua
         /// <remarks>see http://dotnet-snippets.de/dns/passwort-generieren-SID147.aspx</remarks>
         public static string GetRandomString(int lenght = RandomNameLength)
         {
-            var ret = string.Empty;
             var sb = new StringBuilder();
             const string content = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
             for (var i = 0; i < lenght; i++)

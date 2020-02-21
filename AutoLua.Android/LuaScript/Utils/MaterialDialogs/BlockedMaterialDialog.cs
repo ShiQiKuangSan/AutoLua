@@ -74,7 +74,7 @@ namespace AutoLua.Droid.LuaScript.Utils.MaterialDialogs
 
                     _notified = true;
                     callback?.Invoke(r);
-                    _resultBox?.SetAndNotify(r);
+                    _resultBox?.setAndNotify(r);
                 });
 
                 base.Input(hint, prefill, allowEmptyInput, new InputCallbacks(i => input(i)));
@@ -91,7 +91,7 @@ namespace AutoLua.Droid.LuaScript.Utils.MaterialDialogs
 
                     _notified = true;
                     callback?.Invoke();
-                    _resultBox?.SetAndNotify(r);
+                    _resultBox?.setAndNotify(r);
                 });
 
                 DismissListener(dialog => alert(null));
@@ -108,7 +108,7 @@ namespace AutoLua.Droid.LuaScript.Utils.MaterialDialogs
 
                     _notified = true;
                     callback?.Invoke(r);
-                    _resultBox?.SetAndNotify(r);
+                    _resultBox?.setAndNotify(r);
                 });
 
                 DismissListener(dialog => confirm(false));
@@ -125,7 +125,7 @@ namespace AutoLua.Droid.LuaScript.Utils.MaterialDialogs
 
                     _notified = true;
                     callback?.Invoke(r);
-                    _resultBox?.SetAndNotify(r);
+                    _resultBox?.setAndNotify(r);
                 });
 
                 DismissListener(dialog => itemsCallback(string.Empty));
@@ -143,7 +143,7 @@ namespace AutoLua.Droid.LuaScript.Utils.MaterialDialogs
 
                     _notified = true;
                     callback?.Invoke(which, text);
-                    _resultBox?.SetAndNotify((int[])which.Clone());
+                    _resultBox?.setAndNotify((int[])which.Clone());
                     return true;
                 });
 
@@ -163,7 +163,7 @@ namespace AutoLua.Droid.LuaScript.Utils.MaterialDialogs
 
                     _notified = true;
                     callback?.Invoke(which, text);
-                    _resultBox?.SetAndNotify(text);
+                    _resultBox?.setAndNotify(text);
                 });
 
                 DismissListener(dialog => itemsCallbackSingleChoice(-1, string.Empty));
@@ -191,7 +191,7 @@ namespace AutoLua.Droid.LuaScript.Utils.MaterialDialogs
                     AppUtils.RunOnUI((() => base.Show()));
                 }
 
-                return _resultBox != null ? _resultBox.BlockedGetOrThrow<T>() : default;
+                return _resultBox != null ? _resultBox.blockedGetOrThrow<T>() : default;
             }
 
             private class InputCallbacks : Object, IInputCallback

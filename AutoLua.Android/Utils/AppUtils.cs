@@ -52,7 +52,11 @@ namespace AutoLua.Droid.Utils
 
         public static void SetCurrentActivity(Activity currentActivity)
         {
-            AppApplication.Lua.activity = currentActivity;
+            if (AppApplication.Lua!=null)
+            {
+                AppApplication.Lua.activity = currentActivity;
+            }
+
             _currentActivity = new Java.Lang.Ref.WeakReference(currentActivity);
         }
 

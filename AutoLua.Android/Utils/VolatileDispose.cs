@@ -13,7 +13,7 @@ namespace AutoLua.Droid.Utils
         {
             _thread = Thread.CurrentThread();
         }
-        public T BlockedGet<T>()
+        public T blockedGet<T>()
         {
             lock (this)
             {
@@ -39,7 +39,7 @@ namespace AutoLua.Droid.Utils
             }
         }
 
-        public T BlockedGetOrThrow<T>()
+        public T blockedGetOrThrow<T>()
         {
             lock (this)
             {
@@ -66,7 +66,7 @@ namespace AutoLua.Droid.Utils
         }
 
 
-        public T BlockedGetOrThrow<T>(T defaultValue)
+        public T blockedGetOrThrow<T>(T defaultValue)
         {
             lock (this)
             {
@@ -97,7 +97,7 @@ namespace AutoLua.Droid.Utils
             }
         }
 
-        public void SetAndNotify<T>(T value)
+        public void setAndNotify<T>(T value)
         {
             _value = value;
 #pragma warning disable 618

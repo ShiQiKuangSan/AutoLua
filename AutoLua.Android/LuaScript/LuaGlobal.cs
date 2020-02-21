@@ -44,7 +44,7 @@ namespace AutoLua.Droid.LuaScript
 
             var dialogs = new Dialogs();
             _luaGlobal = new LuaGlobalMethod(AppApplication.Instance);
-            
+
             //加载文件
 
             var assets = AppApplication.Instance.Assets;
@@ -91,6 +91,11 @@ namespace AutoLua.Droid.LuaScript
             lua.sensors = new Sensors();
             //本地存储
             lua.storages = new SharedPreferences();
+            //线程模块
+            lua.threads = new ThreadApi();
+            var time = new TimerApi();
+            //定时器模块
+            lua.times = time;
 
             //注册lua全局函数
             lua.sleep = new Action<int>(_luaGlobal.Sleep);
@@ -113,16 +118,29 @@ namespace AutoLua.Droid.LuaScript
             lua.swipe = new Func<int, int, int, int, int, bool>(_luaGlobal.Swipe);
             lua.gesture = new Func<int, int[][], bool>(_luaGlobal.Gesture);
             lua.gestures = new Func<GestureDescription.StrokeDescription[], bool>(_luaGlobal.Gestures);
+
             //弹窗
             lua.alert = new Action<string, string, Action>(dialogs.alert);
-            
+
+            //定时器
+            lua.setInterval = new Func<Action, long, string>(time.setInterval);
+            lua.setTimeout = new Action<Action, long>(time.setTimeout);
+
             AppApplication.Lua = lua;
         }
 
         public void Close()
         {
             IsInit = false;
+            AppApplication.Lua?.threads?.exit();
+            AppApplication.Lua?.times?.Dispose();
             AppApplication.Lua?.Dispose();
+
+            if (AppApplication.Lua != null)
+            {
+                AppApplication.Lua.activity = null;
+            }
+
             AppApplication.LuaThread?.Interrupt();
             AppApplication.LuaThread = null;
         }
