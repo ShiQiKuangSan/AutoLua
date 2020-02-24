@@ -8,7 +8,7 @@ namespace NLua
     public abstract class LuaBase : IDisposable
     {
         private bool _disposed;
-        protected readonly int Reference;
+        protected readonly int _Reference;
         private Lua _lua;
 
         protected bool TryGet(out Lua lua)
@@ -22,11 +22,10 @@ namespace NLua
             lua = _lua;
             return true;
         }
-
         protected LuaBase(int reference, Lua lua)
         {
             _lua = lua;
-            Reference = reference;
+            _Reference = reference;
         }
 
         ~LuaBase()
@@ -47,17 +46,16 @@ namespace NLua
             if (!TryGet(out var lua))
                 return;
 
-            lua.DisposeInternal(Reference, finalized);
+            lua.DisposeInternal(_Reference, finalized);
         }
-
-        protected virtual void Dispose(bool disposeManagedResources)
+        public virtual void Dispose(bool disposeManagedResources)
         {
             if (_disposed)
                 return;
 
             var finalized = !disposeManagedResources;
 
-            if (Reference != 0)
+            if (_Reference != 0)
             {
                 DisposeLuaReference(finalized);
             }
@@ -74,12 +72,12 @@ namespace NLua
             if (!TryGet(out var lua))
                 return false;
 
-            return lua.CompareRef(reference.Reference, Reference);
+            return lua.CompareRef(reference._Reference, _Reference);
         }
 
         public override int GetHashCode()
         {
-            return Reference;
+            return _Reference;
         }
     }
 }

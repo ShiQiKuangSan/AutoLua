@@ -26,15 +26,11 @@ namespace NLua
 
         public override bool Equals(object obj)
         {
-            switch (obj)
-            {
-                case Type type:
-                    return UnderlyingSystemType == type;
-                case ProxyType proxyType:
-                    return UnderlyingSystemType == proxyType.UnderlyingSystemType;
-                default:
-                    return UnderlyingSystemType.Equals(obj);
-            }
+            if (obj is Type type)
+                return UnderlyingSystemType == type;
+            if (obj is ProxyType proxyType)
+                return UnderlyingSystemType == proxyType.UnderlyingSystemType;
+            return UnderlyingSystemType.Equals(obj);
         }
 
         public override int GetHashCode()

@@ -10,9 +10,11 @@ namespace NLua.Method
          */
         public static LuaFunction GetTableFunction(LuaTable luaTable, string name)
         {
-            if (luaTable?.RawGet(name) is LuaFunction funcObj)
+            if (luaTable == null)
+                return null;
+
+            if (luaTable.RawGet(name) is LuaFunction funcObj)
                 return funcObj;
-            
             return null;
         }
 

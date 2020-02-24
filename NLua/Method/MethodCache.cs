@@ -8,9 +8,9 @@ namespace NLua.Method
     {
         public MethodCache()
         {
-            Args = new object[0];
-            ArgTypes = new MethodArgs[0];
-            OutList = new int[0];
+            args = new object[0];
+            argTypes = new MethodArgs[0];
+            outList = new int[0];
         }
         private MethodBase _cachedMethod;
 
@@ -30,10 +30,10 @@ namespace NLua.Method
 
         public bool IsReturnVoid;
         // List or arguments
-        public object[] Args;
+        public object[] args;
         // Positions of out parameters
-        public int[] OutList;
+        public int[] outList;
         // Types of parameters
-        public MethodArgs[] ArgTypes;
+        public MethodArgs[] argTypes;
     }
 }

@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace NLua.Extensions
 {
-    internal static class TypeExtensions
+    static class TypeExtensions
     {
         public static bool HasMethod(this Type t, string name)
         {

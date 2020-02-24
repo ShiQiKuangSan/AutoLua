@@ -20,7 +20,7 @@ using LuaNativeFunction = KeraLua.LuaFunction;
 
 namespace NLua
 {
-    public class Lua : IDisposable
+    public sealed class Lua : IDisposable
     {
         #region lua debug functions
         /// <summary>
@@ -57,7 +57,7 @@ namespace NLua
         /// Used to ensure multiple .net threads all get serialized by this single lock for access to the lua stack/objects
         /// </summary>
         //private object luaLock = new object();
-        private readonly bool _statePassed;
+        private bool _StatePassed;
         private bool _executing;
 
         // The commented code bellow is the initLua, the code assigned here is minified for size/performance reasons.
@@ -256,7 +256,7 @@ namespace NLua
             }
 
             _luaState = luaState;
-            _statePassed = true;
+            _StatePassed = true;
             luaState.SetTop(-2);
             Init();
         }
@@ -266,7 +266,7 @@ namespace NLua
             _luaState.PushString("NLua_Loaded");
             _luaState.PushBoolean(true);
             _luaState.SetTable((int)LuaRegistry.Index);
-            if (_statePassed == false)
+            if (_StatePassed == false)
             {
                 _luaState.NewTable();
                 _luaState.SetGlobal("luanet");
@@ -287,7 +287,7 @@ namespace NLua
 
         public void Close()
         {
-            if (_statePassed || _luaState == null)
+            if (_StatePassed || _luaState == null)
                 return;
 
             _luaState.Close();
@@ -316,13 +316,12 @@ namespace NLua
 
             // A pre-wrapped exception - just rethrow it (stack trace of InnerException will be preserved)
 
-            err = err switch
-            {
-                LuaScriptException luaEx => throw luaEx,
-                // A non-wrapped Lua error (best interpreted as a string) - wrap it and throw it
-                null => "Unknown Lua Error",
-                _ => err
-            };
+            if (err is LuaScriptException luaEx)
+                throw luaEx;
+
+            // A non-wrapped Lua error (best interpreted as a string) - wrap it and throw it
+            if (err == null)
+                err = "Unknown Lua Error";
 
             throw new LuaScriptException(err.ToString(), string.Empty);
         }
@@ -543,7 +542,7 @@ namespace NLua
             }
         }
 
-        private object GetObjectFromPath(string fullPath)
+        public object GetObjectFromPath(string fullPath)
         {
             var oldTop = _luaState.GetTop();
             var path = FullPathToArray(fullPath);
@@ -634,20 +633,26 @@ namespace NLua
                 foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
                 {
                     var name = method.Name;
-                    if ((method.GetCustomAttributes(typeof(LuaHideAttribute), false).Any()) ||
-                        (method.GetCustomAttributes(typeof(LuaGlobalAttribute), false).Any()) || name == "GetType" ||
-                        name == "GetHashCode" || name == "Equals" || name == "ToString" || name == "Clone" ||
-                        name == "Dispose" || name == "GetEnumerator" || name == "CopyTo" ||
-                        name.StartsWith("get_", StringComparison.Ordinal) ||
-                        name.StartsWith("set_", StringComparison.Ordinal) ||
-                        name.StartsWith("add_", StringComparison.Ordinal) ||
-                        name.StartsWith("remove_", StringComparison.Ordinal)) continue;
-                    // Format for easy method invocation
-                    var command = path + ":" + name + "(";
+                    if (
+                        // Check that the LuaHideAttribute and LuaGlobalAttribute were not applied
+                        (!method.GetCustomAttributes(typeof(LuaHideAttribute), false).Any()) &&
+                        (!method.GetCustomAttributes(typeof(LuaGlobalAttribute), false).Any()) &&
+                        // Exclude some generic .NET methods that wouldn't be very usefull in Lua
+                        name != "GetType" && name != "GetHashCode" && name != "Equals" &&
+                        name != "ToString" && name != "Clone" && name != "Dispose" &&
+                        name != "GetEnumerator" && name != "CopyTo" &&
+                        !name.StartsWith("get_", StringComparison.Ordinal) &&
+                        !name.StartsWith("set_", StringComparison.Ordinal) &&
+                        !name.StartsWith("add_", StringComparison.Ordinal) &&
+                        !name.StartsWith("remove_", StringComparison.Ordinal))
+                    {
+                        // Format for easy method invocation
+                        var command = path + ":" + name + "(";
 
-                    if (method.GetParameters().Length == 0)
-                        command += ")";
-                    _globals.Add(command);
+                        if (method.GetParameters().Length == 0)
+                            command += ")";
+                        _globals.Add(command);
+                    }
                 }
                 #endregion
 
@@ -693,7 +698,7 @@ namespace NLua
             * Navigates a table in the top of the stack, returning
             * the value of the specified field
             */
-        private object GetObject(IReadOnlyList<string> remainingPath)
+        private object GetObject(IEnumerable<string> remainingPath)
         {
             object returnValue = null;
 
@@ -744,7 +749,7 @@ namespace NLua
         /*
             * Gets a table global variable
             */
-        private LuaTable GetTable(string fullPath)
+        public LuaTable GetTable(string fullPath)
         {
             return (LuaTable)GetObjectFromPath(fullPath);
         }
@@ -864,7 +869,7 @@ namespace NLua
                 _luaState.GetTable(-2);
             }
 
-            _luaState.PushString(remainingPath[^1]);
+            _luaState.PushString(remainingPath[remainingPath.Count - 1]);
             _translator.Push(_luaState, val);
             _luaState.SetTable(-3);
         }
@@ -897,7 +902,7 @@ namespace NLua
                     _luaState.GetTable(-2);
                 }
 
-                _luaState.PushString(path[^1]);
+                _luaState.PushString(path[path.Length - 1]);
                 _luaState.NewTable();
                 _luaState.SetTable(-3);
             }
@@ -1039,7 +1044,7 @@ namespace NLua
 #if __IOS__ || __TVOS__ || __WATCHOS__
         [MonoPInvokeCallback(typeof(LuaHookFunction))]
 #endif
-        static void DebugHookCallback(IntPtr luaState, IntPtr luaDebug)
+        private static void DebugHookCallback(IntPtr luaState, IntPtr luaDebug)
         {
             var state = LuaState.FromIntPtr(luaState);
 
@@ -1050,8 +1055,8 @@ namespace NLua
 
             var debug = LuaDebug.FromIntPtr(luaDebug);
 
-            ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(state);
-            Lua lua = translator.Interpreter;
+            var translator = ObjectTranslatorPool.Instance.Find(state);
+            var lua = translator.Interpreter;
             lua.DebugHookCallbackInternal(debug);
         }
 
@@ -1059,7 +1064,9 @@ namespace NLua
         {
             try
             {
-                DebugHook?.Invoke(this, new DebugHookEventArgs(luaDebug));
+                var temp = DebugHook;
+
+                temp?.Invoke(this, new DebugHookEventArgs(luaDebug));
             }
             catch (Exception ex)
             {
@@ -1069,7 +1076,8 @@ namespace NLua
 
         private void OnHookException(HookExceptionEventArgs e)
         {
-            HookException?.Invoke(this, e);
+            var temp = HookException;
+            temp?.Invoke(this, e);
         }
 
         /// <summary>
@@ -1078,7 +1086,7 @@ namespace NLua
         /// <returns>Returns the top value from the lua stack.</returns>
         public object Pop()
         {
-            int top = _luaState.GetTop();
+            var top = _luaState.GetTop();
             return _translator.PopValues(_luaState, top - 1)[0];
         }
 
@@ -1221,7 +1229,7 @@ namespace NLua
         {
             Dispose();
         }
-        public virtual void Dispose()
+        public void Dispose()
         {
             if (_translator != null)
             {

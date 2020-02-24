@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace NLua.Extensions
 {
-    internal static class StringExtensions
+    static class StringExtensions
     {
         public static IEnumerable<string> SplitWithEscape(this string input, char separator, char escapeCharacter)
         {
@@ -21,7 +21,7 @@ namespace NLua.Extensions
                 }
 
 
-                yield return input[start..index];
+                yield return input.Substring(start, index - start);
                 index++;
                 start = index;
             }

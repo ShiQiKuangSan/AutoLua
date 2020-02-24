@@ -204,7 +204,7 @@
       <Name>HttpServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\NLua\NLua.csproj">
-      <Project>{0c2cdeba-6f3b-4a96-a285-89873629bd68}</Project>
+      <Project>{281dc0f1-7ed9-4a63-88b0-496231b4f5ba}</Project>
       <Name>NLua</Name>
     </ProjectReference>
   </ItemGroup>

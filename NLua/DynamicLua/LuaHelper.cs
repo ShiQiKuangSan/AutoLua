@@ -36,13 +36,18 @@ namespace NLua.DynamicLua
         /// </summary>
         public static object UnWrapObject(object wrapped, Lua state, string name = null)
         {
-            return wrapped switch
+
+            switch (wrapped)
             {
-                LuaTable table => new DynamicLuaTable(table, state, name),
-                LuaFunction function => new DynamicLuaFunction(function, state),
-                MulticastDelegate _ => new DynamicLuaFunction(state.GetFunction(name), state),
-                _ => wrapped
-            };
+                case LuaTable table:
+                    return new DynamicLuaTable(table, state, name);
+                case LuaFunction function:
+                    return new DynamicLuaFunction(function, state);
+                case MulticastDelegate _:
+                    return new DynamicLuaFunction(state.GetFunction(name), state);
+                default:
+                    return wrapped;
+            }
         }
 
         /// <summary>

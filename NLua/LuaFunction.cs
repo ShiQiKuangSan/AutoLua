@@ -8,16 +8,16 @@ namespace NLua
 {
     public class LuaFunction : LuaBase
     {
-        private readonly LuaNativeFunction _function;
+        internal readonly LuaNativeFunction function;
 
         public LuaFunction(int reference, Lua interpreter):base(reference, interpreter)
         {
-            _function = null;
+            function = null;
         }
 
         public LuaFunction(LuaNativeFunction nativeFunction, Lua interpreter):base (0, interpreter)
         {
-            _function = nativeFunction;
+            function = nativeFunction;
         }
 
         /*
@@ -52,10 +52,10 @@ namespace NLua
             if (!TryGet(out var lua))
                 return;
 
-            if (Reference != 0)
-                luaState.RawGetInteger(LuaRegistry.Index, Reference);
+            if (_Reference != 0)
+                luaState.RawGetInteger(LuaRegistry.Index, _Reference);
             else
-                lua.PushCSFunction(_function);
+                lua.PushCSFunction(function);
         }
 
         public override string ToString()
@@ -71,15 +71,15 @@ namespace NLua
             if (!TryGet(out var lua))
                 return false;
 
-            if (Reference != 0 && l.Reference != 0)
-                return lua.CompareRef(l.Reference, Reference);
+            if (_Reference != 0 && l._Reference != 0)
+                return lua.CompareRef(l._Reference, _Reference);
 
-            return _function == l._function;
+            return function == l.function;
         }
 
         public override int GetHashCode()
         {
-            return Reference != 0 ? Reference : _function.GetHashCode();
+            return _Reference != 0 ? _Reference : function.GetHashCode();
         }
     }
 }

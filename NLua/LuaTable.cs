@@ -1,5 +1,4 @@
 ﻿
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using NLua.Extensions;
@@ -22,13 +21,13 @@ namespace NLua
             {
                 if (!TryGet(out var lua))
                     return null;
-                return lua.GetObject(Reference, field);
+                return lua.GetObject(_Reference, field);
             }
             set
             {
                 if (!TryGet(out var lua))
                     return;
-                lua.SetObject(Reference, field, value);
+                lua.SetObject(_Reference, field, value);
             }
         }
 
@@ -41,14 +40,14 @@ namespace NLua
                 if (!TryGet(out var lua))
                     return null;
 
-                return lua.GetObject(Reference, field);
+                return lua.GetObject(_Reference, field);
             }
             set
             {
                 if (!TryGet(out var lua))
                     return;
 
-                lua.SetObject(Reference, field, value);
+                lua.SetObject(_Reference, field, value);
             }
         }
 
@@ -83,6 +82,7 @@ namespace NLua
             }
         }
 
+
         public IDictionary<object, object> Items
         {
             get
@@ -92,6 +92,7 @@ namespace NLua
                 return lua.GetTableDict(this);
             }
         }
+        
 
         /*
          * Gets an string fields of a table ignoring its metatable,
@@ -102,7 +103,7 @@ namespace NLua
             if (!TryGet(out var lua))
                 return null;
 
-            return lua.RawGetObject(Reference, field);
+            return lua.RawGetObject(_Reference, field);
         }
 
         /*
@@ -110,7 +111,7 @@ namespace NLua
          */
         internal void Push(LuaState luaState)
         {
-            luaState.GetRef(Reference);
+            luaState.GetRef(_Reference);
         }
 
         public override string ToString()

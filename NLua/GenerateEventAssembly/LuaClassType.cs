@@ -9,7 +9,7 @@ namespace NLua
      */
     internal struct LuaClassType
     {
-        public Type Klass;
-        public Type[][] ReturnTypes;
+        public Type klass;
+        public Type[][] returnTypes;
     }
 }

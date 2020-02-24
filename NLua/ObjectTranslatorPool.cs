@@ -22,14 +22,13 @@ namespace NLua
 
         public ObjectTranslator Find(LuaState luaState)
         {
-            if (_translators.TryGetValue(luaState, out var translator)) 
-                return translator;
-            
-            var main = luaState.MainThread;
+            if(!_translators.TryGetValue(luaState, out var translator))
+            {
+                var main = luaState.MainThread;
 
-            if (!_translators.TryGetValue(main, out translator))
-                return null;
-            
+                if (!_translators.TryGetValue(main, out translator))
+                    return null;
+            }
             return translator;
         }
 

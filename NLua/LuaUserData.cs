@@ -18,14 +18,14 @@ namespace NLua
                 if (!TryGet(out var lua))
                     return null;
 
-                return lua.GetObject(Reference, field);
+                return lua.GetObject(_Reference, field);
             }
             set
             {
                 if (!TryGet(out var lua))
                     return;
 
-                lua.SetObject(Reference, field, value);
+                lua.SetObject(_Reference, field, value);
             }
         }
 
@@ -38,14 +38,14 @@ namespace NLua
                 if (!TryGet(out var lua))
                     return null;
 
-                return lua.GetObject(Reference, field);
+                return lua.GetObject(_Reference, field);
             }
             set
             {
                 if (!TryGet(out var lua))
                     return;
 
-                lua.SetObject(Reference, field, value);
+                lua.SetObject(_Reference, field, value);
             }
         }
 

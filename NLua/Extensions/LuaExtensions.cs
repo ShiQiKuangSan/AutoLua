@@ -55,10 +55,7 @@ namespace NLua.Extensions
 
             state.Pop(2);
 
-            if (isEqual)
-                return p;
-
-            return IntPtr.Zero;
+            return isEqual ? p : IntPtr.Zero;
         }       
 
         public static int ToNetObject(this LuaState state, int index, IntPtr tag)

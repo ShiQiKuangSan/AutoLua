@@ -102,23 +102,19 @@ namespace NLua
             //CP: Added support for generic parameters
             if (paramType.IsGenericParameter)
             {
-                switch (luatype)
-                {
-                    case LuaType.Boolean:
-                        return _extractValues[typeof(bool)];
-                    case LuaType.String:
-                        return _extractValues[typeof(string)];
-                    case LuaType.Table:
-                        return _extractValues[typeof(LuaTable)];
-                    case LuaType.UserData:
-                        return _extractValues[typeof(object)];
-                    case LuaType.Function:
-                        return _extractValues[typeof(LuaFunction)];
-                    case LuaType.Number:
-                        return _extractValues[typeof(double)];
-                }
+                if (luatype == LuaType.Boolean)
+                    return _extractValues[typeof(bool)];
+                if (luatype == LuaType.String)
+                    return _extractValues[typeof(string)];
+                if (luatype == LuaType.Table)
+                    return _extractValues[typeof(LuaTable)];
+                if (luatype == LuaType.UserData)
+                    return _extractValues[typeof(object)];
+                if (luatype == LuaType.Function)
+                    return _extractValues[typeof(LuaFunction)];
+                if (luatype == LuaType.Number)
+                    return _extractValues[typeof(double)];
             }
-            
             var netParamIsString = paramType == typeof(string) || paramType == typeof(char[]) || paramType == typeof(byte[]);
 
             if (netParamIsNumeric)
@@ -366,7 +362,7 @@ namespace NLua
             return _translator.GetUserData(luaState, stackPos);
         }
 
-        private object GetAsObject(LuaState luaState, int stackPos)
+        public object GetAsObject(LuaState luaState, int stackPos)
         {
             if (luaState.Type(stackPos) == LuaType.Table)
             {
@@ -386,7 +382,7 @@ namespace NLua
             return obj;
         }
 
-        private object GetAsNetObject(LuaState luaState, int stackPos)
+        public object GetAsNetObject(LuaState luaState, int stackPos)
         {
             var obj = _translator.GetNetObject(luaState, stackPos);
 

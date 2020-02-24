@@ -27,8 +27,8 @@ namespace NLua.Method
         /// </summary>
         public void Dispose()
         {
-            foreach (var (key, value) in _dict)
-                value.RemovePending(key);
+            foreach (var pair in _dict)
+                pair.Value.RemovePending(pair.Key);
 
             _dict.Clear();
         }
