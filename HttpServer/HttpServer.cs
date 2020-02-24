@@ -62,11 +62,6 @@ namespace HttpServer
         {
             this.ServerIP = ipAddress.ToString();
             this.ServerPort = port;
-
-            //如果指定目录不存在则采用默认目录
-            if (!Directory.Exists(root))
-                this.ServerRoot = AppDomain.CurrentDomain.BaseDirectory;
-
             this.ServerRoot = root;
         }
 
@@ -174,9 +169,6 @@ namespace HttpServer
         /// <param name="root"></param>
         public HttpServer SetRoot(string root)
         {
-            if (!Directory.Exists(root))
-                this.ServerRoot = AppDomain.CurrentDomain.BaseDirectory;
-
             this.ServerRoot = root;
             return this;
         }

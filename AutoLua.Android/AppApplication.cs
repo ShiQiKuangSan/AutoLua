@@ -43,7 +43,7 @@ namespace AutoLua.Droid
         private void StartServer()
         {
             server = new AccessibilityHttpServer(9091);
-            server.SetRoot("/assets/");
+            server.SetRoot("Site");
             Task.Factory.StartNew(() => server.Start());
         }
 
