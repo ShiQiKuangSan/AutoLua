@@ -23,7 +23,6 @@ namespace AutoLua.Views.Scripts
         public ScriptFilePage()
         {
             InitializeComponent();
-            App.Pages.Add("ScriptFilePage", this);
             _fileService = new ScriptFileService(ScriptItems);
 
             ScriptItems.RowHeight = 60;

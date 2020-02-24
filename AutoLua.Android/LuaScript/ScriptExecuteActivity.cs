@@ -76,12 +76,6 @@ namespace AutoLua.Droid.LuaScript
             base.Finish();
         }
 
-        protected override void OnDestroy()
-        {
-            Close();
-            base.OnDestroy();
-        }
-
         private static void Close()
         {
             //初始化lua全局函数

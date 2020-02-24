@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppApplication.cs" />
+    <Compile Include="AutoAccessibility\AccessibilityHttpServer.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Delegates.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Event\AccessibilityEventNotifications.cs" />
     <Compile Include="AutoAccessibility\Accessibility\Event\AccessibilityEventWindos.cs" />
@@ -167,7 +168,7 @@
     <Compile Include="Utils\VolatileDispose.cs" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidAsset Include="Assets\LuaJson.lua" />
+    <AndroidAsset Include="Assets\Script\LuaJson.lua" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
     <None Include="Properties\AndroidManifest.xml" />
@@ -198,6 +199,10 @@
       <Project>{007316B9-CF50-4BE5-8284-BB1BC288F5E9}</Project>
       <Name>AutoLua</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HttpServer\HttpServer.csproj">
+      <Project>{5d57b204-8055-4065-940d-11d0fbb6baa0}</Project>
+      <Name>HttpServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NLua\NLua.csproj">
       <Project>{0c2cdeba-6f3b-4a96-a285-89873629bd68}</Project>
       <Name>NLua</Name>
@@ -214,6 +219,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\Site\index.html" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>

@@ -18,7 +18,6 @@ namespace AutoLua.Views.Logs
         public LogHomePage()
         {
             InitializeComponent();
-            App.Pages.Add("LogHomePage", this);
             //绑定数据
             Logs.ItemsSource = items;
             //绑定事件

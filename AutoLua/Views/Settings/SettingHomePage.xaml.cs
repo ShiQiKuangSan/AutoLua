@@ -9,7 +9,6 @@ namespace AutoLua.Views.Settings
         public SettingHomePage()
         {
             InitializeComponent();
-            App.Pages.Add("SettingHomePage", this);
         }
     }
 }

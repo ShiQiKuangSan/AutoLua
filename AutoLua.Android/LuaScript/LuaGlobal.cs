@@ -6,6 +6,8 @@ using System.IO;
 using Android.AccessibilityServices;
 using NLua.DynamicLua;
 using Xamarin.Forms;
+using AutoLua.Droid.Utils;
+using NLua;
 
 namespace AutoLua.Droid.LuaScript
 {
@@ -44,23 +46,6 @@ namespace AutoLua.Droid.LuaScript
 
             var dialogs = new Dialogs();
             _luaGlobal = new LuaGlobalMethod(AppApplication.Instance);
-
-            //加载文件
-
-            var assets = AppApplication.Instance.Assets;
-
-            try
-            {
-                using var sr = new StreamReader(assets.Open("LuaJson.lua"));
-
-                var str = sr.ReadToEnd();
-
-                lua.LoadString(str);
-            }
-            catch (Exception)
-            {
-                AppApplication.OnLog("异常", "加载 json模块失败", Color.Red);
-            }
 
             //元素选择器
             lua.by = new By();
@@ -126,19 +111,67 @@ namespace AutoLua.Droid.LuaScript
             lua.setInterval = new Func<Action, long, string>(time.setInterval);
             lua.setTimeout = new Action<Action, long>(time.setTimeout);
 
+            //加载文件
+
+            LoadScript(lua);
+
             AppApplication.Lua = lua;
+        }
+
+
+        private static async void LoadScript(dynamic lua)
+        {
+            var path = "Script";
+            var scripts = AppUtils.GetAssets.List(path);
+
+            foreach (var file in scripts)
+            {
+                try
+                {
+                    var lastIndex = file.LastIndexOf('.');
+
+                    if (lastIndex <= -1)
+                    {
+                        AppApplication.OnLog("异常", $"加载{file}模块失败", Color.Red);
+                        continue;
+                    }
+
+                    lastIndex++;
+
+                    var ex = file.Substring(lastIndex, file.Length - lastIndex);
+
+                    if (ex.ToLower() != "lua")
+                    {
+                        AppApplication.OnLog("异常", $"加载{file}模块失败", Color.Red);
+                        continue;
+                    }
+
+                    var f = $"{path}/{file}";
+
+                    using var sr = new StreamReader(AppUtils.GetAssets.Open(f));
+
+                    var str = await sr.ReadToEndAsync();
+
+                    lua.LoadString(str);
+                }
+                catch (Exception)
+                {
+                    AppApplication.OnLog("异常", $"加载{file}模块失败", Color.Red);
+                }
+            }
         }
 
         public void Close()
         {
             IsInit = false;
-            AppApplication.Lua?.threads?.exit();
-            AppApplication.Lua?.times?.Dispose();
-            AppApplication.Lua?.Dispose();
 
             if (AppApplication.Lua != null)
             {
-                AppApplication.Lua.activity = null;
+                AppApplication.Lua.threads?.exit();
+                AppApplication.Lua.times?.Dispose();
+
+                AppApplication.Lua.Dispose();
+                AppApplication.Lua = null;
             }
 
             AppApplication.LuaThread?.Interrupt();

@@ -4,5 +4,6 @@
     <AndroidDesignerPreferredTheme>Theme.AppCompat.Light.NoActionBar</AndroidDesignerPreferredTheme>
     <SelectedDevice>HUAWEI DUK-AL20</SelectedDevice>
     <ProjectView>ProjectFiles</ProjectView>
+    <AndroidDesignerPreferredDevice>Nexus 4</AndroidDesignerPreferredDevice>
   </PropertyGroup>
 </Project>

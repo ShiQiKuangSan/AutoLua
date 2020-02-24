@@ -21,7 +21,6 @@ namespace AutoLua.Views.Scripts
         public ScriptDirPage()
         {
             InitializeComponent();
-            App.Pages.Add("ScriptDirPage", this);
             _dirService = new ScriptDirService(ScriptItems);
 
             ScriptItems.RowHeight = 60;

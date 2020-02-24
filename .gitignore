@@ -13,3 +13,5 @@
 /AutoLua/bin/Release/netstandard2.0
 /AutoLua.Android/bin/Release
 /NLua/bin/Release
+/HttpServer/bin
+/HttpServer/obj

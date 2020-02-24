@@ -9,7 +9,6 @@ namespace AutoLua.Views.Scripts
         public ScriptHomePage()
         {
             InitializeComponent();
-            App.Pages.Add("ScriptHomePage", this);
         }
     }
 }

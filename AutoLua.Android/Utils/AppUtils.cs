@@ -2,7 +2,9 @@
 using Android.Content;
 using Android.Content.Res;
 using Android.OS;
+using Android.Runtime;
 using Java.Lang;
+using Java.Net;
 using System;
 
 namespace AutoLua.Droid.Utils
@@ -61,5 +63,36 @@ namespace AutoLua.Droid.Utils
         }
 
         public static Activity CurrentActivity => _currentActivity.Get() as Activity;
+
+        /// <summary>
+        /// 获取本地ip
+        /// </summary>
+        /// <returns></returns>
+        public static string GetIp()
+        {
+            try
+            {
+                var work = NetworkInterface.NetworkInterfaces;
+
+                while (work.HasMoreElements)
+                {
+                    var netAddress = work.NextElement().JavaCast<NetworkInterface>().InetAddresses; 
+
+                    while (netAddress.HasMoreElements)
+                    {
+                        var net = netAddress.NextElement().JavaCast<InetAddress>();
+                        if (!net.IsLoopbackAddress && (net is Inet4Address))
+                        {
+                            return net.HostAddress.ToString();
+                        }
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+            }
+
+            return string.Empty;
+        }
     }
 }

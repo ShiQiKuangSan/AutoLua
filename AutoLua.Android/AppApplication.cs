@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Android.App;
 using Android.OS;
 using Android.Runtime;
 using AutoLua.Droid.AutoAccessibility;
+using AutoLua.Droid.LuaScript;
 using AutoLua.Droid.LuaScript.Api;
 using AutoLua.Droid.Utils;
 using AutoLua.Events;
@@ -24,7 +26,6 @@ namespace AutoLua.Droid
         {
             base.OnCreate();
             Instance = this;
-            
             ScreenMetrics.Instance.Init();
             
             AppUtils.Init(this);
@@ -33,7 +34,19 @@ namespace AutoLua.Droid
 
             //初始化无障碍服务
             AutoGlobal.Init(this);
+            //初始化lua全局函数
+            LuaGlobal.Instance.Init();
+
+            StartServer();
         }
+
+        private void StartServer()
+        {
+            server = new AccessibilityHttpServer(9091);
+            server.SetRoot("/assets/");
+            Task.Factory.StartNew(() => server.Start());
+        }
+
 
         /// <summary>
         /// 输出日志。
@@ -63,6 +76,8 @@ namespace AutoLua.Droid
         public static dynamic Lua { get; set; }
 
         public static System.Threading.Thread LuaThread { get; set; }
+
+        public AccessibilityHttpServer server;
     }
 
     public class SimpleActivityLifecycleCallbacks : Java.Lang.Object, IActivityLifecycleCallbacks

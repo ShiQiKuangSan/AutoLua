@@ -26,6 +26,14 @@ namespace AutoLua.Droid
             
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+
+        public override void Finish()
+        {
+            AppApplication.Instance.server?.Stop();
+            AppApplication.Instance.server = null;
+
+            base.Finish();
+        }
     }
 
 
