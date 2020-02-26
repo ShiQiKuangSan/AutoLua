@@ -365,7 +365,23 @@ namespace NLua
             if (caughtExcept == null)
                 return 0;
 
-            _translator.ThrowError(_luaState, caughtExcept);
+            try
+            {
+                _translator.ThrowError(_luaState, caughtExcept);
+            }
+            catch (Exception ex)
+            {
+                var err = ex.Message;
+                if (err == "Object reference not set to an instance of an object.")
+                {
+                    throw new LuaException("脚本异常，请不要快速启动和关闭脚本");
+                }
+                else
+                {
+                    throw new LuaException(err);
+                }
+            }
+
             //_luaState.PushNil();
             return 1;
         }

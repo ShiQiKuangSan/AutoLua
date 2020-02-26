@@ -1,12 +1,18 @@
-﻿using AutoLua.Droid.Utils;
+﻿using Android.Graphics;
+using AutoLua.Droid.LuaScript.Utils.ScreenCaptures;
+using AutoLua.Droid.Utils;
 using HttpServer;
+using System;
 using System.IO;
 using System.Linq;
+using Path = System.IO.Path;
 
 namespace AutoLua.Droid.AutoAccessibility
 {
     public class AccessibilityHttpServer : HttpServer.HttpServer
     {
+        private static readonly object Lock = new object();
+
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -38,20 +44,54 @@ namespace AutoLua.Droid.AutoAccessibility
 
         public override void OnGet(HttpRequest request, HttpResponse response)
         {
-            ///链接形式1:"http://localhost:4050/assets/styles/style.css"表示访问指定文件资源，
-            ///此时读取服务器目录下的/assets/styles/style.css文件。
-
-            ///链接形式1:"http://localhost:4050/assets/styles/"表示访问指定页面资源，
-            ///此时读取服务器目录下的/assets/styles/style.index文件。
 
             //当文件不存在时应返回404状态码
-            string requestURL = request.URL;
+            var requestURL = request.URL;
             requestURL = requestURL.Replace("/", @"\").Replace("\\..", "").TrimStart('\\');
-            string requestFile = Path.Combine(ServerRoot, requestURL);
 
-            //判断地址中是否存在扩展名
-            string extension = Path.GetExtension(requestFile);
+            var requestFile = Path.Combine(ServerRoot, requestURL);
 
+            try
+            {
+                var bitmap = ScreenCapturerServerManager.HttpCapturer();
+
+                if (bitmap != null)
+                {
+                    using var outputStream = new MemoryStream();
+                    bitmap.Compress(Bitmap.CompressFormat.Png, 100, outputStream);
+                    var imageBytes = outputStream.ToArray();
+
+                    var base64 = Convert.ToBase64String(imageBytes);
+                    base64 = "data:image/png;base64," + base64;
+                    response.SetContent($@"<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf - 8'>
+        < title ></ title >
+
+    </ head >
+
+    < body >
+           <img src='{base64}'/>
+    </ body >
+</ html >
+");
+
+                    response.Content_Type = "text/html; charset=UTF-8";
+                }
+                else
+                {
+                    response.SetContent("没有截到图");
+                    response.Content_Type = "text/html; charset=UTF-8";
+                }
+            }
+            catch (System.Exception e)
+            {
+                response.SetContent(e.Message);
+                response.Content_Type = "text/html; charset=UTF-8";
+            }
+
+            response.StatusCode = "200";
             //发送HTTP响应
             response.Send();
         }

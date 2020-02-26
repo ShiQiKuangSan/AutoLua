@@ -28,20 +28,8 @@ namespace AutoLua.Droid.LuaScript.Api
     [Android.Runtime.Preserve(AllMembers = true)]
     public class Images
     {
-        /// <summary>
-        /// 截屏请求服务。
-        /// </summary>
-        private readonly ScreenCaptureRequesterService _screenCaptureRequester;
-
-        /// <summary>
-        /// 屏幕截取。
-        /// </summary>
-        private ScreenCapturer _screenCapturer;
-
         public Images()
         {
-            _screenCaptureRequester = new ScreenCaptureRequesterService();
-            ActivityEvenetManager.Instance.AddDelegate(_screenCaptureRequester);
         }
 
         /// <summary>
@@ -270,52 +258,9 @@ namespace AutoLua.Droid.LuaScript.Api
             return ImageWrapper.OfBitmap(bitmap);
         }
 
-        /// <summary>
-        /// 申请截屏。
-        /// </summary>
-        /// <param name="landscape"></param>
-        public void requestScreenCapture(bool landscape = false)
-        {
-            if (Build.VERSION.SdkInt < BuildVersionCodes.Lollipop)
-            {
-                throw new Exception("本脚本需要此安卓版本以上才能运行" + "最低要求安装 5");
-            }
-
-            Android.Content.Res.Orientation orientation;
-
-            if (landscape)
-            {
-                orientation = Android.Content.Res.Orientation.Landscape;
-            }
-            else
-            {
-                orientation = Android.Content.Res.Orientation.Portrait;
-            }
-
-            //如果已获取了屏幕请求
-            if (_screenCapturer != null)
-            {
-                _screenCapturer.SetOrientation(orientation);
-                return;
-            }
-
-            //设置回调。
-            _screenCaptureRequester.SetResultCallback((result, data) =>
-            {
-                if (result == Result.Ok)
-                {
-                    _screenCapturer = new ScreenCapturer(data, orientation, ScreenMetrics.Instance.DeviceScreenDensity,
-                        new Handler(Looper.MainLooper));
-                }
-            });
-
-            //请求截屏权限。
-            _screenCaptureRequester.Request();
-        }
-
         public ImageWrapper captureScreen()
         {
-            var capture = _screenCapturer.Capture();
+            var capture = ScreenCapturerServerManager.LuaCapturer();
 
             return ImageWrapper.OfBitmap(capture);
         }

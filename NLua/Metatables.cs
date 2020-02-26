@@ -856,7 +856,6 @@ namespace NLua
                 // Push false because we are NOT returning a function (see luaIndexFunction)
                 _translator.Push(luaState, false);
                 return 2;
-                break;
             }
         }
 

@@ -49,6 +49,10 @@ namespace AutoLua.Droid.AutoAccessibility
             {
                 Toast.MakeText(autoGlobal.Context, "服务启动成功", ToastLength.Long).Show();
             }
+            
+            var  i = new Intent();
+            i.SetClass(this, typeof(MainActivity));
+            StartActivity(i);
         }
 
         public override void OnAccessibilityEvent(AccessibilityEvent e)

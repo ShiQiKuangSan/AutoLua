@@ -29,9 +29,8 @@ namespace AutoLua.Droid.LuaScript
                 lock (Lock)
                 {
                     _instance ??= new LuaGlobal();
+                    return _instance;
                 }
-
-                return _instance;
             }
         }
 
@@ -174,8 +173,15 @@ namespace AutoLua.Droid.LuaScript
                 AppApplication.Lua = null;
             }
 
-            AppApplication.LuaThread?.Interrupt();
-            AppApplication.LuaThread = null;
+            try
+            {
+
+                AppApplication.LuaThread?.Interrupt();
+                AppApplication.LuaThread = null;
+            }
+            catch (Exception)
+            {
+            }
         }
     }
 }

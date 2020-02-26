@@ -1,17 +1,18 @@
 ﻿using Java.Lang;
 using NLua.Exceptions;
+using Thread = System.Threading.Thread;
 
 namespace AutoLua.Droid.Utils
 {
     [Android.Runtime.Preserve(AllMembers = true)]
     public class VolatileDispose : Object
     {
-        private volatile object _value;
-        private volatile Thread _thread;
+        private object _value;
+        private Thread _thread;
 
         public VolatileDispose()
         {
-            _thread = Thread.CurrentThread();
+            _thread = Thread.CurrentThread;
         }
         public T blockedGet<T>()
         {
