@@ -2,7 +2,7 @@
 
 namespace HttpServer.Modules
 {
-    public class ServiceRoute
+    internal class ServiceRoute
     {
         public RouteMethod Method { get; private set; }
         public string RoutePath { get; private set; }

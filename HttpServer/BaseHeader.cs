@@ -28,16 +28,14 @@ namespace HttpServer
             var fieldName = header.GetDescription();
             if (fieldName == null) return null;
             var hasKey = Headers.ContainsKey(fieldName);
-            if (!hasKey) return null;
-            return Headers[fieldName];
+            return !hasKey ? null : Headers[fieldName];
         }
 
         protected string GetHeaderByKey(string fieldName)
         {
             if (string.IsNullOrEmpty(fieldName)) return null;
             var hasKey = Headers.ContainsKey(fieldName);
-            if (!hasKey) return null;
-            return Headers[fieldName];
+            return !hasKey ? null : Headers[fieldName];
         }
 
         /// <summary>

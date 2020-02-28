@@ -12,8 +12,7 @@ namespace HttpServer
             if (memberName == null) return null;
             var fieldInfo = valueType.GetField(memberName);
             var attribute = Attribute.GetCustomAttribute(fieldInfo, typeof(DescriptionAttribute));
-            if (attribute == null) return null;
-            return (attribute as DescriptionAttribute).Description;
+            return (attribute as DescriptionAttribute)?.Description;
         }
     }
 }

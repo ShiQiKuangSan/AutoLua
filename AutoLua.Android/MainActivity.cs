@@ -39,6 +39,7 @@ namespace AutoLua.Droid
             AppApplication.Instance.server?.Stop();
             AppApplication.Instance.server = null;
             ScreenCapturerServer.Instance.Dispose();
+            HttpCapturerServer.Instance.Dispose();
             base.Finish();
         }
 

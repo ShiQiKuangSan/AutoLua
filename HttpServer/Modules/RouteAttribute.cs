@@ -3,8 +3,14 @@
 namespace HttpServer.Modules
 {
     [AttributeUsage(AttributeTargets.Method)]
-    class RouteAttribute : Attribute
+    public class RouteAttribute : Attribute
     {
+        public RouteAttribute(RouteMethod method, string routePath)
+        {
+            Method = method;
+            RoutePath = routePath;
+        }
+
         public RouteMethod Method { get; set; }
         public string RoutePath { get; set; }
     }

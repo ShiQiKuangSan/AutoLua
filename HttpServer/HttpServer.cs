@@ -6,26 +6,20 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace HttpServer
 {
-    public class HttpServer : IServer
+    public abstract class HttpServer : IServer, IDisposable
     {
         /// <summary>
         /// 服务器IP
         /// </summary>
-        public string ServerIP { get; private set; }
+        public string ServerIp { get; private set; }
 
         /// <summary>
         /// 服务器端口
         /// </summary>
         public int ServerPort { get; private set; }
-
-        /// <summary>
-        /// 服务器目录
-        /// </summary>
-        public string ServerRoot { get; private set; }
 
         /// <summary>
         /// 是否运行
@@ -40,7 +34,7 @@ namespace HttpServer
         /// <summary>
         /// 服务端Socet
         /// </summary>
-        private TcpListener serverListener;
+        private TcpListener _serverListener;
 
         /// <summary>
         /// 日志接口
@@ -50,19 +44,17 @@ namespace HttpServer
         /// <summary>
         /// SSL证书
         /// </summary>
-        private X509Certificate serverCertificate = null;
+        private X509Certificate _serverCertificate = null;
 
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="ipAddress">IP地址</param>
         /// <param name="port">端口号</param>
-        /// <param name="root">根目录</param>
-        private HttpServer(IPAddress ipAddress, int port, string root)
+        private HttpServer(IPAddress ipAddress, int port)
         {
-            this.ServerIP = ipAddress.ToString();
+            this.ServerIp = ipAddress.ToString();
             this.ServerPort = port;
-            this.ServerRoot = root;
         }
 
         /// <summary>
@@ -70,45 +62,25 @@ namespace HttpServer
         /// </summary>
         /// <param name="ipAddress">IP地址</param>
         /// <param name="port">端口号</param>
-        /// <param name="root">根目录</param>
-        public HttpServer(string ipAddress, int port, string root) :
-            this(IPAddress.Parse(ipAddress), port, root)
-        { }
-
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        /// <param name="ipAddress">IP地址</param>
-        /// <param name="port">端口号</param>
         public HttpServer(string ipAddress, int port) :
-            this(IPAddress.Parse(ipAddress), port, AppDomain.CurrentDomain.BaseDirectory)
+            this(IPAddress.Parse(ipAddress), port)
         { }
 
-
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        /// <param name="port">端口号</param>
-        /// <param name="root">根目录</param>
-        public HttpServer(int port, string root) :
-            this(IPAddress.Loopback, port, root)
-        { }
 
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="port">端口号</param>
         public HttpServer(int port) :
-            this(IPAddress.Loopback, port, AppDomain.CurrentDomain.BaseDirectory)
+            this(IPAddress.Loopback, port)
         { }
-
 
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="ip"></param>
         public HttpServer(string ip) :
-            this(IPAddress.Parse(ip), 80, AppDomain.CurrentDomain.BaseDirectory)
+            this(IPAddress.Parse(ip), 80)
         { }
 
         #region 公开方法
@@ -121,18 +93,19 @@ namespace HttpServer
             if (IsRunning) return;
 
             //创建服务端Socket
-            this.serverListener = new TcpListener(IPAddress.Parse(ServerIP), ServerPort);
-            this.Protocol = serverCertificate == null ? Protocols.Http : Protocols.Https;
+            this._serverListener = new TcpListener(IPAddress.Parse(ServerIp), ServerPort);
+            this.Protocol = _serverCertificate == null ? Protocols.Http : Protocols.Https;
             this.IsRunning = true;
-            this.serverListener.Start();
-            this.Log(string.Format("Sever is running at {0}://{1}:{2}", Protocol.ToString().ToLower(), ServerIP, ServerPort));
+            this._serverListener.Start();
+            this.Log($"Sever is running at {Protocol.ToString().ToLower()}://{ServerIp}:{ServerPort}");
 
             try
             {
                 while (IsRunning)
                 {
-                    TcpClient client = serverListener.AcceptTcpClient();
-                    Thread requestThread = new Thread(() => { ProcessRequest(client); });
+                    //监听请求的数据
+                    var client = _serverListener.AcceptTcpClient();
+                    var requestThread = new Thread(() => { ProcessRequest(client); });
                     requestThread.Start();
                 }
             }
@@ -143,15 +116,15 @@ namespace HttpServer
         }
 
 
-        public HttpServer SetSSL(string certificate)
+        public HttpServer SetSsl(string certificate)
         {
-            return SetSSL(X509Certificate.CreateFromCertFile(certificate));
+            return SetSsl(X509Certificate.CreateFromCertFile(certificate));
         }
 
 
-        public HttpServer SetSSL(X509Certificate certifiate)
+        public HttpServer SetSsl(X509Certificate certifiate)
         {
-            this.serverCertificate = certifiate;
+            this._serverCertificate = certifiate;
             return this;
         }
 
@@ -160,24 +133,7 @@ namespace HttpServer
             if (!IsRunning) return;
 
             IsRunning = false;
-            serverListener.Stop();
-        }
-
-        /// <summary>
-        /// 设置服务器目录
-        /// </summary>
-        /// <param name="root"></param>
-        public HttpServer SetRoot(string root)
-        {
-            this.ServerRoot = root;
-            return this;
-        }
-        /// <summary>
-        /// 获取服务器目录
-        /// </summary>
-        public string GetRoot()
-        {
-            return this.ServerRoot;
+            _serverListener.Stop();
         }
 
         /// <summary>
@@ -190,7 +146,6 @@ namespace HttpServer
             this.ServerPort = port;
             return this;
         }
-
 
         #endregion
 
@@ -206,16 +161,14 @@ namespace HttpServer
             Stream clientStream = handler.GetStream();
 
             //处理SSL
-            if (serverCertificate != null) clientStream = ProcessSSL(clientStream);
+            if (_serverCertificate != null) clientStream = ProcessSsl(clientStream);
             if (clientStream == null) return;
 
             //构造HTTP请求
-            HttpRequest request = new HttpRequest(clientStream);
-            request.Logger = Logger;
+            var request = new HttpRequest(clientStream) {Logger = Logger};
 
             //构造HTTP响应
-            HttpResponse response = new HttpResponse(clientStream);
-            response.Logger = Logger;
+            var response = new HttpResponse(clientStream) {Logger = Logger};
 
             //处理请求类型
             switch (request.Method)
@@ -238,12 +191,12 @@ namespace HttpServer
         /// </summary>
         /// <param name="clientStream"></param>
         /// <returns></returns>
-        private Stream ProcessSSL(Stream clientStream)
+        private Stream ProcessSsl(Stream clientStream)
         {
             try
             {
-                SslStream sslStream = new SslStream(clientStream);
-                sslStream.AuthenticateAsServer(serverCertificate, false, SslProtocols.Tls, true);
+                var sslStream = new SslStream(clientStream);
+                sslStream.AuthenticateAsServer(_serverCertificate, false, SslProtocols.Tls, true);
                 sslStream.ReadTimeout = 10000;
                 sslStream.WriteTimeout = 10000;
                 return sslStream;
@@ -263,7 +216,7 @@ namespace HttpServer
         /// <param name="message">日志消息</param>
         protected void Log(object message)
         {
-            if (Logger != null) Logger.Log(message);
+            Logger?.Log(message);
         }
 
         #endregion
@@ -274,6 +227,7 @@ namespace HttpServer
         /// 响应Get请求
         /// </summary>
         /// <param name="request">请求报文</param>
+        /// <param name="response"></param>
         public virtual void OnGet(HttpRequest request, HttpResponse response)
         {
 
@@ -283,6 +237,7 @@ namespace HttpServer
         /// 响应Post请求
         /// </summary>
         /// <param name="request"></param>
+        /// <param name="response"></param>
         public virtual void OnPost(HttpRequest request, HttpResponse response)
         {
 
@@ -296,6 +251,8 @@ namespace HttpServer
         {
 
         }
+
+        public abstract void Dispose();
 
         #endregion
     }

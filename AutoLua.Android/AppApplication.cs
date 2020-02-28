@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Android.App;
 using Android.OS;
@@ -8,6 +11,7 @@ using AutoLua.Droid.LuaScript;
 using AutoLua.Droid.LuaScript.Api;
 using AutoLua.Droid.Utils;
 using AutoLua.Events;
+using HttpServer.Modules;
 using static Android.App.Application;
 using Application = Android.App.Application;
 using Exception = System.Exception;
@@ -27,7 +31,7 @@ namespace AutoLua.Droid
             base.OnCreate();
             Instance = this;
             ScreenMetrics.Instance.Init();
-            
+
             AppUtils.Init(this);
 
             this.RegisterActivityLifecycleCallbacks(new SimpleActivityLifecycleCallbacks());
@@ -43,10 +47,32 @@ namespace AutoLua.Droid
         private void StartServer()
         {
             server = new AccessibilityHttpServer(9091);
-            server.SetRoot("Site");
+            AssembliesRegister();
             Task.Factory.StartNew(() => server.Start());
         }
 
+        /// <summary>
+        /// 程序集注册控制器。
+        /// </summary>
+        private void AssembliesRegister()
+        {
+            var types = new List<Type>();
+            //获取当前程序集。这是反射
+            var assembly = Assembly.GetExecutingAssembly();
+
+            //获取所有程序集
+            //var assemblys = AppDomain.CurrentDomain.GetAssemblies();
+
+            //遍历继承自 Controller 的类
+            types.AddRange(assembly.GetTypes().Where(x => x.BaseType == typeof(Controller)));
+
+            types.ForEach(x =>
+            {
+                //利用反射实例化类。
+                var controller = Activator.CreateInstance(x) as Controller;
+                server.RegisterController(controller);
+            });
+        }
 
         /// <summary>
         /// 输出日志。
@@ -70,7 +96,7 @@ namespace AutoLua.Droid
 
             return systemService;
         }
-        
+
         public static AppApplication Instance { get; private set; }
 
         public static dynamic Lua { get; set; }

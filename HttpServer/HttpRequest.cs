@@ -15,7 +15,7 @@ namespace HttpServer
         /// <summary>
         /// URL参数
         /// </summary>
-        public Dictionary<string, string> Params { get; private set; }
+        public Dictionary<string, string> Params { get; private set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// HTTP请求方式
@@ -75,7 +75,11 @@ namespace HttpServer
             if (this.Method == "GET")
             {
                 var isUrlencoded = this.URL.Contains('?');
-                if (isUrlencoded) this.Params = GetRequestParameters(URL.Split('?')[1]);
+                if (isUrlencoded)
+                {
+                    this.Params = GetRequestParameters(URL.Split('?')[1]);
+                    this.URL = URL.Split('?')[0];
+                }
             }
 
             //Request "POST"
@@ -126,29 +130,33 @@ namespace HttpServer
             return data;
         }
 
-        private string GetRequestBody(IEnumerable<string> rows)
+        private static string GetRequestBody(IEnumerable<string> rows)
         {
-            var target = rows.Select((v, i) => new { Value = v, Index = i }).FirstOrDefault(e => e.Value.Trim() == string.Empty);
-            if (target == null) return null;
-            var range = Enumerable.Range(target.Index + 1, rows.Count() - target.Index - 1);
-            return string.Join(Environment.NewLine, range.Select(e => rows.ElementAt(e)).ToArray());
+            var enumerable = rows as string[] ?? rows.ToArray();
+            var target = enumerable.Select((v, i) => new { Value = v, Index = i }).FirstOrDefault(e => e.Value.Trim() == string.Empty);
+            var range = Enumerable.Range(target.Index + 1, enumerable.Count() - target.Index - 1);
+            return string.Join(Environment.NewLine, range.Select(e => enumerable.ElementAt(e)).ToArray());
         }
 
-        private Dictionary<string, string> GetRequestHeaders(IEnumerable<string> rows)
+        private static Dictionary<string, string> GetRequestHeaders(IEnumerable<string> rows)
         {
-            if (rows == null || rows.Count() <= 0) return null;
-            var target = rows.Select((v, i) => new { Value = v, Index = i }).FirstOrDefault(e => e.Value.Trim() == string.Empty);
-            var length = target == null ? rows.Count() - 1 : target.Index;
+            var enumerable = rows as string[] ?? rows.ToArray();
+            
+            if (!enumerable.Any()) 
+                return null;
+            
+            var target = enumerable.Select((v, i) => new { Value = v, Index = i }).FirstOrDefault(e => e.Value.Trim() == string.Empty);
+            var length = target.Index;
             if (length <= 1) return null;
             var range = Enumerable.Range(1, length - 1);
-            return range.Select(e => rows.ElementAt(e)).ToDictionary(e => e.Split(':')[0], e => e.Split(':')[1].Trim());
+            return range.Select(e => enumerable.ElementAt(e)).ToDictionary(e => e.Split(':')[0], e => e.Split(':')[1].Trim());
         }
 
-        private Dictionary<string, string> GetRequestParameters(string row)
+        private static Dictionary<string, string> GetRequestParameters(string row)
         {
             if (string.IsNullOrEmpty(row)) return null;
             var kvs = Regex.Split(row, "&");
-            if (kvs == null || kvs.Count() <= 0) return null;
+            if (!kvs.Any()) return null;
 
             return kvs.ToDictionary(e => Regex.Split(e, "=")[0], e => Regex.Split(e, "=")[1]);
         }

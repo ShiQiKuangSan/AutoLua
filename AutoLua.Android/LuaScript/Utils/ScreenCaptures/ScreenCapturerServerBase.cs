@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
@@ -151,7 +149,7 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
 
                     var image = read.AcquireLatestImage();
                     var bitmap = ToBitmap(image);
-                    //image.Close();
+                    image.Close();
                     IsCapture = false;
                     volatileDispose.setAndNotify(bitmap);
                 }
@@ -195,21 +193,6 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
             _virtualDisplay?.Release();
             _imageReader?.Close();
             _orientationEventListener?.Dispose();
-        }
-
-        private class ImageAvailableListener : Java.Lang.Object, IOnImageAvailableListener
-        {
-            private readonly Action<ImageReader> action;
-
-            public ImageAvailableListener(Action<ImageReader> action)
-            {
-                this.action = action;
-            }
-
-            public void OnImageAvailable(ImageReader reader)
-            {
-                action?.Invoke(reader);
-            }
         }
 
         /// <summary>

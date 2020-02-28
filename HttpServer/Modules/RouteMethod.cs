@@ -2,7 +2,7 @@
 {
     public enum RouteMethod
     {
-        Get,
-        Post
+        GET,
+        POST
     }
 }

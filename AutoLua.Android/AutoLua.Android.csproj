@@ -108,8 +108,10 @@
     <Compile Include="AutoAccessibility\Gesture\DefatltGesture.cs" />
     <Compile Include="AutoAccessibility\Gesture\IGesture.cs" />
     <Compile Include="Expansions\DateTimeExpansion.cs" />
+    <Compile Include="Expansions\EnumerableExtensions.cs" />
     <Compile Include="Expansions\NumberExpansion.cs" />
     <Compile Include="Expansions\StringExtensions.cs" />
+    <Compile Include="HttpServers\Controllers\HomeController.cs" />
     <Compile Include="Http\HttpClient.cs" />
     <Compile Include="Http\HttpClientManager.cs" />
     <Compile Include="Http\HttpTimer.cs" />
