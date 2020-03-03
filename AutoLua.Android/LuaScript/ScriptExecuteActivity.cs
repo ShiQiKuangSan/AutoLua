@@ -2,8 +2,8 @@
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Runtime;
 using Android.Support.V7.App;
-using AutoLua.Droid.LuaScript.Utils.ScreenCaptures;
 using AutoLua.Droid.Utils;
 using NLua.Exceptions;
 using Xamarin.Forms;
@@ -11,7 +11,8 @@ using Xamarin.Forms;
 namespace AutoLua.Droid.LuaScript
 {
     [Android.Runtime.Preserve(AllMembers = true)]
-    [Activity(Theme = "@style/MainTheme", ExcludeFromRecents = true)]
+    [Register("AutoLua.Droid.LuaScript.ScriptExecuteActivity")]
+    [Activity(Name = "AutoLua.Droid.LuaScript.ScriptExecuteActivity", Theme = "@style/MainTheme", ExcludeFromRecents = true)]
     public class ScriptExecuteActivity : AppCompatActivity
     {
         /// <summary>

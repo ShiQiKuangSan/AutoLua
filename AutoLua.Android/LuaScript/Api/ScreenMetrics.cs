@@ -1,5 +1,4 @@
-﻿using Android.App;
-using Android.Content.Res;
+﻿using Android.Content.Res;
 using Android.Util;
 
 namespace AutoLua.Droid.LuaScript.Api

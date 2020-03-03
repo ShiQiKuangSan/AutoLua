@@ -22,7 +22,7 @@ namespace AutoLua.Commons
             path = fileService.GetSdCard() + "/scriptlua/";
             if (!Directory.Exists(path))
             {
-                Directory.CreateDirectory(path);
+                //Directory.CreateDirectory(path);
             }
         }
 
@@ -32,17 +32,17 @@ namespace AutoLua.Commons
             var dir = new DirectoryInfo(path);
 
             //添加文件夹
-            foreach (var item in dir.GetDirectories())
-            {
-                var model = new ScriptFileModel
-                {
-                    Name = item.Name,
-                    Path = item.FullName,
-                    IsDir = true
-                };
+            //foreach (var item in dir.GetDirectories())
+            //{
+            //    var model = new ScriptFileModel
+            //    {
+            //        Name = item.Name,
+            //        Path = item.FullName,
+            //        IsDir = true
+            //    };
 
-                items.Add(model);
-            }
+            //    items.Add(model);
+            //}
 
             return items;
         }
@@ -51,20 +51,20 @@ namespace AutoLua.Commons
         {
             var items = new List<ScriptFileModel>();
             var dir = new DirectoryInfo(path);
-            var files = dir.GetFiles();
+            //var files = dir.GetFiles();
 
-            //添加文件夹
-            foreach (var item in files.Where(x => x.Extension == ".lua" || x.Extension == ".luac"))
-            {
-                var model = new ScriptFileModel
-                {
-                    Name = item.Name,
-                    Path = item.FullName,
-                    IsDir = false
-                };
+            ////添加文件夹
+            //foreach (var item in files.Where(x => x.Extension == ".lua" || x.Extension == ".luac"))
+            //{
+            //    var model = new ScriptFileModel
+            //    {
+            //        Name = item.Name,
+            //        Path = item.FullName,
+            //        IsDir = false
+            //    };
 
-                items.Add(model);
-            }
+            //    items.Add(model);
+            //}
 
             return items;
         }

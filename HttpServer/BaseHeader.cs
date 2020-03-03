@@ -4,7 +4,7 @@ using System.Text;
 
 namespace HttpServer
 {
-    public class BaseHeader
+    public abstract class BaseHeader
     {
         public string Body { get; set; }
 
@@ -18,7 +18,7 @@ namespace HttpServer
 
         public string ContentLanguage { get; set; }
 
-        public Dictionary<string, string> Headers { get; set; }
+        public Dictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// 不支持枚举类型约束，所以采取下列方案:)

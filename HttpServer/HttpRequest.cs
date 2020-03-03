@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace HttpServer
 {
@@ -45,7 +46,8 @@ namespace HttpServer
         public HttpRequest(Stream stream)
         {
             this.handler = stream;
-            var data = GetRequestData(handler);
+
+            var data = GetRequestData(handler).Result;
             var rows = Regex.Split(data, Environment.NewLine);
 
             //Request URL & Method & Version
@@ -116,18 +118,19 @@ namespace HttpServer
             SetHeaderByKey(fieldName, value);
         }
 
-        private string GetRequestData(Stream stream)
+        private async Task<string> GetRequestData(Stream stream)
         {
-            var length = 0;
             var data = string.Empty;
 
+            int length;
             do
             {
-                length = stream.Read(bytes, 0, MAX_SIZE - 1);
+                length = await stream.ReadAsync(bytes, 0, MAX_SIZE - 1);
                 data += Encoding.UTF8.GetString(bytes, 0, length);
             } while (length > 0 && !data.Contains("\r\n\r\n"));
 
-            return data;
+            var res = await Task.FromResult(data);
+            return res;
         }
 
         private static string GetRequestBody(IEnumerable<string> rows)
@@ -141,13 +144,13 @@ namespace HttpServer
         private static Dictionary<string, string> GetRequestHeaders(IEnumerable<string> rows)
         {
             var enumerable = rows as string[] ?? rows.ToArray();
-            
-            if (!enumerable.Any()) 
-                return null;
-            
+
+            if (!enumerable.Any())
+                return new Dictionary<string, string>();
+
             var target = enumerable.Select((v, i) => new { Value = v, Index = i }).FirstOrDefault(e => e.Value.Trim() == string.Empty);
             var length = target.Index;
-            if (length <= 1) return null;
+            if (length <= 1) return new Dictionary<string, string>();
             var range = Enumerable.Range(1, length - 1);
             return range.Select(e => enumerable.ElementAt(e)).ToDictionary(e => e.Split(':')[0], e => e.Split(':')[1].Trim());
         }
@@ -156,7 +159,7 @@ namespace HttpServer
         {
             if (string.IsNullOrEmpty(row)) return null;
             var kvs = Regex.Split(row, "&");
-            if (!kvs.Any()) return null;
+            if (!kvs.Any()) return new Dictionary<string, string>();
 
             return kvs.ToDictionary(e => Regex.Split(e, "=")[0], e => Regex.Split(e, "=")[1]);
         }

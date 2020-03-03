@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -22,7 +21,6 @@ namespace HttpServer
         public HttpResponse(Stream stream)
         {
             this._handler = stream;
-            this.Headers = new Dictionary<string, string>();
         }
 
         public HttpResponse SetContent(byte[] content, Encoding encoding = null)

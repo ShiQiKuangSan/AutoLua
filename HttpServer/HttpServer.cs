@@ -113,6 +113,8 @@ namespace HttpServer
             {
                 Log(e.Message);
             }
+
+            this.IsRunning = false;
         }
 
 
@@ -161,7 +163,9 @@ namespace HttpServer
             Stream clientStream = handler.GetStream();
 
             //处理SSL
-            if (_serverCertificate != null) clientStream = ProcessSsl(clientStream);
+            if (_serverCertificate != null) 
+                clientStream = ProcessSsl(clientStream);
+
             if (clientStream == null) return;
 
             //构造HTTP请求

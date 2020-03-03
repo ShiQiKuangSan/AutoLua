@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using Android.App;
 using Android.OS;
 using Android.Runtime;
@@ -11,14 +7,13 @@ using AutoLua.Droid.LuaScript;
 using AutoLua.Droid.LuaScript.Api;
 using AutoLua.Droid.Utils;
 using AutoLua.Events;
-using HttpServer.Modules;
 using static Android.App.Application;
 using Application = Android.App.Application;
 using Exception = System.Exception;
 
 namespace AutoLua.Droid
 {
-    [Application(AllowBackup = true)]
+    [Application(AllowBackup = true, Label = "AutoLua", SupportsRtl = true)]
     [Register("AutoLua.Droid.AppApplication")]
     public class AppApplication : Application
     {
@@ -40,38 +35,6 @@ namespace AutoLua.Droid
             AutoGlobal.Init(this);
             //初始化lua全局函数
             LuaGlobal.Instance.Init();
-
-            StartServer();
-        }
-
-        private void StartServer()
-        {
-            server = new AccessibilityHttpServer(9091);
-            AssembliesRegister();
-            Task.Factory.StartNew(() => server.Start());
-        }
-
-        /// <summary>
-        /// 程序集注册控制器。
-        /// </summary>
-        private void AssembliesRegister()
-        {
-            var types = new List<Type>();
-            //获取当前程序集。这是反射
-            var assembly = Assembly.GetExecutingAssembly();
-
-            //获取所有程序集
-            //var assemblys = AppDomain.CurrentDomain.GetAssemblies();
-
-            //遍历继承自 Controller 的类
-            types.AddRange(assembly.GetTypes().Where(x => x.BaseType == typeof(Controller)));
-
-            types.ForEach(x =>
-            {
-                //利用反射实例化类。
-                var controller = Activator.CreateInstance(x) as Controller;
-                server.RegisterController(controller);
-            });
         }
 
         /// <summary>
@@ -103,7 +66,7 @@ namespace AutoLua.Droid
 
         public static System.Threading.Thread LuaThread { get; set; }
 
-        public AccessibilityHttpServer server;
+        public const int HttpServerPort = 8060;
     }
 
     public class SimpleActivityLifecycleCallbacks : Java.Lang.Object, IActivityLifecycleCallbacks
