@@ -46,6 +46,8 @@ namespace HttpServer
         /// </summary>
         private X509Certificate _serverCertificate = null;
 
+        private readonly static object Lock = new object();
+
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -163,29 +165,32 @@ namespace HttpServer
             Stream clientStream = handler.GetStream();
 
             //处理SSL
-            if (_serverCertificate != null) 
+            if (_serverCertificate != null)
                 clientStream = ProcessSsl(clientStream);
 
             if (clientStream == null) return;
 
             //构造HTTP请求
-            var request = new HttpRequest(clientStream) {Logger = Logger};
+            var request = new HttpRequest(clientStream) { Logger = Logger };
 
             //构造HTTP响应
-            var response = new HttpResponse(clientStream) {Logger = Logger};
+            var response = new HttpResponse(clientStream) { Logger = Logger };
 
-            //处理请求类型
-            switch (request.Method)
+            lock (Lock)
             {
-                case "GET":
-                    OnGet(request, response);
-                    break;
-                case "POST":
-                    OnPost(request, response);
-                    break;
-                default:
-                    OnDefault(request, response);
-                    break;
+                //处理请求类型
+                switch (request.Method)
+                {
+                    case "GET":
+                        OnGet(request, response);
+                        break;
+                    case "POST":
+                        OnPost(request, response);
+                        break;
+                    default:
+                        OnDefault(request, response);
+                        break;
+                }
             }
         }
 

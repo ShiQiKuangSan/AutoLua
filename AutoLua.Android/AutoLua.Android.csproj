@@ -149,6 +149,7 @@
     <Compile Include="LuaScript\Utils\Medias\MediaPlayerWrapper.cs" />
     <Compile Include="LuaScript\Utils\Medias\MimeTypes.cs" />
     <Compile Include="LuaScript\Utils\ScreenCaptures\ScreenCapturerServer.cs" />
+    <Compile Include="LuaScript\Utils\ScreenCaptures\ScreenCapturerServerManager.cs" />
     <Compile Include="LuaScript\Utils\Threads\TimerThread.cs" />
     <Compile Include="LuaScript\Utils\Timers\BackgroundTaskBase.cs" />
     <Compile Include="LuaScript\Utils\Timers\IBackgroundTask.cs" />

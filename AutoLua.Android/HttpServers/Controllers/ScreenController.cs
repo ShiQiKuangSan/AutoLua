@@ -33,7 +33,7 @@ namespace AutoLua.Droid.HttpServers.Controllers
 
             try
             {
-                var bitmap = ScreenCapturerServer.Instance.Capture();
+                var bitmap = ScreenCapturerServerManager.Capturer();
 
                 if (bitmap == null)
                 {

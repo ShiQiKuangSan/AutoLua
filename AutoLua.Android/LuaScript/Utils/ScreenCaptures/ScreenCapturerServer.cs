@@ -6,16 +6,18 @@ using Android.Graphics;
 using Android.Hardware.Display;
 using Android.Media;
 using Android.Media.Projection;
+using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using AutoLua.Droid.LuaScript.Api;
+using AutoLua.Droid.Utils;
 using static Android.Media.ImageReader;
 using Image = Android.Media.Image;
 
 namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
 {
     [Preserve(AllMembers = true)]
-    public class ScreenCapturerServer : IDisposable
+    public sealed class ScreenCapturerServer : IDisposable
     {
         protected string Tag = "ScreenCapturerServer";
 
@@ -28,6 +30,12 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
         private Intent _intent;
         private Context _context;
 
+        /// <summary>
+        /// 是否截屏
+        /// </summary>
+        private volatile bool IsCapture = false;
+        private volatile VolatileDispose _volatileDispose;
+        private Handler _handler;
         private OrientationEventListener _orientationEventListener;
 
         private const int ImageCacheNum = 1;
@@ -63,6 +71,7 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
 
             _intent = data;
             _context = context;
+            _handler = new Handler();
             _mediaProjectionManager = AppApplication.GetSystemService<MediaProjectionManager>(Context.MediaProjectionService);
             _orientationEventListener = new OrientationEvent(context, i =>
             {
@@ -88,25 +97,10 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
         /// 截屏。
         /// </summary>
         /// <returns></returns>
-        public Bitmap Capture()
+        public void Capture(VolatileDispose volatileDispose)
         {
-            var image = _imageReader.AcquireLatestImage();
-
-            var index = 0;
-
-            while (image == null && index < 10)
-            {
-                image = _imageReader.AcquireLatestImage();
-                Thread.Sleep(500);
-                index++;
-            }
-
-            var bitmap = ToBitmap(image);
-
-            image.Close();
-            Thread.Sleep(500);
-
-            return bitmap;
+            _volatileDispose = volatileDispose;
+            IsCapture = true;
         }
 
         /// <summary>
@@ -129,6 +123,7 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
             var screenWidth = ScreenMetrics.Instance.GetOrientationAwareScreenWidth(orientation);
 
             InitVirtualDisplay(screenWidth, screenHeight, (int)ScreenMetrics.Instance.DeviceScreenDensity);
+            SetImageListener(_handler);
         }
 
         /// <summary>
@@ -144,6 +139,35 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
             _imageReader = NewInstance(width, height, rgbx, ImageCacheNum);
 
             _virtualDisplay = _mediaProjection.CreateVirtualDisplay(Tag, width, height, dpi, DisplayFlags.Round, _imageReader.Surface, null, null);
+        }
+
+
+        private void SetImageListener(Handler handler)
+        {
+            _imageReader.SetOnImageAvailableListener(new ImageAvailableListener((read) =>
+            {
+                try
+                {
+                    var image = read.AcquireLatestImage();
+
+                    if (IsCapture && image != null)
+                    {
+                        var bitmap = ToBitmap(image);
+                        image.Close();
+                        IsCapture = false;
+                        _volatileDispose.setAndNotify(bitmap);
+                    }
+                    else
+                    {
+                        image?.Close();
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+
+            }), handler);
         }
 
         /// <summary>
@@ -197,6 +221,22 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
             public override void OnOrientationChanged(int orientation)
             {
                 _onOrientationChanged?.Invoke(orientation);
+            }
+        }
+
+
+        private class ImageAvailableListener : Java.Lang.Object, IOnImageAvailableListener
+        {
+            private readonly Action<ImageReader> action;
+
+            public ImageAvailableListener(Action<ImageReader> action)
+            {
+                this.action = action;
+            }
+
+            public void OnImageAvailable(ImageReader reader)
+            {
+                action.Invoke(reader);
             }
         }
     }

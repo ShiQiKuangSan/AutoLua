@@ -7,7 +7,6 @@ using Android.AccessibilityServices;
 using NLua.DynamicLua;
 using Xamarin.Forms;
 using AutoLua.Droid.Utils;
-using NLua;
 
 namespace AutoLua.Droid.LuaScript
 {

@@ -260,7 +260,7 @@ namespace AutoLua.Droid.LuaScript.Api
 
         public ImageWrapper captureScreen()
         {
-            var capture = ScreenCapturerServer.Instance.Capture();
+            var capture = ScreenCapturerServerManager.Capturer();
 
             return ImageWrapper.OfBitmap(capture);
         }
