@@ -2,7 +2,7 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <AndroidDesignerPreferredTheme>Theme.AppCompat.Light.NoActionBar</AndroidDesignerPreferredTheme>
-    <SelectedDevice>Huawei Nexus 6P</SelectedDevice>
+    <SelectedDevice>Meizu M6 Note</SelectedDevice>
     <ProjectView>ShowAllFiles</ProjectView>
     <AndroidDesignerPreferredDevice>Nexus 4</AndroidDesignerPreferredDevice>
   </PropertyGroup>

@@ -21,7 +21,7 @@ namespace AutoLua.Droid.HttpServers.Controllers
 
         public HomeController()
         {
-            _serverUrl = $"http://{AppUtils.GetIp()}:{AppApplication.HttpServerPort}";
+            _serverUrl = $"http://{AppUtils.GetIp()}:{AppApplication.HttpServerPort}/";
         }
 
         [Route(RouteMethod.GET, "/")]

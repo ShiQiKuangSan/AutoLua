@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.Res;
+using Android.Net.Wifi;
 using Android.OS;
 using Android.Runtime;
 using Java.Lang;
@@ -72,21 +73,11 @@ namespace AutoLua.Droid.Utils
         {
             try
             {
-                var work = NetworkInterface.NetworkInterfaces;
+                var wifiManager = AppApplication.GetSystemService<WifiManager>(Context.WifiService);
+                int ip = wifiManager.ConnectionInfo.IpAddress;
+                var ipStr = (ip & 0xFF) + "." + ((ip >> 8) & 0xFF) + "." + ((ip >> 16) & 0xFF) + "." + ((ip >> 24) & 0xFF);
 
-                while (work.HasMoreElements)
-                {
-                    var netAddress = work.NextElement().JavaCast<NetworkInterface>().InetAddresses; 
-
-                    while (netAddress.HasMoreElements)
-                    {
-                        var net = netAddress.NextElement().JavaCast<InetAddress>();
-                        if (!net.IsLoopbackAddress && (net is Inet4Address))
-                        {
-                            return net.HostAddress.ToString();
-                        }
-                    }
-                }
+                return ipStr;
             }
             catch (System.Exception)
             {
