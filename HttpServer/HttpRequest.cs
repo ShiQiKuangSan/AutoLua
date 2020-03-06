@@ -88,7 +88,7 @@ namespace HttpServer
             if (this.Method == "POST")
             {
                 var contentType = GetHeader(RequestHeaders.ContentType);
-                var isUrlencoded = contentType == @"application/x-www-form-urlencoded";
+                var isUrlencoded = contentType.StartsWith(@"application/x-www-form-urlencoded");
                 if (isUrlencoded) this.Params = GetRequestParameters(this.Body);
             }
         }

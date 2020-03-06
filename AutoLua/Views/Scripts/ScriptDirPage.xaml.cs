@@ -46,7 +46,7 @@ namespace AutoLua.Views.Scripts
         /// <param name="e"></param>
         private async void PopupMenu(object sender, EventArgs e)
         {
-            var fileName = await DisplayPromptAsync("名称", null, "确定", "取消");
+            var fileName = await DisplayPromptAsync(title: "名称", message: "", accept: "确定", cancel: "取消", initialValue: "");
 
             if (string.IsNullOrWhiteSpace(fileName))
                 return;

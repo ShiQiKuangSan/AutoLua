@@ -4,6 +4,7 @@ using System.Linq;
 using Android.AccessibilityServices;
 using Android.App;
 using Android.Content;
+using Android.Runtime;
 using Android.Views;
 using Android.Views.Accessibility;
 using Android.Widget;
@@ -11,6 +12,7 @@ using Java.Util.Concurrent.Locks;
 
 namespace AutoLua.Droid.AutoAccessibility
 {
+    [Register("AutoLua.Droid.AutoAccessibility.AutoAccessibilityService")]
     [Service(Name = "AutoLua.Droid.AutoAccessibility.AutoAccessibilityService", Label = "AutoLua", Enabled = true,
     Permission = "android.permission.BIND_ACCESSIBILITY_SERVICE")]
     [IntentFilter(new[] { "android.accessibilityservice.AccessibilityService" })]

@@ -9,9 +9,7 @@ using AutoLua.Droid.Utils;
 using AutoLua.Droid.Utils.Clip;
 using AutoLua.Droid.Utils.Random;
 using AutoLua.Events;
-using Newtonsoft.Json;
 using NLua;
-using Xamarin.Forms;
 
 namespace AutoLua.Droid.LuaScript
 {

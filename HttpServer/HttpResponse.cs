@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace HttpServer
@@ -72,10 +73,16 @@ namespace HttpServer
             var builder = new StringBuilder();
 
             if (!string.IsNullOrEmpty(StatusCode))
-                builder.Append("HTTP/1.1 " + StatusCode + "\r\n");
+                builder.Append($"HTTP/1.1 {StatusCode} OK\r\n");
 
             if (!string.IsNullOrEmpty(this.Content_Type))
                 builder.AppendLine("Content-Type:" + this.Content_Type);
+
+            foreach (var item in Headers)
+            {
+                builder.AppendLine($"{item.Key}:{item.Value}");
+            }
+
             return builder.ToString();
         }
 

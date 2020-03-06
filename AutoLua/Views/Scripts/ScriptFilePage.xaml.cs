@@ -30,7 +30,7 @@ namespace AutoLua.Views.Scripts
             ScriptItems.SelectionMode = ListViewSelectionMode.None;
             ScriptItems.RefreshControlColor = Color.Red;
 
-            ScriptItems.Refreshing +=  (sender, e) => UpdateScript();
+            ScriptItems.Refreshing += (sender, e) => UpdateScript();
             add.Clicked += PopupMenu;
         }
 
@@ -48,7 +48,7 @@ namespace AutoLua.Views.Scripts
         /// <param name="e"></param>
         private async void PopupMenu(object sender, EventArgs e)
         {
-            var fileName = await DisplayPromptAsync("名称", null, "确定", "取消");
+            var fileName = await DisplayPromptAsync("名称", null, "确定", "取消", initialValue: "");
 
             if (string.IsNullOrWhiteSpace(fileName))
                 return;

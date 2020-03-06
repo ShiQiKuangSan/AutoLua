@@ -23,14 +23,14 @@ namespace AutoLua.Droid
     [IntentFilter(new string[] { "Notification_Start", "Notification_Stop", }, Priority = 10000)]
     public class AutoNotificationService : Service
     {
-        private NotificationCompat.Builder builder;
-        private const int Notification_Id = 765;
-        private readonly IList<AbstractMonitor> monitors = new List<AbstractMonitor>();
+        private NotificationCompat.Builder _builder;
+        private const int NotificationId = 765;
+        private readonly IList<AbstractMonitor> _monitors = new List<AbstractMonitor>();
         private const string ActionStart = "Notification_Start";
         private const string ActionStop = "Notification_Stop";
-        private const string TAG = "NotificationService";
-        private AccessibilityHttpServer server;
-        private IEnumerable<Type> assemblys = new List<Type>();
+        private const string Tag = "NotificationService";
+        private AccessibilityHttpServer _server;
+        private IEnumerable<Type> _controllers = new List<Type>();
 
         public static AutoNotificationService Instance { get; private set; }
 
@@ -46,27 +46,27 @@ namespace AutoLua.Droid
                 channelId = CreateNotificationChannel("AutoLua监控服务", "AutoLua监控服务");
             }
 
-            builder = new NotificationCompat.Builder(this, channelId)
+            _builder = new NotificationCompat.Builder(this, channelId)
                 .SetSmallIcon(Resource.Mipmap.icon)
                 .SetTicker("AutoLua服务已启动")
                 .SetContentTitle("Http服务")
                 .SetContentText("IP")
-                .SetContentIntent(PendingIntent.GetActivity(this, Notification_Id, notificationIntent, PendingIntentFlags.UpdateCurrent))
+                .SetContentIntent(PendingIntent.GetActivity(this, NotificationId, notificationIntent, PendingIntentFlags.UpdateCurrent))
                 .SetWhen(Java.Lang.JavaSystem.CurrentTimeMillis());
 
-            var notification = builder.Build();
-            StartForeground(Notification_Id, notification);
-            monitors.Add(new WifiMonitor(this));
+            var notification = _builder.Build();
+            StartForeground(NotificationId, notification);
+            _monitors.Add(new WifiMonitor(this));
             StartServer();
         }
 
-        public void StartServer()
+        private void StartServer()
         {
-            server?.Stop();
-            server = null;
-            server = new AccessibilityHttpServer(AppApplication.HttpServerPort);
+            _server?.Stop();
+            _server = null;
+            _server = new AccessibilityHttpServer(AppApplication.HttpServerPort);
             AssembliesRegister();
-            Task.Factory.StartNew(() => server.Start());
+            Task.Factory.StartNew(() => _server.Start());
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace AutoLua.Droid
         /// </summary>
         private void AssembliesRegister()
         {
-            if (assemblys.Any())
+            if (_controllers.Any())
                 return;
 
             //获取当前程序集。这是反射
@@ -84,13 +84,13 @@ namespace AutoLua.Droid
             //var assemblys = AppDomain.CurrentDomain.GetAssemblies();
 
             //遍历继承自 Controller 的类
-            assemblys = assembly.GetTypes().Where(x => x.BaseType == typeof(Controller));
+            _controllers = assembly.GetTypes().Where(x => x.BaseType == typeof(Controller));
 
-            assemblys.ForEach(x =>
+            _controllers.ForEach(x =>
             {
                 //利用反射实例化类。
                 var controller = Activator.CreateInstance(x) as Controller;
-                server.RegisterController(controller);
+                _server.RegisterController(controller);
             });
         }
 
@@ -100,11 +100,11 @@ namespace AutoLua.Droid
         /// <param name="text"></param>
         public void SetNotificationContentText(string text)
         {
-            builder.SetContentText(text);
+            _builder.SetContentText(text);
 
-            var server = GetSystemService(NotificationService) as NotificationManager;
+            var server = GetSystemService(NotificationService).JavaCast<NotificationManager>();
 
-            server.Notify(Notification_Id, builder.Build());
+            server?.Notify(NotificationId, _builder.Build());
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace AutoLua.Droid
         /// <param name="channelName">频道名称</param>
         /// <returns></returns>
         [RequiresApi(Api = (int)BuildVersionCodes.O)]
-        private string CreateNotificationChannel(string channelId, string channelName)
+        private static string CreateNotificationChannel(string channelId, string channelName)
         {
             var channel = new NotificationChannel(channelId, channelName, NotificationImportance.None)
             {
@@ -143,7 +143,7 @@ namespace AutoLua.Droid
 
             if (ActionStart == action)
             {
-                Log.Info(TAG, "接收启动服务操作，但忽略它");
+                Log.Info(Tag, "接收启动服务操作，但忽略它");
             }
             else if (ActionStop == action)
             {
@@ -158,7 +158,7 @@ namespace AutoLua.Droid
         /// </summary>
         private void RemoveAllMonitor()
         {
-            foreach (var item in monitors)
+            foreach (var item in _monitors)
             {
                 item.UnRegister();
             }

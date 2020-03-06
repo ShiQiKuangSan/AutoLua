@@ -2,15 +2,17 @@
 {
     public class ActionResult
     {
-        public ActionResult(string message, object result, bool success = true)
+        public ActionResult(object data, bool status = false, string message = "")
         {
-            Result = result;
-            Success = success;
+            Data = data;
+            Status = status;
             Message = message;
         }
 
-        public object Result { get; set; }
-        public bool Success { get; set; }
+        public object Data { get; set; }
+
+        public bool Status { get; set; }
+
         public string Message { get; set; }
     }
 }

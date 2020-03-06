@@ -1,4 +1,5 @@
-﻿using Android.Content.Res;
+﻿using Android.App;
+using Android.Content.Res;
 using Android.Util;
 
 namespace AutoLua.Droid.LuaScript.Api
@@ -31,12 +32,14 @@ namespace AutoLua.Droid.LuaScript.Api
             }
         }
 
-        public void Init()
+        public void Init(Activity activity)
         {
             if (_initialized)
                 return;
 
-            var metrics = Resources.System.DisplayMetrics;
+            var metrics = new DisplayMetrics();
+            activity.WindowManager.DefaultDisplay.GetRealMetrics(metrics);
+
             DeviceScreenHeight = metrics.HeightPixels;
             DeviceScreenWidth = metrics.WidthPixels;
             DeviceScreenDensity = metrics.DensityDpi;

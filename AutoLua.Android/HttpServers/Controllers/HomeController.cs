@@ -1,60 +1,69 @@
 ﻿using Android.Graphics;
+using Android.Runtime;
+using AutoLua.Droid.HttpServers.Models;
 using AutoLua.Droid.LuaScript.Utils.ScreenCaptures;
+using AutoLua.Droid.Utils;
 using HttpServer.Modules;
 using System;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AutoLua.Droid.HttpServers.Controllers
 {
     /// <summary>
     /// 首页控制器。
     /// </summary>
+    [Preserve(AllMembers = true)]
     public class HomeController : Controller
     {
-        [Route(RouteMethod.GET, "/")]
-        public ActionResult Index()
+        private readonly string _serverUrl;
+
+        public HomeController()
         {
-            try
-            {
-                var bitmap = ScreenCapturerServer.Instance.Capture();
-
-                if (bitmap == null)
-                {
-                    return new ActionResult("没有截到图", null, false);
-                }
-
-                using var outputStream = new MemoryStream();
-                bitmap.Compress(Bitmap.CompressFormat.Png, 100, outputStream);
-                var imageBytes = outputStream.ToArray();
-
-                var base64 = Convert.ToBase64String(imageBytes);
-                base64 = "data:image/png;base64," + base64;
-
-                var html = $@"<!DOCTYPE html>
-                            <html>
-                            	<head>
-                            		<meta charset='utf - 8'>
-                                    <title>手机图片</title>
-                                </head>
-                                <body>
-                                       <img src='{base64}'/>
-                                </body>
-                            </html>
-                ";
-
-                return new ActionResult("", html);
-            }
-            catch (Exception e)
-            {
-                return new ActionResult(e.Message, null, false);
-            }
-
+            _serverUrl = $"http://{AppUtils.GetIp()}:{AppApplication.HttpServerPort}";
         }
 
         [Route(RouteMethod.GET, "/")]
-        public ActionResult Index(int qq)
+        public ActionResult Index()
         {
-            return new ActionResult("", $"我是 参数: {nameof(qq)} ,{qq}");
+            const string path = "Site";
+            var fileHtml = AppUtils.GetAssets.List(path);
+
+            try
+            {
+                var file = fileHtml.Where(x => x.EndsWith(".html")).FirstOrDefault(x => x == "index.html");
+
+                if (string.IsNullOrWhiteSpace(file))
+                {
+                    return Html("页面不存在");
+                }
+
+                var f = $"{path}/{file}";
+
+                using var sr = new StreamReader(AppUtils.GetAssets.Open(f));
+
+                var str = sr.ReadToEnd();
+
+                if (string.IsNullOrWhiteSpace(str))
+                {
+                    return Html("页面不存在001");
+                }
+
+                str = str.Replace("{{WEBSERVER}}", _serverUrl);
+
+                return Html(str);
+            }
+            catch (Exception e)
+            {
+                return Html(e.Message);
+            }
+        }
+
+        [Route(RouteMethod.GET, "/demo")]
+        public ActionResult Demo(int q)
+        {
+            return JsonSuccess("");
         }
     }
 }

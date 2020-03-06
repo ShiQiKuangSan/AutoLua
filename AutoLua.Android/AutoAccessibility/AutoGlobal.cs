@@ -5,7 +5,6 @@ using Android.Content;
 using Android.Text;
 using AutoLua.Droid.AutoAccessibility.Accessibility.Event;
 using Java.Lang;
-using NLua.Exceptions;
 
 namespace AutoLua.Droid.AutoAccessibility
 {
@@ -70,18 +69,13 @@ namespace AutoLua.Droid.AutoAccessibility
 
             if (IsAccessibilityServiceEnabled())
             {
-                errorMsg = "无障碍服务已启用但并未运行，这可能是安卓的BUG，您可能需要重启手机或重启无障碍服务";
-            }
-            else
-            {
-                //root操作
+                return;
             }
 
             if (string.IsNullOrWhiteSpace(errorMsg)) 
                 return;
             
             GoToAccessibilitySetting();
-            throw new LuaException(errorMsg);
         }
 
         /// <summary>
@@ -104,7 +98,7 @@ namespace AutoLua.Droid.AutoAccessibility
                 var componentNameString = colonSplitter.Next();
                 var enabledService = ComponentName.UnflattenFromString(componentNameString);
 
-                if (enabledService != null && enabledService == expectedComponentName)
+                if (enabledService != null && enabledService.ClassName == expectedComponentName.ClassName)
                     return true;
             }
 

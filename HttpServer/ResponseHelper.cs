@@ -21,6 +21,7 @@ namespace HttpServer
         {
             response.SetContent(jsonText);
             response.Content_Type = "application/json; charset=UTF-8";
+            SetHeader(response);
             response.StatusCode = "200";
             return response;
         }
@@ -35,6 +36,7 @@ namespace HttpServer
         {
             response.SetContent(text);
             response.Content_Type = "text/html; charset=UTF-8";
+            SetHeader(response);
             response.StatusCode = "200";
             return response;
         }
@@ -43,8 +45,19 @@ namespace HttpServer
         {
             response.SetContent(message);
             response.Content_Type = "text/html; charset=UTF-8";
+            SetHeader(response);
             response.StatusCode = "404";
             return response;
+        }
+
+        private static void SetHeader(HttpResponse response)
+        {
+
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
+            response.Headers.Add("Access-Control-Allow-Headers", "x-requested-with");
+            response.Headers.Add("Access-Control-Allow-Credentials", "true");
+            response.Headers.Add("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+            response.Headers.Add("Content-Length", response.Content_Length);
         }
     }
 }

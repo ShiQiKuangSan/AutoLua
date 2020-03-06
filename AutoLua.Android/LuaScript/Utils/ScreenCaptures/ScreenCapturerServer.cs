@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
@@ -77,7 +78,7 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
             if (_orientationEventListener.CanDetectOrientation())
                 _orientationEventListener.Enable();
 
-            
+
             RefreshVirtualDisplay();
 
             IsInit = true;
@@ -91,14 +92,19 @@ namespace AutoLua.Droid.LuaScript.Utils.ScreenCaptures
         {
             var image = _imageReader.AcquireLatestImage();
 
-            while (image == null)
+            var index = 0;
+
+            while (image == null && index < 10)
             {
                 image = _imageReader.AcquireLatestImage();
+                Thread.Sleep(500);
+                index++;
             }
 
             var bitmap = ToBitmap(image);
 
             image.Close();
+            Thread.Sleep(500);
 
             return bitmap;
         }

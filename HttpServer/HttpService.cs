@@ -1,7 +1,7 @@
 ﻿using HttpServer.Modules;
-using HttpServer.Modules.Results;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HttpServer
 {
@@ -52,7 +52,7 @@ namespace HttpServer
         }
 
 
-        private  void OnExecuteRoute(HttpRequest request, HttpResponse response)
+        private void OnExecuteRoute(HttpRequest request, HttpResponse response)
         {
             var route = ServiceRoute.Parse(request);
             var module = _modules.FirstOrDefault(m => m.SearchRoute(route));
@@ -65,19 +65,13 @@ namespace HttpServer
 
             var result = module.ExecuteRoute(route, request);
 
-            if (!result.Success)
+            if (result is IJsonResult)
             {
-                response.FromText(result.Message.ToString()).Send();
-                return;
+                response.FromJson(result).Send();
             }
-
-            if (result.GetType() == typeof(JsonSuccess) && result.Result != null)
+            else if (result is ActionResult actionResult)
             {
-                response.FromJson(result.Result).Send();
-            }
-            else
-            {
-                response.FromText(result.Result.ToString()).Send();
+                response.FromText(actionResult.Data.ToString()).Send();
             }
         }
     }

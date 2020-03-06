@@ -25,7 +25,6 @@ namespace AutoLua.Droid
         {
             base.OnCreate();
             Instance = this;
-            ScreenMetrics.Instance.Init();
 
             AppUtils.Init(this);
 
@@ -73,6 +72,7 @@ namespace AutoLua.Droid
     {
         public void OnActivityCreated(Activity activity, Bundle savedInstanceState)
         {
+            ScreenMetrics.Instance.Init(activity);
             AppUtils.SetCurrentActivity(activity);
         }
 
