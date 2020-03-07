@@ -139,15 +139,18 @@
 								</tr>
 								<tr>
 									<td>可勾选 (checkable)</td>
-									<td contenteditable v-text="elem.Checkable"></td>
+									<td contenteditable v-text="elem.Checkable" v-if="elem.Checkable" style="color: red;"></td>
+									<td contenteditable v-text="elem.Checkable" v-else-if="!elem.Checkable"></td>
 								</tr>
 								<tr>
 									<td>已勾选 (checked)</td>
-									<td contenteditable v-text="elem.Checked"></td>
+									<td contenteditable v-text="elem.Checked" v-if="elem.Checked" style="color: red;"></td>
+									<td contenteditable v-text="elem.Checked" v-else-if="!elem.Checked"></td>
 								</tr>
 								<tr>
 									<td>可点击 (clickable)</td>
-									<td contenteditable v-text="elem.Clickable"></td>
+									<td contenteditable v-text="elem.Clickable" v-if="elem.Clickable" style="color: red;"></td>
+									<td contenteditable v-text="elem.Clickable" v-else-if="!elem.Clickable"></td>
 								</tr>
 								<tr>
 									<td>已启用 (enabled)</td>
@@ -155,38 +158,32 @@
 								</tr>
 								<tr>
 									<td>可滑动 (scrollable)</td>
-									<td contenteditable v-text="elem.Scrollable"></td>
+									<td contenteditable v-text="elem.Scrollable" v-if="elem.Scrollable" style="color: red;"></td>
+									<td contenteditable v-text="elem.Scrollable" v-else-if="!elem.Scrollable"></td>
 								</tr>
 								<tr>
 									<td>可长按 (longClickable)</td>
-									<td contenteditable v-text="elem.LongClickable"></td>
+									<td contenteditable v-text="elem.LongClickable" v-if="elem.LongClickable" style="color: red;"></td>
+									<td contenteditable v-text="elem.LongClickable" v-else-if="!elem.LongClickable"></td>
 								</tr>
 								<tr>
 									<td>密码框 (password)</td>
-									<td contenteditable v-text="elem.Password"></td>
+									<td contenteditable v-text="elem.Password" v-if="elem.Password" style="color: red;"></td>
+									<td contenteditable v-text="elem.Password" v-else-if="!elem.Password"></td>
 								</tr>
 								<tr>
 									<td>已选中 (selected)</td>
-									<td contenteditable v-text="elem.Selected"></td>
+									<td contenteditable v-text="elem.Selected" v-if="elem.Selected" style="color: red;"></td>
+									<td contenteditable v-text="elem.Selected" v-else-if="!elem.Selected"></td>
 								</tr>
-
 								<template v-if="elem.Rect">
 									<tr>
-										<td>x, y</td>
-										<td>{{elem.Rect.Y}}, {{elem.Rect.Y}}</td>
-									</tr>
-									</tr>
-									<tr>
-										<td>宽 (width)</td>
-										<td v-text="elem.Rect.Width"></td>
-									</tr>
-									<tr>
-										<td>高 (height)</td>
-										<td v-text="elem.Rect.Height"></td>
+										<td>范围(bounds)</td>
+										<td>[{{elem.Rect.X}}, {{elem.Rect.Y}}][{{elem.Rect.X + elem.Rect.Width}}, {{elem.Rect.Y + elem.Rect.Height}}]</td>
 									</tr>
 								</template>
 								<tr>
-									<td>范围 (bounds)</td>
+									<td>鼠标点击位置</td>
 									<td>
 										<span title="双击复制" @dblclick="copyToClipboard('('+cursorValue.x+', '+cursorValue.y+')')">
 											({{cursorValue.x}}, {{cursorValue.y}})
