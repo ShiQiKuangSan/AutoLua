@@ -158,6 +158,10 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DSoft.Messaging\DSoft.Messaging.csproj">
+      <Project>{8e74323c-008e-42da-b3e9-2f3ea3c8cc1d}</Project>
+      <Name>DSoft.Messaging</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NLua\NLua.csproj">
       <Project>{281dc0f1-7ed9-4a63-88b0-496231b4f5ba}</Project>
       <Name>NLua</Name>

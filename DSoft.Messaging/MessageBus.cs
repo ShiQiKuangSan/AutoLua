@@ -188,7 +188,7 @@ namespace DSoft.Messaging
 		/// <param name="eventId">事件Id</param>
 		/// <param name="sender">事件发送者</param>
 		/// <param name="data">随事件传递的数据对象</param>
-		public void Post (string eventId, object sender = null, object[] data = null)
+		public void Post (string eventId, object sender = null, params object[] data)
 		{
 			var aEvent = new CoreMessageBusEvent (eventId) {
 				Sender = sender,

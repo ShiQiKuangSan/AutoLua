@@ -6,6 +6,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Views.Accessibility;
 using Android.Widget;
+using DSoft.Messaging;
 using Java.Util.Concurrent.Locks;
 
 namespace AutoLua.Core.AutoAccessibility
@@ -13,7 +14,7 @@ namespace AutoLua.Core.AutoAccessibility
     [Register("AutoLua.Core.AutoAccessibility.AutoAccessibilityService")]
     [Service(Name = "AutoLua.Core.AutoAccessibility.AutoAccessibilityService", Label = "AutoLua", Enabled = true,
         Permission = "android.permission.BIND_ACCESSIBILITY_SERVICE")]
-    [IntentFilter(new[] {"android.accessibilityservice.AccessibilityService"})]
+    [IntentFilter(new[] { "android.accessibilityservice.AccessibilityService" })]
     [MetaData("android.accessibilityservice", Resource = "@xml/accessible_service_config")]
     public sealed class AutoAccessibilityService : AccessibilityService
     {
@@ -47,12 +48,8 @@ namespace AutoLua.Core.AutoAccessibility
                 Toast.MakeText(autoGlobal.Context, "服务启动成功", ToastLength.Long).Show();
             }
 
-            var i = StartActivityIntent?.Invoke();
-            
-            if (i != null)
-            {
-                StartActivity(i);
-            }
+            //执行启动主界面的事件
+            MessageBus.Default.Post("StartActivityMessage", this, "MainActivity");
         }
 
         public override void OnAccessibilityEvent(AccessibilityEvent e)
