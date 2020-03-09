@@ -1,13 +1,9 @@
-﻿using Android.Graphics;
-using Android.Runtime;
-using AutoLua.Droid.HttpServers.Models;
-using AutoLua.Droid.LuaScript.Utils.ScreenCaptures;
-using AutoLua.Droid.Utils;
+﻿using Android.Runtime;
 using HttpServer.Modules;
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using AutoLua.Core.Common;
 
 namespace AutoLua.Droid.HttpServers.Controllers
 {

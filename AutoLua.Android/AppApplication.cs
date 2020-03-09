@@ -2,14 +2,12 @@
 using Android.App;
 using Android.OS;
 using Android.Runtime;
-using AutoLua.Droid.AutoAccessibility;
-using AutoLua.Droid.LuaScript;
-using AutoLua.Droid.LuaScript.Api;
-using AutoLua.Droid.Utils;
-using AutoLua.Events;
+using AutoLua.Core.AutoAccessibility;
+using AutoLua.Core.Common;
+using AutoLua.Core.LuaScript;
+using AutoLua.Core.LuaScript.Api;
 using static Android.App.Application;
 using Application = Android.App.Application;
-using Exception = System.Exception;
 
 namespace AutoLua.Droid
 {
@@ -24,46 +22,15 @@ namespace AutoLua.Droid
         public override void OnCreate()
         {
             base.OnCreate();
-            Instance = this;
-
             AppUtils.Init(this);
 
-            this.RegisterActivityLifecycleCallbacks(new SimpleActivityLifecycleCallbacks());
+            RegisterActivityLifecycleCallbacks(new SimpleActivityLifecycleCallbacks());
 
             //初始化无障碍服务
             AutoGlobal.Init(this);
             //初始化lua全局函数
             LuaGlobal.Instance.Init();
         }
-
-        /// <summary>
-        /// 输出日志。
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="message"></param>
-        /// <param name="color"></param>
-        public static void OnLog(string type, string message, Xamarin.Forms.Color color)
-        {
-            LogEventDelegates.Instance?.OnLog(new LogEventArgs(type, message, color));
-        }
-
-        public static T GetSystemService<T>(string service) where T : class, IJavaObject
-        {
-            var context = Instance;
-            var systemService = context.GetSystemService(service).JavaCast<T>();
-            if (systemService == null)
-            {
-                throw new Exception("should never happen..." + service);
-            }
-
-            return systemService;
-        }
-
-        public static AppApplication Instance { get; private set; }
-
-        public static dynamic Lua { get; set; }
-
-        public static System.Threading.Thread LuaThread { get; set; }
 
         public const int HttpServerPort = 8060;
     }

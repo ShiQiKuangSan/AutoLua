@@ -1,7 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="launcher_background">#FFFFFF</color>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+  <!--标题栏的颜色-->
+  <color name="colorPrimary">#3F51B5</color>
+  <!--状态栏的颜色-->
+  <color name="colorPrimaryDark">#303F9F</color>
+  <!--控件的选中颜色，即checked或selected状态的颜色。-->
+  <color name="colorAccent">#FF4081</color>
+
+  <color name="tip">#88303F9F</color>
+
+  <color name="white">#ffffffff</color>
+  <color name="light_gray">#AAAAAA</color>
+
+  <!--通用背景色-->
+  <color name="common_bg">@color/white</color>
+  <!--通用触摸背景色-->
+  <color name="common_touch_bg">#E3E3E3</color>
+  <!--通用一级标题的颜色-->
+  <color name="common_h1">#212121</color>
+  <!--通用二级标题的颜色-->
+  <color name="common_h2">#727272</color>
+  <!--通用分割线细-->
+  <color name="common_divider_narrow">#E3E3E3</color>
+  <!--底部导航栏的文字颜色-->
+  <color name="tab_text_color_selector">#212121</color>
+
+  <color name="reader_menu_bg_color">#191919</color>
+
+  <!--tab bar item 指示符颜色-->
+  <color name="tab_indicator">@android:color/white</color>
+  <!--tab bar item 文本颜色-->
+  <color name="tab_text">#a0ffffff</color>
 </resources>

@@ -3,11 +3,11 @@ using System.IO;
 using Android.AccessibilityServices;
 using Android.Graphics;
 using Android.Runtime;
-using AutoLua.Droid.AutoAccessibility;
-using AutoLua.Droid.AutoAccessibility.Accessibility.Node;
-using AutoLua.Droid.AutoAccessibility.Gesture;
+using AutoLua.Core.AutoAccessibility;
+using AutoLua.Core.AutoAccessibility.Accessibility.Node;
+using AutoLua.Core.AutoAccessibility.Gesture;
+using AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures;
 using AutoLua.Droid.HttpServers.Models;
-using AutoLua.Droid.LuaScript.Utils.ScreenCaptures;
 using HttpServer.Modules;
 
 namespace AutoLua.Droid.HttpServers.Controllers

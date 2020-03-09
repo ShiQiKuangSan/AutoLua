@@ -3,7 +3,8 @@ using Android.Content;
 using Android.Net;
 using Android.Net.Wifi;
 using Android.Runtime;
-using AutoLua.Droid.Utils;
+using AutoLua.Core.Common;
+using AutoLua.Droid.Services;
 
 namespace AutoLua.Droid.Monitors
 {
@@ -12,7 +13,7 @@ namespace AutoLua.Droid.Monitors
     /// </summary>
     internal class WifiMonitor : AbstractMonitor
     {
-        private BroadcastReceiver receiver;
+        private BroadcastReceiver _receiver;
 
         public WifiMonitor(Context context) : base(context)
         {
@@ -20,7 +21,7 @@ namespace AutoLua.Droid.Monitors
 
         public override void Init()
         {
-            this.receiver = new WifiBroadcastReceiver();
+            _receiver = new WifiBroadcastReceiver();
         }
 
         [Obsolete]
@@ -31,17 +32,16 @@ namespace AutoLua.Droid.Monitors
             var filter = new IntentFilter();
             filter.AddAction(WifiManager.NetworkIdsChangedAction);
             filter.AddAction(ConnectivityManager.ConnectivityAction);
-            context.RegisterReceiver(receiver, filter);
+            context.RegisterReceiver(_receiver, filter);
         }
 
         public override void UnRegister()
         {
-            if (receiver != null)
+            if (_receiver != null)
             {
-                context.UnregisterReceiver(receiver);
+                context.UnregisterReceiver(_receiver);
             }
         }
-
 
         private class WifiBroadcastReceiver : BroadcastReceiver
         {

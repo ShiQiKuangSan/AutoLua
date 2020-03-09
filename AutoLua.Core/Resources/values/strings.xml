@@ -1,0 +1,4 @@
+<resources>
+    <!--无障碍服务-->
+    <string name="text_accessibility_service_description">使脚本自动操作(点击、长按、滑动等)所需，若关闭则只能执行不涉及自动操作的脚本。</string>
+</resources>

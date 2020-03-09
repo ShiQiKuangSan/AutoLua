@@ -1,0 +1,63 @@
+<resources>
+  <attr name="item_count" format="integer" />
+  <attr name="text_color_normal" format="color" />
+  <attr name="text_color_hightlight" format="color" />
+  <attr name="text_size" format="dimension" />
+  <attr name="indicator_color" format="color" />
+  <attr name="indicator_src" format="reference" />
+  <attr name="indicator_style">
+    <enum name="bitmap" value="0" />
+    <enum name="line" value="1" />
+    <enum name="square" value="2" />
+    <enum name="triangle" value="3" />
+  </attr>
+
+  <!-- RVPIndicator -->
+  <declare-styleable name="RVPIndicator">
+    <attr name="item_count" />
+    <attr name="text_color_normal" />
+    <attr name="text_color_hightlight" />
+    <attr name="text_size" />
+    <attr name="indicator_color" />
+    <attr name="indicator_src" />
+    <attr name="indicator_style" />
+  </declare-styleable>
+
+  <declare-styleable name="SuperRecyclerView">
+    <attr name="layout_empty" format="reference" />
+    <attr name="layout_progress" format="reference" />
+    <attr name="layout_error" format="reference" />
+    <attr name="recyclerClipToPadding" format="boolean" />
+    <attr name="recyclerPadding" format="dimension" />
+    <attr name="recyclerPaddingTop" format="dimension" />
+    <attr name="recyclerPaddingBottom" format="dimension" />
+    <attr name="recyclerPaddingLeft" format="dimension" />
+    <attr name="recyclerPaddingRight" format="dimension" />
+    <attr name="scrollbarStyle">
+      <enum name="insideOverlay" value="0x0" />
+      <enum name="insideInset" value="0x01000000" />
+      <enum name="outsideOverlay" value="0x02000000" />
+      <enum name="outsideInset" value="0x03000000" />
+    </attr>
+    <attr name="scrollbars">
+      <enum name="vertical" value="1" />
+      <enum name="horizontal" value="0" />
+      <enum name="none" value="2" />
+    </attr>
+  </declare-styleable>
+
+  <declare-styleable name="LoadingView">
+    <attr name="loadding_color" format="color" />
+    <attr name="ring_style" format="enum">
+      <enum name="square" value="0" />
+      <enum name="round" value="1" />
+    </attr>
+    <attr name="progress_style" format="enum">
+      <enum name="material" value="0" />
+      <enum name="linear" value="1" />
+    </attr>
+
+    <attr name="ring_width" format="dimension" />
+    <attr name="ring_radius" format="dimension" />
+  </declare-styleable>
+</resources>

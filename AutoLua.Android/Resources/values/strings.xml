@@ -1,4 +1,11 @@
 ﻿<resources>
   <!--无障碍服务-->
   <string name="text_accessibility_service_description">使脚本自动操作(点击、长按、滑动等)所需，若关闭则只能执行不涉及自动操作的脚本。</string>
+  <string name="app_name">AutoLua</string>
+  <string name="bottombar_script">脚本</string>
+  <string name="bottombar_log">日志</string>
+  <string name="bottombar_setting">设置</string>
+    <string name="setting_http_server_name">Http 服务</string>
+  <string name="setting_accessibility_name">无障碍服务</string>
+    <string name="notnet">似乎没有网络哦</string>
 </resources>

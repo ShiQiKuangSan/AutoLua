@@ -1,50 +1,41 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-  <style name="MainTheme" parent="MainTheme.Base">
-  </style>
-  <!-- Base theme applied no matter what API -->
-  <style name="MainTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
-    <!--If you are using revision 22.1 please use just windowNoTitle. Without android:-->
-    <item name="windowNoTitle">true</item>
-    <!--We will be using the toolbar so no need to show ActionBar-->
-    <item name="windowActionBar">false</item>
-    <!-- Set theme colors from https://aka.ms/material-colors -->
-    <!-- colorPrimary is used for the default action bar background -->
-    <item name="colorPrimary">#2196F3</item>
-    <!-- colorPrimaryDark is used for the status bar -->
-    <item name="colorPrimaryDark">#1976D2</item>
-    <!-- colorAccent is used as the default value for colorControlActivated
-         which is used to tint widgets -->
-    <item name="colorAccent">#FF4081</item>
-    <!-- You can also set colorControlNormal, colorControlActivated
-         colorControlHighlight and colorSwitchThumbNormal. -->
-    <item name="windowActionModeOverlay">true</item>
-
-    <item name="android:datePickerDialogTheme">@style/AppCompatDialogStyle</item>
-  </style>
-
-  <style name="AppCompatDialogStyle" parent="Theme.AppCompat.Light.Dialog">
-    <item name="colorAccent">#FF4081</item>
-  </style>
-
-  <style name="ScriptTheme" parent="Theme.AppCompat.Light.NoActionBar">
+  <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <!--标题栏的颜色-->
     <item name="colorPrimary">@color/colorPrimary</item>
+    <!--状态栏的颜色-->
     <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    <!--控件的选中颜色，即checked或selected状态的颜色。-->
     <item name="colorAccent">@color/colorAccent</item>
-    <item name="android:popupTheme" tools:ignore="NewApi">@style/ScriptTheme.PopupOverlay</item>
   </style>
 
-  <style name="ScriptTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-  <style name="ScriptTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
-  
-  <style name="ScriptTheme.Transparent" parent="ScriptTheme">
-    <item name="android:windowIsTranslucent">true</item>
-    <item name="android:windowBackground">@android:color/transparent</item>
-    <item name="android:windowContentOverlay">@null</item>
+  <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar"/>
+
+  <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.ActionBar">
+    <item name="android:textColorPrimary">#212121</item>
+    <item name="android:textColorSecondary">@color/colorAccent</item>
+  </style>
+
+  <!--toobar样式-->
+  <style name="ToolBarStyle" parent="ThemeOverlay.AppCompat.ActionBar">
+    <item name="android:textColorPrimary">@android:color/white</item>
+    <item name="android:textColorSecondary">@android:color/white</item>
+    <item name="actionMenuTextColor">@android:color/white</item>
+  </style>
+
+  <!-- 自定义loading dialog -->
+  <style name="loading_dialog" parent="android:style/Theme.Dialog">
+    <item name="android:windowFrame">@null</item>
     <item name="android:windowNoTitle">true</item>
+    <item name="android:windowIsTranslucent">false</item>
+    <!--半透明-->
+    <item name="android:windowBackground">@android:color/transparent</item>
     <item name="android:windowIsFloating">true</item>
     <item name="android:backgroundDimEnabled">false</item>
+    <!--模糊-->
+    <item name="android:windowContentOverlay">@null</item>
   </style>
+
 </resources>

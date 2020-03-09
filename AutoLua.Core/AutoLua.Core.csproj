@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A8FD5096-C06C-4E8B-8CBF-6666A8EAB4BC}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TemplateGuid>{9ef11e43-1701-4396-8835-8392d57abb70}</TemplateGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AutoLua.Core</RootNamespace>
+    <AssemblyName>AutoLua.Core</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
+    <TargetFrameworkVersion>v9.0</TargetFrameworkVersion>
+    <AndroidUseAapt2>true</AndroidUseAapt2>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <IntermediateOutputPath>D:\MYCOMP~1\TEMP\vsE00A.tmp\Debug\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>portable</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <IntermediateOutputPath>D:\MYCOMP~1\TEMP\vsE00A.tmp\Release\</IntermediateOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Mono.Android" />
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AutoAccessibility\Accessibility\Delegates.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\AccessibilityEventNotifications.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\AccessibilityEventWindos.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\IAccessibilityEvent.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\IKeyInterceptorEvent.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\IKeyMonitorEvent.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\INotificationMonitorEvent.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\IToastMonitorEvent.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\KeyInterceptorEventManager.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\KeyMonitorEventManager.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\NotificationMonitorEventManager.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Event\ToastMonitorEventManager.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Filter\By.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Filter\ExpressionExecutor.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Filter\IExpressionExecutor.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Filter\IUiNodeSearch.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Filter\UiNodeSearch.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Node\Notification.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Node\Toast.cs" />
+    <Compile Include="AutoAccessibility\Accessibility\Node\UiNode.cs" />
+    <Compile Include="AutoAccessibility\AutoAccessibilityService.cs" />
+    <Compile Include="AutoAccessibility\AutoGlobal.cs" />
+    <Compile Include="AutoAccessibility\Gesture\DefatltGesture.cs" />
+    <Compile Include="AutoAccessibility\Gesture\IGesture.cs" />
+    <Compile Include="Common\AppUtils.cs" />
+    <Compile Include="Common\ToastUtils.cs" />
+    <Compile Include="Common\VolatileDispose.cs" />
+    <Compile Include="Extensions\Extensions.cs" />
+    <Compile Include="Extensions\Tools\Strings\NumberFormater.cs" />
+    <Compile Include="Glide\GlideCircleTransform.cs" />
+    <Compile Include="Glide\GlideRoundTransform.cs" />
+    <Compile Include="LuaScript\ApiCommon\App\IntentUtil.cs" />
+    <Compile Include="LuaScript\ApiCommon\App\LuaApp.cs" />
+    <Compile Include="LuaScript\ApiCommon\Clip\ClipboardUtil.cs" />
+    <Compile Include="LuaScript\ApiCommon\Http\HttpClient.cs" />
+    <Compile Include="LuaScript\ApiCommon\Http\HttpClientManager.cs" />
+    <Compile Include="LuaScript\ApiCommon\Http\HttpTimer.cs" />
+    <Compile Include="LuaScript\ApiCommon\Http\Models\HttpItem.cs" />
+    <Compile Include="LuaScript\ApiCommon\Http\Models\HttpResult.cs" />
+    <Compile Include="LuaScript\ApiCommon\Http\Models\PostDataType.cs" />
+    <Compile Include="LuaScript\ApiCommon\Http\Models\ResultCookieType.cs" />
+    <Compile Include="LuaScript\ApiCommon\Http\Models\ResultType.cs" />
+    <Compile Include="LuaScript\ApiCommon\MaterialDialogs\BlockedMaterialDialog.cs" />
+    <Compile Include="LuaScript\ApiCommon\Medias\MediaPlayerState.cs" />
+    <Compile Include="LuaScript\ApiCommon\Medias\MediaPlayerWrapper.cs" />
+    <Compile Include="LuaScript\ApiCommon\Medias\MimeTypes.cs" />
+    <Compile Include="LuaScript\ApiCommon\ScreenCaptures\ScreenCapturerServer.cs" />
+    <Compile Include="LuaScript\ApiCommon\ScreenCaptures\ScreenCapturerServerManager.cs" />
+    <Compile Include="LuaScript\ApiCommon\Threads\TimerThread.cs" />
+    <Compile Include="LuaScript\ApiCommon\Timers\BackgroundTaskBase.cs" />
+    <Compile Include="LuaScript\ApiCommon\Timers\IBackgroundTask.cs" />
+    <Compile Include="LuaScript\ApiCommon\Timers\TimerTask.cs" />
+    <Compile Include="LuaScript\ApiCommon\Timers\TimerUseTask.cs" />
+    <Compile Include="LuaScript\Api\Colors.cs" />
+    <Compile Include="LuaScript\Api\Device.cs" />
+    <Compile Include="LuaScript\Api\Dialogs.cs" />
+    <Compile Include="LuaScript\Api\Engines.cs" />
+    <Compile Include="LuaScript\Api\Events.cs" />
+    <Compile Include="LuaScript\Api\HttpLua.cs" />
+    <Compile Include="LuaScript\Api\Images.cs" />
+    <Compile Include="LuaScript\Api\KeysApi.cs" />
+    <Compile Include="LuaScript\Api\LuaFiles.cs" />
+    <Compile Include="LuaScript\Api\Media.cs" />
+    <Compile Include="LuaScript\Api\ScreenMetrics.cs" />
+    <Compile Include="LuaScript\Api\Sensors.cs" />
+    <Compile Include="LuaScript\Api\SharedPreferences.cs" />
+    <Compile Include="LuaScript\Api\ThreadApi.cs" />
+    <Compile Include="LuaScript\Api\TimerApi.cs" />
+    <Compile Include="LuaScript\LuaGlobal.cs" />
+    <Compile Include="LuaScript\LuaGlobalMethod.cs" />
+    <Compile Include="Resources\Resource.designer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AboutResources.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AFollestad.MaterialDialogs.Core">
+      <Version>0.9.6</Version>
+    </PackageReference>
+    <PackageReference Include="Glide.Droid">
+      <Version>1.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="NETStandard.Library">
+      <Version>2.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="OpenCvSharp4">
+      <Version>4.2.0.20200208</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="28.0.0.3" />
+    <PackageReference Include="Xamarin.Forms">
+      <Version>4.5.0.356</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\drawable\" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\xml\accessible_service_config.xml">
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NLua\NLua.csproj">
+      <Project>{281dc0f1-7ed9-4a63-88b0-496231b4f5ba}</Project>
+      <Name>NLua</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
