@@ -5,6 +5,8 @@ using System;
 using System.Linq;
 using AutoLua.Core.Extensions;
 using AutoLua.Droid.Utils;
+using System.Collections.Generic;
+using AutoLua.Droid.HttpServers.Models;
 
 namespace AutoLua.Droid.HttpServers.Controllers
 {
@@ -72,7 +74,7 @@ namespace AutoLua.Droid.HttpServers.Controllers
 
                 if (!roots.Any())
                 {
-                    return JsonSuccess();
+                    return JsonSuccess(new List<NodeModel>());
                 }
 
                 var list = roots.Select(x => x.To()).ToList();
