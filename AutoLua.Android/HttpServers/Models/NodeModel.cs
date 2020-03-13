@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AutoLua.Core.AutoAccessibility.Accessibility.Node;
 
 namespace AutoLua.Droid.HttpServers.Models
 {
@@ -80,15 +81,23 @@ namespace AutoLua.Droid.HttpServers.Models
         /// <summary>
         /// 子节点集合。
         /// </summary>
-        public List<NodeModel> Children { get; set; } = new List<NodeModel>();
+        public List<NodeModel> Children { get; } = new List<NodeModel>();
     }
 
     public class Rect
     {
-        public int X { get; set; }
+        public int Left { get; set; }
 
-        public int Y { get; set; }
+        public int Right { get; set; }
 
+        public int Top { get; set; }
+
+        public int Bottom { get; set; }
+
+        public int CenterX { get; set; }
+        
+        public int CenterY { get; set; }
+        
         public int Width { get; set; }
 
         public int Height { get; set; }

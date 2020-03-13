@@ -20,8 +20,6 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
 
         private readonly IUiNodeSearch _uiNodeSearch;
 
-        private UiNode _baseNode;
-
         #endregion 字段
 
         public By()
@@ -56,7 +54,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By textContains(string str)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Text) && node.Text.Contains(str)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.Text) && node.Text.Contains(str)));
             return this;
         }
 
@@ -67,7 +66,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By textStartsWith(string prefix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Text) && node.Text.StartsWith(prefix)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.Text) && node.Text.StartsWith(prefix)));
 
             return this;
         }
@@ -79,7 +79,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By textEndsWith(string suffix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Text) && node.Text.EndsWith(suffix)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.Text) && node.Text.EndsWith(suffix)));
             return this;
         }
 
@@ -90,7 +91,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By textMatches(string reg)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Text) && Regex.IsMatch(node.Text, reg)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.Text) && Regex.IsMatch(node.Text, reg)));
             return this;
         }
 
@@ -120,7 +122,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By descContains(string str)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Desc) && node.Desc.Contains(str)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.Desc) && node.Desc.Contains(str)));
             return this;
         }
 
@@ -131,7 +134,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By descStartsWith(string prefix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Desc) && node.Desc.StartsWith(prefix)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.Desc) && node.Desc.StartsWith(prefix)));
             return this;
         }
 
@@ -142,7 +146,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By descEndsWith(string suffix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Desc) && node.Desc.EndsWith(suffix)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.Desc) && node.Desc.EndsWith(suffix)));
             return this;
         }
 
@@ -153,7 +158,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By descMatches(string reg)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.Desc) && Regex.IsMatch(node.Desc, reg)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.Desc) && Regex.IsMatch(node.Desc, reg)));
             return this;
         }
 
@@ -169,11 +175,6 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
                 if (string.IsNullOrWhiteSpace(node.FullId))
                 {
                     return false;
-                }
-
-                if (!resId.Contains(":id/"))
-                {
-                    return node.Id == resId;
                 }
 
                 return node.FullId == resId;
@@ -195,7 +196,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
                     return false;
                 }
 
-                return !str.Contains(":id/") ? node.Id.Contains(str) : node.FullId.Contains(str);
+                return node.FullId.Contains(str);
             }));
 
             return this;
@@ -215,7 +216,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
                     return false;
                 }
 
-                return !prefix.Contains(":id/") ? node.Id.StartsWith(prefix) : node.FullId.StartsWith(prefix);
+                return node.FullId.StartsWith(prefix);
             }));
             return this;
         }
@@ -234,7 +235,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
                     return false;
                 }
 
-                return !suffix.Contains(":id/") ? node.Id.EndsWith(suffix) : node.FullId.EndsWith(suffix);
+                return node.FullId.EndsWith(suffix);
             }));
             return this;
         }
@@ -249,7 +250,9 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By idMatches(string reg)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.FullId) && Regex.IsMatch(!reg.Contains(":id/") ? node.Id : node.FullId, reg)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.FullId) &&
+                Regex.IsMatch(node.FullId, reg)));
             return this;
         }
 
@@ -279,7 +282,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By classNameContains(string str)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.ClassName) && node.ClassName.Contains(str)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.ClassName) && node.ClassName.Contains(str)));
             return this;
         }
 
@@ -290,7 +294,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By classNameStartsWith(string prefix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.ClassName) && node.ClassName.StartsWith(prefix)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.ClassName) && node.ClassName.StartsWith(prefix)));
             return this;
         }
 
@@ -301,7 +306,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By classNameEndsWith(string suffix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.ClassName) && node.ClassName.EndsWith(suffix)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.ClassName) && node.ClassName.EndsWith(suffix)));
             return this;
         }
 
@@ -312,7 +318,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By classNameMatches(string reg)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.ClassName) && Regex.IsMatch(node.ClassName, reg)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.ClassName) && Regex.IsMatch(node.ClassName, reg)));
             return this;
         }
 
@@ -345,7 +352,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By packageNameContains(string str)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.PackageName) && node.PackageName.Contains(str)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.PackageName) && node.PackageName.Contains(str)));
             return this;
         }
 
@@ -356,7 +364,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By packageNameStartsWith(string prefix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.PackageName) && node.PackageName.StartsWith(prefix)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.PackageName) && node.PackageName.StartsWith(prefix)));
             return this;
         }
 
@@ -367,7 +376,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By packageNameEndsWith(string suffix)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.PackageName) && node.PackageName.EndsWith(suffix)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.PackageName) && node.PackageName.EndsWith(suffix)));
             return this;
         }
 
@@ -378,7 +388,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By packageNameMatches(string reg)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => !string.IsNullOrWhiteSpace(node.PackageName) && Regex.IsMatch(node.PackageName, reg)));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                !string.IsNullOrWhiteSpace(node.PackageName) && Regex.IsMatch(node.PackageName, reg)));
             return this;
         }
 
@@ -449,7 +460,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public By drawingOrder(int order)
         {
-            _expressionExecutors.Add(new ExpressionExecutor(node => Build.VERSION.SdkInt >= BuildVersionCodes.N && node.DrawingOrder == order));
+            _expressionExecutors.Add(new ExpressionExecutor(node =>
+                Build.VERSION.SdkInt >= BuildVersionCodes.N && node.DrawingOrder == order));
             return this;
         }
 
@@ -483,6 +495,23 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         public By checkable(bool b = true)
         {
             _expressionExecutors.Add(new ExpressionExecutor((node) => node.Checkable == b));
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public By checkeds(bool b = true)
+        {
+            _expressionExecutors.Add(new ExpressionExecutor((node) => node.Checked == b));
+            return this;
+        }
+
+        public By password(bool b = true)
+        {
+            _expressionExecutors.Add(new ExpressionExecutor((node) => node.Password == b));
             return this;
         }
 
@@ -558,7 +587,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public UiNode findOne()
         {
-            var node = Execute(1).FirstOrDefault();
+            var node = Execute(null, 1).FirstOrDefault();
 
             if (node != null)
                 return node;
@@ -568,7 +597,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
                 while (node == null)
                 {
                     await Task.Delay(100);
-                    node = Execute(1).FirstOrDefault();
+                    node = Execute(null, 1).FirstOrDefault();
                 }
             });
 
@@ -599,7 +628,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
 
                 System.Threading.Thread.Sleep(100);
 
-                node = Execute(1).FirstOrDefault();
+                node = Execute(null, 1).FirstOrDefault();
             } while (node == null);
 
             return node;
@@ -611,7 +640,17 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public UiNode findOnce()
         {
-            return Execute(1).FirstOrDefault();
+            return Execute(null, 1).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// 根据当前的选择器所确定的筛选条件，对屏幕上的控件进行搜索，如果找到符合条件的控件则返回该控件；否则返回null。
+        /// </summary>
+        /// <param name="node">根据当前节点进行子节点查找</param>
+        /// <returns></returns>
+        public UiNode findOnce(UiNode node)
+        {
+            return Execute(node, 1).FirstOrDefault();
         }
 
         /// <summary>
@@ -624,12 +663,21 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         }
 
         /// <summary>
+        /// 根据当前的选择器所确定的筛选条件，对屏幕上的控件进行搜索，找到所有满足条件的控件集合并返回。这个搜索只进行一次，并不保证一定会找到，因而会出现返回的控件集合为空的情况。
+        /// </summary>
+        /// <returns></returns>
+        public IList<UiNode> find(UiNode node)
+        {
+            return Execute(node).ToList();
+        }
+
+        /// <summary>
         /// 判断屏幕上是否存在控件符合选择器所确定的条件。例如要判断某个文本出现就执行某个动作
         /// </summary>
         /// <returns></returns>
         public bool exists()
         {
-            return Execute(1).Any();
+            return Execute(null, 1).Any();
         }
 
         /// <summary>
@@ -638,14 +686,14 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public bool waitFor()
         {
-            var status = Execute(1).Any();
+            var status = Execute(null, 1).Any();
 
             var task = new Task(async () =>
             {
                 while (status == false)
                 {
                     await Task.Delay(100);
-                    status = Execute(1).Any();
+                    status = Execute(null, 1).Any();
                 }
             });
 
@@ -663,14 +711,14 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
         /// <returns></returns>
         public bool waitFor(int timeout = 1000)
         {
-            var status = Execute(1).Any();
+            var status = Execute(null, 1).Any();
 
             var task = new Task(async () =>
             {
                 while (status == false)
                 {
                     await Task.Delay(timeout);
-                    status = Execute(1).Any();
+                    status = Execute(null, 1).Any();
                 }
             });
 
@@ -690,23 +738,45 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
             return _expressionExecutors.ToString();
         }
 
-        private IEnumerable<UiNode> Execute(int max = int.MaxValue)
+        private IEnumerable<UiNode> Execute(UiNode child = null, int max = int.MaxValue)
         {
-            if (AutoAccessibilityService.Instance?.RootInActiveWindow == null)
+            if (AutoAccessibilityService.Instance == null)
+                return new List<UiNode>();
+
+            if (!AutoAccessibilityService.Instance.Windows.ToList().Any())
             {
                 return new List<UiNode>();
             }
 
-            if (_baseNode == null)
-            {
-                _baseNode = new UiNode(AutoAccessibilityService.Instance?.RootInActiveWindow);
-            }
+            var windows = AutoAccessibilityService.Instance.Windows
+                .Where(x => x != null)
+                .ToList();
 
             var list = new List<UiNode>();
 
-            foreach (var executor in _expressionExecutors)
+            if (child != null)
             {
-                list = _uiNodeSearch.Search(_baseNode, executor, max).ToList();
+                //查找给定节点的子节点是否有符合要求的
+                foreach (var window in windows)
+                {
+                    var items = _uiNodeSearch.Search(child, _expressionExecutors).ToList();
+                    list.AddRange(items);
+                    if (list.Count >= max)
+                        break;
+                }
+            }
+            else
+            {
+                foreach (var window in windows)
+                {
+                    var node = new UiNode(window.Root);
+
+                    var items = _uiNodeSearch.Search(node, _expressionExecutors).ToList();
+
+                    list.AddRange(items);
+                    if (list.Count >= max)
+                        break;
+                }
             }
 
             return list;

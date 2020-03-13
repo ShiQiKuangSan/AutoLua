@@ -55,11 +55,5 @@ namespace AutoLua.Droid.HttpServers.Controllers
                 return Html(e.Message);
             }
         }
-
-        [Route(RouteMethod.GET, "/demo")]
-        public ActionResult Demo(int q)
-        {
-            return JsonSuccess("");
-        }
     }
 }

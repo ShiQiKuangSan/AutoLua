@@ -2,7 +2,7 @@
 {
     public class JsonSuccess : ActionResult, IJsonResult
     {
-        public JsonSuccess(object result, string message = "") : base(result, true, message)
+        internal JsonSuccess(object result, string message = "") : base(result, true, message)
         {
         }
     }

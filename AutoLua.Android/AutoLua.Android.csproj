@@ -48,10 +48,10 @@
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
     <AndroidLinkMode>Full</AndroidLinkMode>
-    <AndroidLinkSkip>KeraLua;NLua;HttpServer;</AndroidLinkSkip>
+    <AndroidLinkSkip>KeraLua;NLua;HttpServer;DSoft.Messaging</AndroidLinkSkip>
     <AndroidSupportedAbis />
-    <AndroidCreatePackagePerAbi>true</AndroidCreatePackagePerAbi>
-    <AndroidUseAapt2>true</AndroidUseAapt2>
+    <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+    <AndroidUseAapt2>false</AndroidUseAapt2>
     <MandroidI18n />
   </PropertyGroup>
   <ItemGroup>
@@ -91,6 +91,8 @@
     <Compile Include="Base\BaseRVActivity.cs" />
     <Compile Include="HttpServers\AccessibilityHttpServer.cs" />
     <Compile Include="HttpServers\Controllers\HomeController.cs" />
+    <Compile Include="HttpServers\Controllers\NodeController.cs" />
+    <Compile Include="HttpServers\Controllers\NodeFilterController.cs" />
     <Compile Include="HttpServers\Controllers\ScreenController.cs" />
     <Compile Include="HttpServers\Models\ClickModel.cs" />
     <Compile Include="HttpServers\Models\NodeModel.cs" />
@@ -105,6 +107,7 @@
     <Compile Include="UI\Fragments\ScriptFragment.cs" />
     <Compile Include="UI\Fragments\SettingFragment.cs" />
     <Compile Include="Utils\NetworkUtils.cs" />
+    <Compile Include="Utils\NodeHelper.cs" />
     <Compile Include="Utils\StatusBarCompat.cs" />
     <Compile Include="Views\Loading\CustomDialog.cs" />
     <Compile Include="Views\Loading\LoadingView.cs" />

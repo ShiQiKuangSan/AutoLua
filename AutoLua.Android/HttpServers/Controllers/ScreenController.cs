@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using Android.AccessibilityServices;
 using Android.Graphics;
 using Android.Runtime;
@@ -8,10 +11,15 @@ using AutoLua.Core.AutoAccessibility.Accessibility.Node;
 using AutoLua.Core.AutoAccessibility.Gesture;
 using AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures;
 using AutoLua.Droid.HttpServers.Models;
+using AutoLua.Droid.Utils;
 using HttpServer.Modules;
+using Newtonsoft.Json;
 
 namespace AutoLua.Droid.HttpServers.Controllers
 {
+    /// <summary>
+    /// 屏幕控制器
+    /// </summary>
     [Preserve(AllMembers = true)]
     public class ScreenController : Controller
     {
@@ -82,50 +90,37 @@ namespace AutoLua.Droid.HttpServers.Controllers
                 return JsonError(null, "未启动无障碍服务");
             }
 
-            var baseNode = AutoAccessibilityService.Instance.RootInActiveWindow;
+            var baseNode = AutoAccessibilityService.Instance.Windows.ToList();
 
-            if (baseNode == null)
+            if (!baseNode.Any())
             {
                 return JsonError(null, "未获得节点");
             }
 
-            var root = new UiNode(baseNode);
-            var rect = root.Bounds();
+            var nodes = baseNode
+                .Where(x => x.Root != null)
+                .Select(x => new UiNode(x.Root))
+                .Where(x=> x.VisibleToUser).ToList();
+            
+            var roots = new NodeModel();
 
-            var model = new NodeModel
+            foreach (var root in nodes)
             {
-                Index = root.Depth,
-                ResourceId = root.FullId,
-                Text = root.Text,
-                Desc = root.Desc,
-                ClassName = root.ClassName,
-                Checkable = root.Checkable,
-                Checked = root.Checked,
-                Clickable = root.Clickable,
-                Enabled = root.Enabled,
-                Scrollable = root.Scrollable,
-                LongClickable = root.LongClickable,
-                Password = root.Password,
-                Selected = root.IsSelected,
-                Rect = new Models.Rect
+                var model = root.To(false);
+                
+                if (root.ChildCount > 0)
                 {
-                    X = rect.Left,
-                    Y = rect.Top,
-                    Width = rect.Right - rect.Left,
-                    Height = rect.Bottom - rect.Top,
+                    NodeHelper.GetRootTree(model, root);
                 }
-            };
 
-            if (root.ChildCount > 0)
-            {
-                GetRoot(model, root);
+                roots.Children.Add(model);
             }
 
             return JsonSuccess(new
             {
                 Activity = AutoGlobal.Instance.AccessibilityEvent.LatestActivity,
                 Package = AutoGlobal.Instance.AccessibilityEvent.LatestPackage,
-                Node = model
+                Node = roots
             });
         }
 
@@ -173,54 +168,6 @@ namespace AutoLua.Droid.HttpServers.Controllers
             }
 
             return JsonSuccess();
-        }
-
-
-        private static void GetRoot(NodeModel model, UiNode root)
-        {
-            for (var i = 0; i < root.ChildCount; i++)
-            {
-                var child = root.Child(i);
-
-                if (child == null)
-                    continue;
-
-                if (!child.VisibleToUser)
-                    continue;
-
-                var rect = child.Bounds();
-
-                var node = new NodeModel
-                {
-                    Index = child.Depth,
-                    ResourceId = child.FullId,
-                    Text = child.Text,
-                    Desc = child.Desc,
-                    ClassName = child.ClassName,
-                    Checkable = child.Checkable,
-                    Checked = child.Checked,
-                    Clickable = child.Clickable,
-                    Enabled = child.Enabled,
-                    Scrollable = child.Scrollable,
-                    LongClickable = child.LongClickable,
-                    Password = child.Password,
-                    Selected = child.IsSelected,
-                    Rect = new Models.Rect
-                    {
-                        X = rect.Left,
-                        Y = rect.Top,
-                        Width = rect.Right - rect.Left,
-                        Height = rect.Bottom - rect.Top,
-                    }
-                };
-
-                model.Children.Add(node);
-
-                if (child.ChildCount > 0)
-                {
-                    GetRoot(node, child);
-                }
-            }
         }
     }
 }

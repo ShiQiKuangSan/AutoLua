@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.Content.PM;
 using Android.Views.Accessibility;
+using System.Runtime.InteropServices;
 
 namespace AutoLua.Core.AutoAccessibility.Accessibility.Event
 {
@@ -70,8 +71,6 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Event
                 return;
             }
 
-            LatestPackage = latestPackage;
-
             if (latestClass.StartsWith("android.view.") || latestClass.StartsWith("android.widget."))
             {
                 return;
@@ -79,13 +78,29 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Event
 
             try
             {
-                var componentName = new ComponentName(latestPackage, latestClass);
-
-                LatestActivity = _packageManager?.GetActivityInfo(componentName, 0)?.Name ?? string.Empty;
+                if (IsPackageExists(latestPackage))
+                {
+                    LatestPackage = latestPackage;
+                    var componentName = new ComponentName(latestPackage, latestClass);
+                    LatestActivity = _packageManager?.GetActivityInfo(componentName, 0)?.Name ?? string.Empty;
+                }
             }
             catch (PackageManager.NameNotFoundException e)
             {
                 e.PrintStackTrace();
+            }
+        }
+
+        private  bool IsPackageExists(string packageName)
+        {
+            try
+            {
+                _packageManager.GetPackageInfo(packageName, 0);
+                return true;
+            }
+            catch (System.Exception)
+            {
+                return false;
             }
         }
     }

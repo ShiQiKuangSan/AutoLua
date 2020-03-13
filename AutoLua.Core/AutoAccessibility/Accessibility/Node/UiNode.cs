@@ -35,91 +35,17 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// </summary>
         public int IndexInParent { get; }
 
-        /// <inheritdoc cref="Row" />
-        /// <summary>
-        /// 行。
-        /// </summary>
-        public int Row => CollectionItemInfo?.RowIndex ?? -1;
-
-        /// <inheritdoc cref="RowCount" />
-        /// <summary>
-        /// 总行数。
-        /// </summary>
-        public int RowCount => CollectionInfo?.RowCount ?? 0;
-
-        /// <inheritdoc cref="RowSpan" />
-        /// <summary>
-        /// 总列数。
-        /// </summary>
-        public int RowSpan => CollectionItemInfo?.RowSpan ?? -1;
-
-        /// <inheritdoc cref="Column" />
-        /// <summary>
-        /// </summary>
-        public int Column => CollectionItemInfo?.ColumnIndex ?? 0;
-
-        /// <inheritdoc cref="ColumnCount" />
-        /// <summary>
-        /// </summary>
-        public int ColumnCount => CollectionInfo?.ColumnCount ?? 0;
-
-        /// <inheritdoc cref="ColumnSpan" />
-        /// <summary>
-        /// </summary>
-        public int ColumnSpan => CollectionItemInfo?.ColumnSpan ?? -1;
-
         /// <inheritdoc cref="Clickable" />
         /// <summary>
         /// 是否可以点击
         /// </summary>
         public new bool Clickable => base.Clickable;
 
-        /// <inheritdoc cref="ContextClickable" />
-        /// <summary>
-        /// 内容是否可以被点击
-        /// </summary>
-        public new bool ContextClickable => base.ContextClickable;
-
         /// <inheritdoc cref="IsSelected" />
         /// <summary>
         /// 是否选中。
         /// </summary>
         public bool IsSelected => base.Selected;
-
-        /// <inheritdoc cref="Id" />
-        /// <summary>
-        /// 不包含包名的节点编号。
-        /// </summary>
-        public string Id
-        {
-            get
-            {
-                try
-                {
-                    var id = ViewIdResourceName ?? string.Empty;
-
-                    if (string.IsNullOrWhiteSpace(id))
-                    {
-                        return "";
-                    }
-
-                    if (!id.Contains(":id/"))
-                    {
-                        return id;
-                    }
-
-                    var fullId = AutoGlobal.Instance?.AccessibilityEvent?.LatestPackage ?? string.Empty + ":id/";
-
-                    id = id.Replace(fullId, "");
-
-                    return id;
-                }
-                catch (Exception)
-                {
-                    return string.Empty;
-                }
-            }
-        }
 
         /// <inheritdoc cref="FullId" />
         /// <summary>
@@ -158,7 +84,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 点击控件
         /// </summary>
         /// <returns></returns>
-        internal bool Click()
+        public bool Click()
         {
             return PerformAction(ActionClick);
         }
@@ -167,7 +93,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 长按控件
         /// </summary>
         /// <returns></returns>
-        internal bool LongClick()
+        public bool LongClick()
         {
             return PerformAction(ActionLongClick);
         }
@@ -175,7 +101,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// <summary>
         /// 获取此节点是否为可访问性焦点。
         /// </summary>
-        internal bool AccessibilityFocus()
+        public bool AccessibilityFocus()
         {
             return PerformAction(ActionAccessibilityFocus);
         }
@@ -183,7 +109,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// <summary>
         /// 清除此节点是否为可访问性焦点。
         /// </summary>
-        internal bool ClearAccessibilityFocus()
+        public bool ClearAccessibilityFocus()
         {
             return PerformAction(ActionClearAccessibilityFocus);
         }
@@ -191,7 +117,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// <summary>
         /// 置入焦点。
         /// </summary>
-        internal bool Focus()
+        public bool Focus()
         {
             return PerformAction(ActionFocus);
         }
@@ -209,7 +135,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 复制
         /// </summary>
         /// <returns></returns>
-        internal bool Copy()
+        public bool Copy()
         {
             return PerformAction(ActionCopy);
         }
@@ -218,7 +144,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 粘贴
         /// </summary>
         /// <returns></returns>
-        internal bool Paste()
+        public bool Paste()
         {
             return PerformAction(ActionPaste);
         }
@@ -227,7 +153,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 选中。
         /// </summary>
         /// <returns></returns>
-        internal bool Select()
+        public bool Select()
         {
             return PerformAction(ActionSelect);
         }
@@ -236,7 +162,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 剪切
         /// </summary>
         /// <returns></returns>
-        internal bool Cut()
+        public bool Cut()
         {
             return PerformAction(ActionCut);
         }
@@ -245,7 +171,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 对控件执行折叠操作，并返回是否操作成功。
         /// </summary>
         /// <returns></returns>
-        internal bool Collapse()
+        public bool Collapse()
         {
             return PerformAction(ActionCollapse);
         }
@@ -254,7 +180,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 对控件执行操作，并返回是否操作成功。
         /// </summary>
         /// <returns></returns>
-        internal bool Expand()
+        public bool Expand()
         {
             return PerformAction(ActionExpand);
         }
@@ -262,7 +188,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// <summary>
         /// 节点是否可以被解除。
         /// </summary>
-        internal bool Dismiss()
+        public bool Dismiss()
         {
             return PerformAction(ActionDismiss);
         }
@@ -271,7 +197,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 显示屏幕
         /// </summary>
         /// <returns></returns>
-        internal bool Show()
+        public bool Show()
         {
             return PerformAction(AccessibilityActionCompat.ActionShowOnScreen.Id);
         }
@@ -280,7 +206,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 向前滚动节点内容的操作。
         /// </summary>
         /// <returns></returns>
-        internal bool ScrollForward()
+        public bool ScrollForward()
         {
             return PerformAction(ActionScrollForward);
         }
@@ -289,7 +215,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 向后滚动节点内容的操作。
         /// </summary>
         /// <returns></returns>
-        internal bool ScrollBackward()
+        public bool ScrollBackward()
         {
             return PerformAction(ActionScrollBackward);
         }
@@ -298,7 +224,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 向上滚动节点内容的操作。
         /// </summary>
         /// <returns></returns>
-        internal bool ScrollUp()
+        public bool ScrollUp()
         {
             return PerformAction(AccessibilityActionCompat.ActionScrollUp.Id);
         }
@@ -307,7 +233,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 向下滚动节点内容的操作。
         /// </summary>
         /// <returns></returns>
-        internal bool ScrollDown()
+        public bool ScrollDown()
         {
             return PerformAction(AccessibilityActionCompat.ActionScrollDown.Id);
         }
@@ -316,7 +242,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 向左滚动节点内容的操作。
         /// </summary>
         /// <returns></returns>
-        internal bool ScrollLeft()
+        public bool ScrollLeft()
         {
             return PerformAction(AccessibilityActionCompat.ActionScrollLeft.Id);
         }
@@ -325,7 +251,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 向右滚动节点内容的操作。
         /// </summary>
         /// <returns></returns>
-        internal bool ScrollRight()
+        public bool ScrollRight()
         {
             return PerformAction(AccessibilityActionCompat.ActionScrollRight.Id);
         }
@@ -334,7 +260,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// 对节点的内容点击操作。
         /// </summary>
         /// <returns></returns>
-        internal bool ContextClick()
+        public bool ContextClick()
         {
             return PerformAction(AccessibilityActionCompat.ActionContextClick.Id);
         }
@@ -345,7 +271,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// <param name="start">选中的起始位置</param>
         /// <param name="end">选中的结束位置</param>
         /// <returns></returns>
-        internal bool SetSelection(int start, int end)
+        public bool SetSelection(int start, int end)
         {
             var bundle = new Bundle();
             bundle.PutInt(ActionArgumentSelectionStartInt, start);
@@ -359,7 +285,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// </summary>
         /// <param name="text">文本</param>
         /// <returns></returns>
-        internal bool SetText(string text)
+        public bool SetText(string text)
         {
             var bundle = new Bundle();
             bundle.PutString(ActionArgumentSetTextCharsequence, text);
@@ -371,7 +297,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// </summary>
         /// <param name="value">进度</param>
         /// <returns></returns>
-        internal bool SetProgress(float value)
+        public bool SetProgress(float value)
         {
             var bundle = new Bundle();
             bundle.PutFloat(ActionArgumentProgressValue, value);
@@ -384,7 +310,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Node
         /// <param name="row">行</param>
         /// <param name="column">列</param>
         /// <returns></returns>
-        internal bool ScrollTo(int row, int column)
+        public bool ScrollTo(int row, int column)
         {
             var bundle = new Bundle();
             bundle.PutInt(ActionArgumentRowInt, row);

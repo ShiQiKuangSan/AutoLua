@@ -179,7 +179,7 @@
 								<template v-if="elem.Rect">
 									<tr>
 										<td>范围(bounds)</td>
-										<td>[{{elem.Rect.X}}, {{elem.Rect.Y}}][{{elem.Rect.X + elem.Rect.Width}}, {{elem.Rect.Y + elem.Rect.Height}}]</td>
+										<td>[{{elem.Rect.Left}}, {{elem.Rect.Top}}][{{elem.Rect.Left + elem.Rect.Width}}, {{elem.Rect.Top + elem.Rect.Height}}]</td>
 									</tr>
 								</template>
 								<tr>
@@ -1006,8 +1006,8 @@
 						return;
 					}
 
-					var x = node.Rect.X,
-						y = node.Rect.Y,
+					var x = node.Rect.Left,
+						y = node.Rect.Top,
 						w = node.Rect.Width,
 						h = node.Rect.Height;
 
@@ -1031,8 +1031,8 @@
 						if (!node.Rect) {
 							return false;
 						}
-						var lx = node.Rect.X,
-							ly = node.Rect.Y,
+						var lx = node.Rect.Left,
+							ly = node.Rect.Top,
 							rx = node.Rect.Width + lx,
 							ry = node.Rect.Height + ly;
 						return lx < x && x < rx && ly < y && y < ry;

@@ -9,6 +9,7 @@ using Java.Interop;
 
 namespace AutoLua.Droid.Utils
 {
+    [Android.Runtime.Preserve(AllMembers = true)]
     public static class NetworkUtils
     {
         public const int NetworkWifi = 1; // wifi network

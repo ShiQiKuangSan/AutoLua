@@ -72,6 +72,10 @@
     <Compile Include="AutoAccessibility\AutoGlobal.cs" />
     <Compile Include="AutoAccessibility\Gesture\DefatltGesture.cs" />
     <Compile Include="AutoAccessibility\Gesture\IGesture.cs" />
+    <Compile Include="Caching\CacheEntity.cs" />
+    <Compile Include="Caching\CacheManager.cs" />
+    <Compile Include="Caching\DefaultCacheManager.cs" />
+    <Compile Include="Caching\ICacheManager.cs" />
     <Compile Include="Common\AppUtils.cs" />
     <Compile Include="Common\ToastUtils.cs" />
     <Compile Include="Common\VolatileDispose.cs" />

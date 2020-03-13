@@ -7,7 +7,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
     [Android.Runtime.Preserve(AllMembers = true)]
     public class UiNodeSearch : IUiNodeSearch
     {
-        public IEnumerable<UiNode> Search(UiNode root, IExpressionExecutor filter, int max = int.MaxValue)
+        public IEnumerable<UiNode> Search(UiNode root, IEnumerable<IExpressionExecutor> filter, int max = int.MaxValue)
         {
             try
             {
@@ -20,7 +20,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
             }
         }
 
-        private static IEnumerable<UiNode> SearchChild(UiNode root, IExpressionExecutor filter, int max)
+        private static IEnumerable<UiNode> SearchChild(UiNode root, IEnumerable<IExpressionExecutor> filter, int max)
         {
             var result = new List<UiNode>();
             var stack = new Queue<UiNode>();
@@ -28,6 +28,9 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
             while (stack.Count > 0)
             {
                 var parent = stack.Dequeue();
+
+                if (!parent.VisibleToUser)
+                    continue;
 
                 for (var i = 0; i < parent.ChildCount; i++)
                 {
@@ -40,7 +43,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
                     stack.Enqueue(child);
                 }
 
-                if (filter.Execute(parent))
+                if (Filter(parent, filter))
                 {
                     result.Add(parent);
 
@@ -59,6 +62,20 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
             }
 
             return result;
+        }
+
+
+        private static bool Filter(UiNode uiNode, IEnumerable<IExpressionExecutor> filters)
+        {
+            foreach (var filter in filters)
+            {
+                if (!filter.Execute(uiNode))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

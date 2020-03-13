@@ -22,25 +22,10 @@ namespace AutoLua.Core.AutoAccessibility
 
         public static readonly Func<Intent> StartActivityIntent = null;
 
-        /// <summary>
-        ///
-        /// </summary>
-        private ICondition _enabled;
-
-        /// <summary>
-        /// 锁
-        /// </summary>
-        private readonly ReentrantLock _lock = new ReentrantLock();
-
         protected override void OnServiceConnected()
         {
             Instance = this;
-            _enabled = _lock.NewCondition();
             base.OnServiceConnected();
-            _lock.Lock();
-            _enabled.SignalAll();
-            _lock.Unlock();
-
             var autoGlobal = AutoGlobal.Instance;
 
             if (autoGlobal?.Context != null)

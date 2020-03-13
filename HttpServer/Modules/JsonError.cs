@@ -2,7 +2,7 @@
 {
     public class JsonError : ActionResult, IJsonResult
     {
-        public JsonError(object result, string message = "") : base(result, false, message)
+        internal JsonError(object result, string message = "") : base(result, false, message)
         {
         }
     }
