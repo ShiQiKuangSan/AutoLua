@@ -6,7 +6,6 @@ using AutoLua.Droid.HttpServers.Models;
 using AutoLua.Droid.Utils;
 using HttpServer.Modules;
 using Newtonsoft.Json.Linq;
-using Org.Apache.Http.Conn;
 
 namespace AutoLua.Droid.HttpServers.Controllers
 {
@@ -41,6 +40,62 @@ namespace AutoLua.Droid.HttpServers.Controllers
                 var status = node.Click();
 
                 return JsonSuccess(new { Status = status });
+            }
+            catch (Exception e)
+            {
+                return JsonError(e.Message);
+            }
+
+        }
+
+        /// <summary>
+        /// 点击节点，如果节点不可点击则向上查找可点击的节点
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        [Route(RouteMethod.GET, "/api/v1/node/clickParent")]
+        public ActionResult ClickParent(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return JsonError("node.clickParent-- key is empty");
+
+            try
+            {
+                var node = NodeHelper.GetCacheNode(key);
+
+                if (node == null)
+                    return JsonSuccess(new { Status = false });
+
+                if (node.Clickable)
+                {
+                    //执行点击操作
+                    var status = node.Click();
+
+                    return JsonSuccess(new { Status = status });
+                }
+                else
+                {
+                    var parent = node.Parent();
+
+                    if (parent == null)
+                    {
+                        return JsonSuccess(new { Status = false });
+                    }
+
+                    //遍历他的父节点
+                    while (!parent.Clickable)
+                    {
+                        parent = parent.Parent();
+                        if (parent == null)
+                        {
+                            return JsonSuccess(new { Status = false });
+                        }
+                    }
+
+                    var status = parent.Click();
+
+                    return JsonSuccess(new { Status = status });
+                }
             }
             catch (Exception e)
             {
@@ -555,29 +610,6 @@ namespace AutoLua.Droid.HttpServers.Controllers
                 }
 
                 return JsonSuccess(list);
-            }
-            catch (Exception e)
-            {
-                return JsonError(e.Message);
-            }
-        }
-
-        /// <summary>
-        /// 返回子控件数目。
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        [Route(RouteMethod.GET, "/api/v1/node/childCount")]
-        public ActionResult ChildCount(string key)
-        {
-            if (string.IsNullOrWhiteSpace(key))
-                return JsonError("node.childCount-- key is empty");
-
-            try
-            {
-                var node = NodeHelper.GetCacheNode(key);
-
-                return JsonSuccess(node?.ChildCount ?? 0);
             }
             catch (Exception e)
             {

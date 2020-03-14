@@ -1,6 +1,6 @@
-﻿using System;
+﻿using AutoLua.Core.Extensions;
+using System;
 using System.Collections.Generic;
-using AutoLua.Core.Extensions;
 
 namespace AutoLua.Core.Caching
 {
@@ -12,7 +12,7 @@ namespace AutoLua.Core.Caching
         /// <summary>
         /// 静态字典缓存数据。
         /// </summary>
-        private readonly IDictionary<string, CacheEntity> _cache = new Dictionary<string, CacheEntity>();
+        private volatile IDictionary<string, CacheEntity> _cache = new Dictionary<string, CacheEntity>();
 
         /// <summary>
         /// 锁定对象。
@@ -35,12 +35,23 @@ namespace AutoLua.Core.Caching
         {
             CacheEntity cache = null;
 
-            lock (LockObject)
+            lock (_cache)
             {
                 if (_cache.ContainsKey(key))
                     cache = _cache[key];
 
-                return cache != null && cache.ExpiredTime > DateTime.UtcNow ? (TValue)cache.Value : default(TValue);
+                if (cache == null)
+                    return default;
+
+                if (cache.ExpiredTime < DateTime.UtcNow)
+                {
+                    Remove(key);
+                    return default;
+                }
+
+                ClearExpired();
+
+                return (TValue)cache.Value;
             }
         }
 
@@ -56,7 +67,7 @@ namespace AutoLua.Core.Caching
         {
             CacheEntity cache = null;
 
-            lock (LockObject)
+            lock (_cache)
             {
                 if (_cache.ContainsKey(key))
                     cache = _cache[key];
@@ -72,6 +83,8 @@ namespace AutoLua.Core.Caching
 
                 cache.ExpiredTime = DateTime.UtcNow.Add(validFor);
 
+                this.ClearExpired();
+
                 return (TValue)cache.Value;
             }
         }
@@ -86,7 +99,7 @@ namespace AutoLua.Core.Caching
         /// <returns>值对象。</returns>
         public TValue GetOrAdd<TValue>(string key, Func<TValue> acquire)
         {
-            lock (LockObject)
+            lock (_cache)
             {
                 var result = Get<TValue>(key);
 
@@ -112,7 +125,7 @@ namespace AutoLua.Core.Caching
         /// <returns>值对象。</returns>
         public TValue GetOrAdd<TValue>(string key, Func<TValue> acquire, TimeSpan validFor)
         {
-            lock (LockObject)
+            lock (_cache)
             {
                 var result = Get<TValue>(key);
 
@@ -152,7 +165,7 @@ namespace AutoLua.Core.Caching
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key), "键对象不可以是空的。");
 
-            lock (LockObject)
+            lock (_cache)
             {
                 var cache = new CacheEntity
                 {
@@ -170,7 +183,7 @@ namespace AutoLua.Core.Caching
         /// <param name="key">键对象。</param>
         public void Remove(string key)
         {
-            lock (LockObject)
+            lock (_cache)
             {
                 if (_cache.ContainsKey(key))
                 {
@@ -189,7 +202,7 @@ namespace AutoLua.Core.Caching
         {
             result = default(TValue);
 
-            lock (LockObject)
+            lock (_cache)
             {
                 if (_cache.ContainsKey(key))
                 {
@@ -204,9 +217,17 @@ namespace AutoLua.Core.Caching
         /// </summary>
         public void Clear()
         {
-            lock (LockObject)
+            lock (_cache)
             {
                 _cache.Clear();
+            }
+        }
+
+        private void ClearExpired()
+        {
+            lock (_cache)
+            {
+                _cache.RemoveWhere(x => x.Value.ExpiredTime < DateTime.UtcNow);
             }
         }
     }

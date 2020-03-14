@@ -74,6 +74,11 @@ namespace AutoLua.Droid.HttpServers.Models
         public bool Selected { get; set; }
 
         /// <summary>
+        /// 子集数量
+        /// </summary>
+        public int ChildCount { get; set; }
+
+        /// <summary>
         /// 范围
         /// </summary>
         public Rect Rect { get; set; }

@@ -83,6 +83,7 @@ namespace AutoLua.Droid.Utils
                 LongClickable = root.LongClickable,
                 Password = root.Password,
                 Selected = root.IsSelected,
+                ChildCount = root.ChildCount,
                 Rect = new Rect
                 {
                     Left = rect.Left,

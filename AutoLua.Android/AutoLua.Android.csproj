@@ -49,8 +49,8 @@
     <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
     <AndroidLinkMode>Full</AndroidLinkMode>
     <AndroidLinkSkip>KeraLua;NLua;HttpServer;DSoft.Messaging</AndroidLinkSkip>
-    <AndroidSupportedAbis />
-    <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+    <AndroidSupportedAbis>armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
+    <AndroidCreatePackagePerAbi>true</AndroidCreatePackagePerAbi>
     <AndroidUseAapt2>false</AndroidUseAapt2>
     <MandroidI18n />
   </PropertyGroup>
@@ -90,6 +90,7 @@
     <Compile Include="Base\BaseFragment.cs" />
     <Compile Include="Base\BaseRVActivity.cs" />
     <Compile Include="HttpServers\AccessibilityHttpServer.cs" />
+    <Compile Include="HttpServers\Controllers\AppGlobalController.cs" />
     <Compile Include="HttpServers\Controllers\HomeController.cs" />
     <Compile Include="HttpServers\Controllers\NodeController.cs" />
     <Compile Include="HttpServers\Controllers\NodeFilterController.cs" />
