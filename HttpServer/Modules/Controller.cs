@@ -82,7 +82,7 @@ namespace HttpServer.Modules
             {
                 if (parameterInfos.Length != list.Count)
                 {
-                    return JsonError(null, "参数获取失败");
+                    return JsonError("参数获取失败");
                 }
 
                 return method.Invoke(this, list.ToArray());
@@ -248,6 +248,11 @@ namespace HttpServer.Modules
 
         private static object GetType(Type type, string value)
         {
+            if(type == typeof(string))
+            {
+                return value;
+            }
+
             if (type == typeof(bool))
             {
                 var status = bool.TryParse(value, out var result);
@@ -304,6 +309,11 @@ namespace HttpServer.Modules
         protected static JsonError JsonError(object data = null, string message = "")
         {
             return new JsonError(data, message);
+        }
+
+        protected static JsonError JsonError(string message = "")
+        {
+            return new JsonError(null, message);
         }
 
         protected static ActionResult Html(object data)

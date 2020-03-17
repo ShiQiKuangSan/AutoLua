@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using AutoLua.Core.AutoAccessibility.Accessibility.Node;
 
@@ -28,9 +29,6 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
             while (stack.Count > 0)
             {
                 var parent = stack.Dequeue();
-
-                if (!parent.VisibleToUser)
-                    continue;
 
                 for (var i = 0; i < parent.ChildCount; i++)
                 {

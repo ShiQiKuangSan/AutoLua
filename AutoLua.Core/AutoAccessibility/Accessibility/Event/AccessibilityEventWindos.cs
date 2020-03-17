@@ -85,9 +85,9 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Event
                     LatestActivity = _packageManager?.GetActivityInfo(componentName, 0)?.Name ?? string.Empty;
                 }
             }
-            catch (PackageManager.NameNotFoundException e)
+            catch (PackageManager.NameNotFoundException)
             {
-                e.PrintStackTrace();
+                
             }
         }
 

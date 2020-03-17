@@ -23,14 +23,14 @@ namespace AutoLua.Droid.HttpServers.Controllers
             {
                 //未启动无障碍服务。
                 AutoGlobal.Instance.GoToAccessibilitySetting();
-                return JsonError(null, "未启动无障碍服务");
+                return JsonError("未启动无障碍服务");
             }
 
             if (AutoAccessibilityService.Instance == null)
             {
                 //未启动无障碍服务。
                 AutoGlobal.Instance.GoToAccessibilitySetting();
-                return JsonError(null, "未启动无障碍服务");
+                return JsonError("未启动无障碍服务");
             }
 
             var activity = AutoGlobal.Instance.AccessibilityEvent.LatestActivity;
@@ -51,14 +51,14 @@ namespace AutoLua.Droid.HttpServers.Controllers
             {
                 //未启动无障碍服务。
                 AutoGlobal.Instance.GoToAccessibilitySetting();
-                return JsonError(null, "未启动无障碍服务");
+                return JsonError("未启动无障碍服务");
             }
 
             if (AutoAccessibilityService.Instance == null)
             {
                 //未启动无障碍服务。
                 AutoGlobal.Instance.GoToAccessibilitySetting();
-                return JsonError(null, "未启动无障碍服务");
+                return JsonError("未启动无障碍服务");
             }
 
             var package = AutoGlobal.Instance.AccessibilityEvent.LatestPackage;

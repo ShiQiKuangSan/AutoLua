@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Android.Graphics;
 using Android.Runtime;
-using AutoLua.Core.Common;
 
 namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
 {
@@ -14,16 +13,9 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
         /// <returns></returns>
         public static Bitmap Capturer()
         {
-            var volatileDispose = new VolatileDispose();
+            ScreenCapturerServer.Instance.Capture();
 
-            var t = new Task(() =>
-            {
-                ScreenCapturerServer.Instance.Capture(volatileDispose);
-            });
-
-            t.Start();
-
-            return volatileDispose.blockedGet<Bitmap>();
+            return ScreenCapturerServer.Instance.GetBitmap();
         }
     }
 }

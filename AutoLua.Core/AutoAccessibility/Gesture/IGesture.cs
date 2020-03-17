@@ -58,6 +58,14 @@ namespace AutoLua.Core.AutoAccessibility.Gesture
         bool SwipeRandom(int x1, int y1, int x2, int y2, int duration);
 
         /// <summary>
+        /// 绘制赛贝尔曲线
+        /// </summary>
+        /// <param name="duration"></param>
+        /// <param name="points"></param>
+        /// <returns></returns>
+        public bool Gesture(int duration, int x1, int y1, int x2, int y2, int x3, int y3);
+
+        /// <summary>
         /// 手势操作
         /// </summary>
         /// <param name="duration">手势的时长</param>

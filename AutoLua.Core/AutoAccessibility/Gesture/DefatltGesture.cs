@@ -80,11 +80,11 @@ namespace AutoLua.Core.AutoAccessibility.Gesture
 
             var n = (y1 - y2) / 10;
 
-            var random=new Random();
+            var random = new Random();
             for (var i = 0; i < 10; i++)
             {
-                var sx = random.NextGauss(1, 30).ToInt32();
-                var sy = random.NextGauss(1,30).ToInt32();
+                var sx = random.StrictNext(1, 30);
+                var sy = random.StrictNext(1, 30);
 
                 y1 = y1 - sy - n;
 
@@ -99,6 +99,13 @@ namespace AutoLua.Core.AutoAccessibility.Gesture
             }
 
             return Gestures(null, new GestureDescription.StrokeDescription(patch, 0, duration));
+        }
+
+        public bool Gesture(int duration, int x1, int y1, int x2, int y2, int x3, int y3)
+        {
+            var path = PointsToQuadTo(x1, y1, x2, y2, x3, y3);
+
+            return Gestures(null, new GestureDescription.StrokeDescription(path, 0, duration));
         }
 
         /// <inheritdoc />
@@ -164,7 +171,7 @@ namespace AutoLua.Core.AutoAccessibility.Gesture
             {
                 while (!result.IsEnd)
                 {
-                    System.Threading.Thread.Sleep(100);
+                    Task.Delay(100);
                 }
             });
 
@@ -197,7 +204,7 @@ namespace AutoLua.Core.AutoAccessibility.Gesture
             {
                 while (!result.IsEnd)
                 {
-                    System.Threading.Thread.Sleep(100);
+                    Task.Delay(100);
                 }
             });
 
@@ -232,6 +239,16 @@ namespace AutoLua.Core.AutoAccessibility.Gesture
 
                 path.LineTo(point[0], point[1]);
             }
+
+            return path;
+        }
+
+        private Path PointsToQuadTo(int x1, int y1, int x2, int y2, int x3, int y3)
+        {
+            var path = new Path();
+            //X的 横纵坐标
+            path.MoveTo(x1, y1);
+            path.QuadTo(x2, y2, x3, y3);
 
             return path;
         }

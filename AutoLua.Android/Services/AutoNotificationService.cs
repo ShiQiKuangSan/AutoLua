@@ -31,6 +31,7 @@ namespace AutoLua.Droid.Services
         private const string ActionStop = "Notification_Stop";
         private const string Tag = "NotificationService";
         private AccessibilityHttpServer _server;
+        private WebHttpServer _webHttpServer;
         private IEnumerable<Type> _controllers = new List<Type>();
 
         public static AutoNotificationService Instance { get; private set; }
@@ -65,9 +66,13 @@ namespace AutoLua.Droid.Services
         {
             _server?.Stop();
             _server = null;
-            _server = new AccessibilityHttpServer(AppApplication.HttpServerPort);
+            _server = new AccessibilityHttpServer(AppApplication.HttpServerPort + 1);
+            _webHttpServer?.Stop();
+            _webHttpServer = null;
+            _webHttpServer = new WebHttpServer(AppApplication.HttpServerPort);
             AssembliesRegister();
             Task.Factory.StartNew(() => _server.Start());
+            Task.Factory.StartNew(() => _webHttpServer.Start());
         }
 
         /// <summary>
@@ -92,6 +97,7 @@ namespace AutoLua.Droid.Services
                 //利用反射实例化类。
                 var controller = Activator.CreateInstance(x) as Controller;
                 _server.RegisterController(controller);
+                _webHttpServer.RegisterController(controller);
             });
         }
 

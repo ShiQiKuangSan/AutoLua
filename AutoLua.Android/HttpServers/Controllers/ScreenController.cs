@@ -43,7 +43,7 @@ namespace AutoLua.Droid.HttpServers.Controllers
 
                 if (bitmap == null)
                 {
-                    return JsonError(mode, "没有截屏到");
+                    return JsonError("没有截屏到");
                 }
 
                 using var outputStream = new MemoryStream();
@@ -78,21 +78,21 @@ namespace AutoLua.Droid.HttpServers.Controllers
             {
                 //未启动无障碍服务。
                 AutoGlobal.Instance.GoToAccessibilitySetting();
-                return JsonError(null, "未启动无障碍服务");
+                return JsonError( "未启动无障碍服务");
             }
 
             if (AutoAccessibilityService.Instance == null)
             {
                 //未启动无障碍服务。
                 AutoGlobal.Instance.GoToAccessibilitySetting();
-                return JsonError(null, "未启动无障碍服务");
+                return JsonError( "未启动无障碍服务");
             }
 
             var baseNode = AutoAccessibilityService.Instance.Windows.ToList();
 
             if (!baseNode.Any())
             {
-                return JsonError(null, "未获得节点");
+                return JsonError("未获得节点");
             }
 
             var nodes = baseNode
@@ -112,6 +112,8 @@ namespace AutoLua.Droid.HttpServers.Controllers
                 }
 
                 roots.Children.Add(model);
+
+                root.Recycle();
             }
 
             return JsonSuccess(new
@@ -132,7 +134,7 @@ namespace AutoLua.Droid.HttpServers.Controllers
         {
             if (model.X < 0 || model.Y < 0)
             {
-                return JsonError(null, "点击的坐标不能小于 0");
+                return JsonError("点击的坐标不能小于 0");
             }
 
             try
@@ -152,7 +154,7 @@ namespace AutoLua.Droid.HttpServers.Controllers
         {
             if (string.IsNullOrWhiteSpace(key))
             {
-                return JsonError(null, "按键事件处理失败,参数key 为空");
+                return JsonError("按键事件处理失败,参数key 为空");
             }
 
             switch (key)

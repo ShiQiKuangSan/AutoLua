@@ -1,8 +1,11 @@
 ﻿using System;
+using Android.Runtime;
 using AutoLua.Core.AutoAccessibility.Accessibility.Filter;
 using AutoLua.Core.AutoAccessibility.Accessibility.Node;
 using AutoLua.Core.Caching;
 using AutoLua.Droid.HttpServers.Models;
+using Java.Util;
+using Java.Util.Concurrent;
 using Newtonsoft.Json.Linq;
 
 namespace AutoLua.Droid.Utils
@@ -11,9 +14,9 @@ namespace AutoLua.Droid.Utils
     public static class NodeHelper
     {
         /// <summary>
-        /// 缓存时间，默认没分钟
+        /// 高并发的集合
         /// </summary>
-        private static readonly TimeSpan Time = new TimeSpan(0, 0, 2, 0);
+        private static readonly ConcurrentHashMap uiObjects = new ConcurrentHashMap();
 
         /// <summary>
         /// 获得节点树，用于web页面显示节点树
@@ -29,9 +32,6 @@ namespace AutoLua.Droid.Utils
                 if (child == null)
                     continue;
 
-                if (!child.VisibleToUser)
-                    continue;
-
                 var node = GetModel(child);
 
                 model.Children.Add(node);
@@ -40,6 +40,8 @@ namespace AutoLua.Droid.Utils
                 {
                     GetRootTree(node, child);
                 }
+
+                child.Recycle();
             }
         }
 
@@ -265,58 +267,98 @@ namespace AutoLua.Droid.Utils
 
             if (checkable != null)
             {
-                var status = bool.TryParse(checkable, out var result);
-                if (status)
-                    by.checkable(result);
+                if (checkable.ToLower() == "true")
+                {
+                    by.checkable(true);
+                }
+                else if (checkable.ToLower() == "false")
+                {
+                    by.checkable(false);
+                }
             }
 
             if (checkeds != null)
             {
-                var status = bool.TryParse(checkable, out var result);
-                if (status)
-                    by.checkeds(result);
+                if (checkeds.ToLower() == "true")
+                {
+                    by.checkeds(true);
+                }
+                else if (checkeds.ToLower() == "false")
+                {
+                    by.checkeds(false);
+                }
             }
 
             if (clickable != null)
             {
-                var status = bool.TryParse(checkable, out var result);
-                if (status)
-                    by.clickable(result);
+                if (clickable.ToLower() == "true")
+                {
+                    by.clickable(true);
+                }
+                else if (clickable.ToLower() == "false")
+                {
+                    by.clickable(false);
+                }
             }
 
             if (enabled != null)
             {
-                var status = bool.TryParse(checkable, out var result);
-                if (status)
-                    by.enabled(result);
+                if (enabled.ToLower() == "true")
+                {
+                    by.enabled(true);
+                }
+                else if (enabled.ToLower() == "false")
+                {
+                    by.enabled(false);
+                }
             }
 
             if (scrollable != null)
             {
-                var status = bool.TryParse(checkable, out var result);
-                if (status)
-                    by.scrollable(result);
+                if (scrollable.ToLower() == "true")
+                {
+                    by.scrollable(true);
+                }
+                else if (scrollable.ToLower() == "false")
+                {
+                    by.scrollable(false);
+                }
             }
 
             if (longClickable != null)
             {
-                var status = bool.TryParse(checkable, out var result);
-                if (status)
-                    by.longClickable(result);
+                if (longClickable.ToLower() == "true")
+                {
+                    by.longClickable(true);
+                }
+                else if (longClickable.ToLower() == "false")
+                {
+                    by.longClickable(false);
+                }
             }
 
             if (password != null)
             {
-                var status = bool.TryParse(checkable, out var result);
-                if (status)
-                    by.password(result);
+                if (password.ToLower() == "true")
+                {
+                    by.password(true);
+                }
+                else if (password.ToLower() == "false")
+                {
+                    by.password(false);
+                }
             }
 
             if (selected != null)
             {
-                var status = bool.TryParse(checkable, out var result);
-                if (status)
-                    by.selected(result);
+                if (selected.ToLower() == "true")
+                {
+                    by.selected(true);
+                }
+                else if (selected.ToLower() == "false")
+                {
+                    by.selected(false);
+                }
             }
 
             if (packageName != null)
@@ -372,7 +414,8 @@ namespace AutoLua.Droid.Utils
         public static UiNode GetCacheNode(string key)
         {
             //添加节点缓存，默认2分钟
-            return CacheManager.Current.Get<UiNode>(key, Time);
+            var uinode = uiObjects.Get(key).JavaCast<UiNode>();
+            return uinode;
         }
 
         /// <summary>
@@ -383,7 +426,25 @@ namespace AutoLua.Droid.Utils
         private static void AddCacheNode(string key, UiNode model)
         {
             //添加节点缓存，默认2分钟
-            CacheManager.Current.Set(key, model, Time);
+            uiObjects.Put(key, model);
+            var clearTimer = new Timer();
+            //节点保存25秒。
+            clearTimer.Schedule(new ClearUiObjectTimerTask(key), 20 * 1000);
+        }
+
+        private class ClearUiObjectTimerTask : TimerTask
+        {
+            private readonly string key;
+
+            public ClearUiObjectTimerTask(string key)
+            {
+                this.key = key;
+            }
+
+            public override void Run()
+            {
+                uiObjects.Remove(key);
+            }
         }
     }
 }

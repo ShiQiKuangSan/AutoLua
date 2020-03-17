@@ -48,11 +48,16 @@
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
     <AndroidLinkMode>Full</AndroidLinkMode>
-    <AndroidLinkSkip>KeraLua;NLua;HttpServer;DSoft.Messaging</AndroidLinkSkip>
-    <AndroidSupportedAbis>armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
+    <AndroidLinkSkip>KeraLua;NLua;HttpServer;DSoft.Messaging;AutoLua.Core</AndroidLinkSkip>
+    <AndroidSupportedAbis>
+    </AndroidSupportedAbis>
     <AndroidCreatePackagePerAbi>true</AndroidCreatePackagePerAbi>
     <AndroidUseAapt2>false</AndroidUseAapt2>
     <MandroidI18n />
+    <AotAssemblies>false</AotAssemblies>
+    <EnableLLVM>false</EnableLLVM>
+    <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+    <BundleAssemblies>false</BundleAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -91,6 +96,7 @@
     <Compile Include="Base\BaseRVActivity.cs" />
     <Compile Include="HttpServers\AccessibilityHttpServer.cs" />
     <Compile Include="HttpServers\Controllers\AppGlobalController.cs" />
+    <Compile Include="HttpServers\Controllers\GestureController.cs" />
     <Compile Include="HttpServers\Controllers\HomeController.cs" />
     <Compile Include="HttpServers\Controllers\NodeController.cs" />
     <Compile Include="HttpServers\Controllers\NodeFilterController.cs" />
@@ -98,6 +104,7 @@
     <Compile Include="HttpServers\Models\ClickModel.cs" />
     <Compile Include="HttpServers\Models\NodeModel.cs" />
     <Compile Include="HttpServers\Models\ScreenModel.cs" />
+    <Compile Include="HttpServers\WebHttpServer.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Monitors\AbstractMonitor.cs" />
     <Compile Include="Monitors\WifiMonitor.cs" />

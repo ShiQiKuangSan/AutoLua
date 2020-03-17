@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Util;
+using AutoLua.Core.Common;
 
 namespace AutoLua.Core.LuaScript.Api
 {
@@ -14,6 +15,9 @@ namespace AutoLua.Core.LuaScript.Api
         public int DeviceScreenHeight { get; private set; }
         public int DeviceScreenWidth { get; private set; }
 
+        /// <summary>
+        /// dpi
+        /// </summary>
         public DisplayMetricsDensity DeviceScreenDensity { get; private set; }
 
         private static readonly object Lock = new object();
@@ -50,8 +54,10 @@ namespace AutoLua.Core.LuaScript.Api
         /// </summary>
         /// <param name="orientation"></param>
         /// <returns></returns>
-        public int GetOrientationAwareScreenWidth(Android.Content.Res.Orientation orientation)
+        public int GetOrientationAwareScreenWidth()
         {
+            var orientation = AppUtils.AppContext.Resources.Configuration.Orientation;
+
             return orientation == Android.Content.Res.Orientation.Landscape ? DeviceScreenHeight : DeviceScreenWidth;
         }
 
@@ -60,8 +66,10 @@ namespace AutoLua.Core.LuaScript.Api
         /// </summary>
         /// <param name="orientation"></param>
         /// <returns></returns>
-        public int GetOrientationAwareScreenHeight(Android.Content.Res.Orientation orientation)
+        public int GetOrientationAwareScreenHeight()
         {
+            var orientation = AppUtils.AppContext.Resources.Configuration.Orientation;
+
             return orientation == Android.Content.Res.Orientation.Landscape ? DeviceScreenWidth : DeviceScreenHeight;
         }
     }

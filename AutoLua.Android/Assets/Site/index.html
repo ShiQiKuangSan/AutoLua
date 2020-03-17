@@ -691,7 +691,7 @@
 				screenRefresh: function() {
 					return $.getJSON(LOCAL_URL + "api/v1/screenshot")
 						.fail((err) => {
-							this.showError(err.statusText);
+							this.showError(err.responseText);
 						})
 						.then(function(ret) {
 							if (ret.Status) {

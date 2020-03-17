@@ -12,7 +12,6 @@ using AutoLua.Core.Common;
 using Java.Lang;
 using Java.Net;
 using Java.Util;
-using Xamarin.Forms;
 using Settings = Android.Provider.Settings;
 using Stream = Android.Media.Stream;
 
@@ -24,12 +23,12 @@ namespace AutoLua.Core.LuaScript.Api
         /// <summary>
         /// 设备屏幕分辨率宽度。例如1080。
         /// </summary>
-        public int width => ScreenMetrics.Instance.DeviceScreenWidth;
+        public int width => ScreenMetrics.Instance.GetOrientationAwareScreenWidth();
 
         /// <summary>
         /// 设备屏幕分辨率高度。例如1920。
         /// </summary>
-        public int height => ScreenMetrics.Instance.DeviceScreenHeight;
+        public int height => ScreenMetrics.Instance.GetOrientationAwareScreenHeight();
 
         /// <summary>
         /// 修订版本号，或者诸如"M4-rc20"的标识。

@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AutoLua.Core.Extensions.Tools.Random;
 using AutoLua.Core.Extensions.Tools.Strings;
 using Newtonsoft.Json;
 
@@ -535,7 +536,7 @@ namespace AutoLua.Core.Extensions
         /// <returns>double类型的数据</returns>
         public static double ToDouble(this decimal s)
         {
-            return (double) s;
+            return (double)s;
         }
 
         /// <summary>
@@ -545,7 +546,7 @@ namespace AutoLua.Core.Extensions
         /// <returns>int类型</returns>
         public static int ToInt32(this double num)
         {
-            return (int) Math.Floor(num);
+            return (int)Math.Floor(num);
         }
 
         /// <summary>
@@ -555,7 +556,7 @@ namespace AutoLua.Core.Extensions
         /// <returns>int类型</returns>
         public static int ToInt32(this decimal num)
         {
-            return (int) Math.Floor(num);
+            return (int)Math.Floor(num);
         }
 
         /// <summary>
@@ -591,7 +592,7 @@ namespace AutoLua.Core.Extensions
         /// <returns>int类型</returns>
         public static decimal ToDecimal(this int num)
         {
-            return (decimal) (num * 1.0);
+            return (decimal)(num * 1.0);
         }
 
         #endregion
@@ -699,43 +700,43 @@ namespace AutoLua.Core.Extensions
                 case 18 when address.IndexOf(s.Remove(2), StringComparison.Ordinal) == -1:
                     return false; //数字验证  
                 case 18:
-                {
-                    var birth = s.Substring(6, 8).Insert(6, "-").Insert(4, "-");
-                    if (!DateTime.TryParse(birth, out _))
                     {
-                        return false; //生日验证  
-                    }
+                        var birth = s.Substring(6, 8).Insert(6, "-").Insert(4, "-");
+                        if (!DateTime.TryParse(birth, out _))
+                        {
+                            return false; //生日验证  
+                        }
 
-                    var arrVarifyCode = ("1,0,x,9,8,7,6,5,4,3,2").Split(',');
-                    var wi = ("7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2").Split(',');
-                    var ai = s.Remove(17).ToCharArray();
-                    var sum = 0;
-                    for (var i = 0; i < 17; i++)
-                    {
-                        sum += wi[i].ToInt32() * ai[i].ToString().ToInt32();
-                    }
+                        var arrVarifyCode = ("1,0,x,9,8,7,6,5,4,3,2").Split(',');
+                        var wi = ("7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2").Split(',');
+                        var ai = s.Remove(17).ToCharArray();
+                        var sum = 0;
+                        for (var i = 0; i < 17; i++)
+                        {
+                            sum += wi[i].ToInt32() * ai[i].ToString().ToInt32();
+                        }
 
-                    Math.DivRem(sum, 11, out var y);
-                    return arrVarifyCode[y] == s.Substring(17, 1).ToLower();
-                }
+                        Math.DivRem(sum, 11, out var y);
+                        return arrVarifyCode[y] == s.Substring(17, 1).ToLower();
+                    }
                 case 15 when long.TryParse(s, out var n) == false || n < Math.Pow(10, 14):
                 //省份验证  
                 case 15 when address.IndexOf(s.Remove(2), StringComparison.Ordinal) == -1:
                     return false; //数字验证  
                 case 15:
-                {
-                    var birth = s.Substring(6, 6).Insert(4, "-").Insert(2, "-");
-                    return DateTime.TryParse(birth, out _);
-                }
+                    {
+                        var birth = s.Substring(6, 6).Insert(4, "-").Insert(2, "-");
+                        return DateTime.TryParse(birth, out _);
+                    }
                 default:
                     return false;
             }
         }
 
         #endregion
-        
+
         #region 校验IP地址的合法性
-        
+
         /// <summary>
         /// 校验IP地址的正确性，同时支持IPv4和IPv6
         /// </summary>
@@ -758,11 +759,11 @@ namespace AutoLua.Core.Extensions
             MatchInetAddress(s, out var success);
             return success;
         }
-        
+
         #endregion
-        
+
         #region 校验手机号码的正确性
-        
+
         /// <summary>
         /// 匹配手机号码
         /// </summary>
@@ -786,9 +787,9 @@ namespace AutoLua.Core.Extensions
             MatchPhoneNumber(s, out var success);
             return success;
         }
-        
+
         #endregion
-        
+
         /// <summary>
         /// 严格比较两个对象是否是同一对象
         /// </summary>
@@ -878,7 +879,7 @@ namespace AutoLua.Core.Extensions
             var nf = new NumberFormater(bin);
             return nf.ToString(num);
         }
-        
+
         /// <summary>
         /// 十进制转任意进制
         /// </summary>
@@ -927,7 +928,7 @@ namespace AutoLua.Core.Extensions
             var current = IpToId(input);
             return current >= IpToId(begin) && current <= IpToId(ends);
         }
-        
+
         /// <summary>
         /// IP地址转换成数字
         /// </summary>
@@ -948,8 +949,8 @@ namespace AutoLua.Core.Extensions
 
             return BitConverter.ToUInt32(bInt, 0);
         }
-        
-         /// <summary>
+
+        /// <summary>
         /// 判断IP是否是私有地址
         /// </summary>
         /// <param name="myIpAddress"></param>
@@ -957,10 +958,10 @@ namespace AutoLua.Core.Extensions
         public static bool IsPrivateIp(this IPAddress myIpAddress)
         {
             if (IPAddress.IsLoopback(myIpAddress)) return true;
-            
-            if (myIpAddress.AddressFamily != AddressFamily.InterNetwork) 
+
+            if (myIpAddress.AddressFamily != AddressFamily.InterNetwork)
                 return false;
-            
+
             var ipBytes = myIpAddress.GetAddressBytes();
             // 10.0.0.0/24 
             if (ipBytes[0] == 10)
@@ -1017,33 +1018,23 @@ namespace AutoLua.Core.Extensions
             }
             return false;
         }
-        
+
         /// <summary>
         /// 生成真正的随机数
         /// </summary>
         /// <param name="r"></param>
         /// <param name="seed"></param>
         /// <returns></returns>
-        public static int StrictNext(this Random r, int seed = int.MaxValue)
+        public static int StrictNext(this Random r, int mix, int max = int.MaxValue)
         {
-            return new Random((int)Stopwatch.GetTimestamp()).Next(seed);
+            return RandomManager.CreateRandomNumber(mix, max);
         }
 
-        /// <summary>
-        /// 产生正态分布的随机数
-        /// </summary>
-        /// <param name="rand"></param>
-        /// <param name="mean">均值</param>
-        /// <param name="stdDev">方差</param>
-        /// <returns></returns>
-        public static double NextGauss(this Random rand, double mean, double stdDev)
+        public static double StrictNext(this Random r, double mix, double max = int.MaxValue)
         {
-            var u1 = 1.0 - rand.NextDouble();
-            var u2 = 1.0 - rand.NextDouble();
-            var randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-            return mean + stdDev * randStdNormal;
+            return RandomManager.CreateRandomNumber(mix, max);
         }
-        
+
         /// <summary>
         /// 将流转换为内存流
         /// </summary>
@@ -1054,7 +1045,7 @@ namespace AutoLua.Core.Extensions
         {
             return new MemoryStream(stream.ToArray());
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1069,7 +1060,7 @@ namespace AutoLua.Core.Extensions
             stream.Seek(0, SeekOrigin.Begin);
             return bytes;
         }
-        
+
         /// <summary>
         /// 添加多个元素
         /// </summary>
@@ -1083,7 +1074,7 @@ namespace AutoLua.Core.Extensions
                 @this.Add(obj);
             }
         }
-        
+
         /// <summary>
         /// 添加符合条件的多个元素
         /// </summary>
@@ -1101,7 +1092,7 @@ namespace AutoLua.Core.Extensions
                 }
             }
         }
-        
+
         /// <summary>
         /// 添加不重复的元素
         /// </summary>
@@ -1118,7 +1109,7 @@ namespace AutoLua.Core.Extensions
                 }
             }
         }
-        
+
         /// <summary>
         /// 转换成字节数组
         /// </summary>
@@ -1128,7 +1119,7 @@ namespace AutoLua.Core.Extensions
         {
             return BitConverter.GetBytes(value);
         }
-        
+
         /// <summary>
         /// 转换成字节数组
         /// </summary>
@@ -1138,7 +1129,7 @@ namespace AutoLua.Core.Extensions
         {
             return BitConverter.GetBytes(value);
         }
-        
+
         /// <summary>
         /// 转换成字节数组
         /// </summary>
@@ -1148,7 +1139,7 @@ namespace AutoLua.Core.Extensions
         {
             return BitConverter.GetBytes(value);
         }
-        
+
         /// <summary>
         /// 转换成字节数组
         /// </summary>
@@ -1158,7 +1149,7 @@ namespace AutoLua.Core.Extensions
         {
             return Activator.CreateInstance<ASCIIEncoding>().GetBytes(@this);
         }
-        
+
         /// <summary>
         /// 添加或更新键值对
         /// </summary>
@@ -1181,7 +1172,7 @@ namespace AutoLua.Core.Extensions
 
             return @this[key];
         }
-        
+
         /// <summary>
         /// 添加或更新键值对
         /// </summary>
@@ -1205,7 +1196,7 @@ namespace AutoLua.Core.Extensions
 
             return @this[key];
         }
-        
+
         /// <summary>
         /// 添加或更新键值对
         /// </summary>
@@ -1229,7 +1220,7 @@ namespace AutoLua.Core.Extensions
 
             return @this[key];
         }
-        
+
         /// <summary>
         /// 移除符合条件的元素
         /// </summary>
@@ -1243,7 +1234,7 @@ namespace AutoLua.Core.Extensions
                 @this.Remove(obj);
             }
         }
-        
+
         #region 小数转时间
 
         /// <summary>
@@ -1302,7 +1293,7 @@ namespace AutoLua.Core.Extensions
 
             return span.TotalMilliseconds;
         }
-        
+
         /// <summary>
         /// 获得默认时间。
         /// </summary>
@@ -1364,7 +1355,7 @@ namespace AutoLua.Core.Extensions
                 endTime
             };
         }
-        
+
         /// <summary>
         /// 获得字符串中文件格式的扩展名。
         /// </summary>

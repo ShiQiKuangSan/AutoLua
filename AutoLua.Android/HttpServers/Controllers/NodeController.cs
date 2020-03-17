@@ -599,7 +599,7 @@ namespace AutoLua.Droid.HttpServers.Controllers
                 if (node == null)
                     return JsonSuccess(list);
 
-                for (var i = node.ChildCount - 1; i >= 0; i--)
+                for (var i = 0; i < node.ChildCount; i++)
                 {
                     var child = node.Child(i);
 

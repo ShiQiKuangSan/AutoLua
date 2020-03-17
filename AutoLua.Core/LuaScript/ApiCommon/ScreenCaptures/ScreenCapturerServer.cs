@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
@@ -16,7 +17,7 @@ using Image = Android.Media.Image;
 namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
 {
     [Preserve(AllMembers = true)]
-    public sealed class ScreenCapturerServer : IDisposable
+    public sealed class ScreenCapturerServer : Java.Lang.Object, IOnImageAvailableListener
     {
         private const string Tag = "ScreenCapturerServer";
 
@@ -32,11 +33,9 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
         /// <summary>
         /// 是否截屏
         /// </summary>
-        private volatile bool _isCapture;
-        private volatile VolatileDispose _volatileDispose;
-        private Handler _handler;
-        private OrientationEventListener _orientationEventListener;
+        private volatile Bitmap _bitmap = null;
 
+        private Handler _handler = new Handler();
         private const int ImageCacheNum = 1;
 
         private bool _isInit;
@@ -71,24 +70,6 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
             _context = context;
             _handler = new Handler();
             _mediaProjectionManager = AppUtils.GetSystemService<MediaProjectionManager>(Context.MediaProjectionService);
-            _orientationEventListener = new OrientationEvent(context, i =>
-            {
-                try
-                {
-                    RefreshVirtualDisplay();
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-            });
-
-            if (_orientationEventListener.CanDetectOrientation())
-                _orientationEventListener.Enable();
-
-
-            RefreshVirtualDisplay();
-
             _isInit = true;
         }
 
@@ -96,16 +77,35 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
         /// 截屏。
         /// </summary>
         /// <returns></returns>
-        public void Capture(VolatileDispose volatileDispose)
+        public void Capture()
         {
-            _volatileDispose = volatileDispose;
-            _isCapture = true;
+            StartVirtualDisplay();
+        }
+
+        public Bitmap GetBitmap()
+        {
+            var t = new Task(() =>
+            {
+                var i = 60;
+
+                while (_bitmap == null && i > 0)
+                {
+                    Task.Delay(200);
+                    i--;
+                }
+            });
+
+            t.Start();
+
+            t.Wait();
+
+            return _bitmap;
         }
 
         /// <summary>
         /// 刷新虚拟显示
         /// </summary>
-        private void RefreshVirtualDisplay()
+        private void StartVirtualDisplay()
         {
             _imageReader?.Close();
             _virtualDisplay?.Release();
@@ -113,15 +113,11 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
 
             _mediaProjection = _mediaProjectionManager.GetMediaProjection((int)Result.Ok, _intent);
 
-            //屏幕方向
-            var orientation = _context.Resources.Configuration.Orientation;
-
             //屏幕宽高
-            var screenHeight = ScreenMetrics.Instance.GetOrientationAwareScreenHeight(orientation);
-            var screenWidth = ScreenMetrics.Instance.GetOrientationAwareScreenWidth(orientation);
+            var screenHeight = ScreenMetrics.Instance.GetOrientationAwareScreenHeight();
+            var screenWidth = ScreenMetrics.Instance.GetOrientationAwareScreenWidth();
 
             InitVirtualDisplay(screenWidth, screenHeight, (int)ScreenMetrics.Instance.DeviceScreenDensity);
-            SetImageListener(_handler);
         }
 
         /// <summary>
@@ -137,35 +133,8 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
             _imageReader = NewInstance(width, height, rgbx, ImageCacheNum);
 
             _virtualDisplay = _mediaProjection.CreateVirtualDisplay(Tag, width, height, dpi, DisplayFlags.Round, _imageReader.Surface, null, null);
-        }
 
-
-        private void SetImageListener(Handler handler)
-        {
-            _imageReader.SetOnImageAvailableListener(new ImageAvailableListener((read) =>
-            {
-                try
-                {
-                    var image = read.AcquireLatestImage();
-
-                    if (_isCapture && image != null)
-                    {
-                        var bitmap = ToBitmap(image);
-                        image.Close();
-                        _isCapture = false;
-                        _volatileDispose.setAndNotify(bitmap);
-                    }
-                    else
-                    {
-                        image?.Close();
-                    }
-                }
-                catch (Exception e)
-                {
-                    // ignored
-                    var msg = e.Message;
-                }
-            }), handler);
+            _imageReader.SetOnImageAvailableListener(this, _handler);
         }
 
         /// <summary>
@@ -173,69 +142,44 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
         /// </summary>
         /// <param name="image"></param>
         /// <returns></returns>
-        private static Bitmap ToBitmap(Image image)
+        private Bitmap ToBitmap(Image image)
         {
             var plane = image.GetPlanes()[0];
             var pixelStride = plane.PixelStride;
             var rowPadding = plane.RowStride - pixelStride * image.Width;
-
             var buffer = plane.Buffer;
-            buffer.Position(0);
 
             var bitmap = Bitmap.CreateBitmap(image.Width + (rowPadding / pixelStride), image.Height, Bitmap.Config.Argb8888);
 
             bitmap.CopyPixelsFromBuffer(buffer);
+            _bitmap = Bitmap.CreateBitmap(bitmap, 0, 0, image.Width, image.Height);
 
-            if (rowPadding == 0)
-            {
-                return bitmap;
-            }
+            image.Close();
 
-            return Bitmap.CreateBitmap(bitmap, 0, 0, image.Width, image.Height);
+            return _bitmap;
         }
 
-        public void Dispose()
+        /// <summary>
+        /// 释放截图。
+        /// </summary>
+        public void TearDownMediaProjection()
         {
             _mediaProjection?.Stop();
             _mediaProjection = null;
             _virtualDisplay?.Release();
             _imageReader?.Close();
-            _orientationEventListener?.Dispose();
+            _imageReader = null;
         }
 
         /// <summary>
-        /// 方向监视事件
+        /// 开始截图
         /// </summary>
-        private class OrientationEvent : OrientationEventListener
+        /// <param name="reader"></param>
+        public void OnImageAvailable(ImageReader reader)
         {
-            private readonly Action<int> _onOrientationChanged;
-
-            public OrientationEvent(Context context, Action<int> onOrientationChanged) : base(context)
-            {
-                _onOrientationChanged = onOrientationChanged;
-            }
-
-
-            public override void OnOrientationChanged(int orientation)
-            {
-                _onOrientationChanged?.Invoke(orientation);
-            }
-        }
-
-
-        private class ImageAvailableListener : Java.Lang.Object, IOnImageAvailableListener
-        {
-            private readonly Action<ImageReader> _action;
-
-            public ImageAvailableListener(Action<ImageReader> action)
-            {
-                _action = action;
-            }
-
-            public void OnImageAvailable(ImageReader reader)
-            {
-                _action.Invoke(reader);
-            }
+            var image = reader.AcquireNextImage();
+            _bitmap = ToBitmap(image);
+            TearDownMediaProjection();
         }
     }
 }

@@ -222,16 +222,16 @@ namespace AutoLua.Core.LuaScript
         /// <returns></returns>
         public double Random(double min, double max)
         {
-            return _random.NextGauss(min, max);
+            return _random.StrictNext(min, max);
         }
 
         /// <summary>
         /// 返回在[0, 1)的随机浮点数。
         /// </summary>
         /// <returns></returns>
-        public double Random()
+        public int Random()
         {
-            return _random.NextGauss(0, 1);
+            return _random.StrictNext(0, 1);
         }
 
         /// <summary>
