@@ -2,32 +2,26 @@
 using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
-using Android.OS;
-using Android.Media.Projection;
 using Android.Content;
-using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.View;
-using Android.Widget;
 using AutoLua.Core.Common;
-using AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures;
 using AutoLua.Droid.Services;
 using AutoLua.Droid.Base;
 using AutoLua.Droid.UI.Fragments;
 using AutoLua.Droid.Views;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
+using AutoLua.Core.Logging;
 
 namespace AutoLua.Droid
 {
     [Preserve(AllMembers = true)]
     [Register("AutoLua.Droid.MainActivity")]
     [Activity(Name = "AutoLua.Droid.MainActivity", Label = "AutoLua", Theme = "@style/AppTheme", Icon = "@mipmap/icon", LaunchMode = LaunchMode.SingleTask, MainLauncher = true,
-        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+        HardwareAccelerated = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
     public class MainActivity : BaseActivity
     {
-        private const int RequestCodeMediaProjection = 17777;
-
         /// <summary>
         /// 导航栏
         /// </summary>
@@ -73,6 +67,7 @@ namespace AutoLua.Droid
         {
             //初始化http服务。
             StartService(new Intent(this, typeof(AutoNotificationService)));
+            //LoggerFactory.Current.Create().LogError("测试日志");
 
             _titles = new List<string>
             {
@@ -101,8 +96,6 @@ namespace AutoLua.Droid
             _viewPager.OffscreenPageLimit = 3;
 
             _indicator.SetViewPager(_viewPager, 0);
-
-            ScreenPermissions();
         }
 
         /// <summary>
@@ -125,48 +118,6 @@ namespace AutoLua.Droid
         {
             base.OnDestroy();
         }
-
-        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
-        {
-            base.OnActivityResult(requestCode, resultCode, data);
-            //这事截屏的回调
-            if (requestCode == RequestCodeMediaProjection && data != null)
-            {
-                InitScreenServer(data, resultCode);
-            }
-        }
-
-        #region 截屏权限申请
-
-        /// <summary>
-        /// 初始化屏幕服务
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="resultCode"></param>
-        private void InitScreenServer(Intent data, Result resultCode)
-        {
-            if (resultCode == Result.Ok)
-            {
-                ScreenCapturerServer.Instance.Init(data, this);
-            }
-        }
-
-        /// <summary>
-        /// 截屏权限申请
-        /// </summary>
-        private void ScreenPermissions()
-        {
-            if (Build.VERSION.SdkInt < BuildVersionCodes.Lollipop)
-                return;
-
-            var mediaProjectionManager = AppUtils.GetSystemService<MediaProjectionManager>(MediaProjectionService);
-            if (mediaProjectionManager != null)
-            {
-                StartActivityForResult(mediaProjectionManager.CreateScreenCaptureIntent(), RequestCodeMediaProjection);
-            }
-        }
-
-        #endregion
 
         /// <summary>
         /// 自定义 Fragment 适配器

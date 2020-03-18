@@ -114,6 +114,9 @@
     <Compile Include="UI\Fragments\LogFragment.cs" />
     <Compile Include="UI\Fragments\ScriptFragment.cs" />
     <Compile Include="UI\Fragments\SettingFragment.cs" />
+    <Compile Include="Utils\AppManager.cs" />
+    <Compile Include="Utils\Logging\TxtLogger.cs" />
+    <Compile Include="Utils\Logging\TxtLoggerFactory.cs" />
     <Compile Include="Utils\NetworkUtils.cs" />
     <Compile Include="Utils\NodeHelper.cs" />
     <Compile Include="Utils\StatusBarCompat.cs" />

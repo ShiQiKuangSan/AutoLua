@@ -1,12 +1,21 @@
-﻿using Android.Content;
+﻿using Android.App;
+using Android.Content;
+using Android.Content.PM;
 using Android.Graphics;
+using Android.Media.Projection;
 using Android.OS;
+using Android.Runtime;
 using Android.Support.V4.Content;
 using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Views;
+using AutoLua.Core.Common;
+using AutoLua.Core.Logging;
+using AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures;
 using AutoLua.Droid.Utils;
 using AutoLua.Droid.Views.Loading;
+using System;
+using System.IO;
 using AndroidResource = Android.Resource;
 
 namespace AutoLua.Droid.Base
@@ -18,13 +27,19 @@ namespace AutoLua.Droid.Base
         protected Context Context;
         protected int statusBarColor = 0;
         protected View statusBarView;
-        
+
         private CustomDialog _dialog;//进度条
+
+        private const int RequestCodeMediaProjection = 1;
+        private const int RequestCodeFile = 2;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(GetLayoutId());
+
+            AppManager.Instance.AddActivity(this);
+
             if (statusBarColor == 0)
             {
                 statusBarView =
@@ -46,6 +61,87 @@ namespace AutoLua.Droid.Base
 
             InitData();
             ConfigViews();
+
+            //申请截屏权限
+            ScreenPermissions();
+            FilePermissions();
+        }
+
+        /// <summary>
+        /// 权限处理
+        /// </summary>
+        /// <param name="requestCode"></param>
+        /// <param name="resultCode"></param>
+        /// <param name="data"></param>
+        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+        {
+            base.OnActivityResult(requestCode, resultCode, data);
+            //这事截屏的回调
+            if (requestCode == RequestCodeMediaProjection && data != null)
+            {
+                InitScreenServer(data, resultCode);
+            }
+        }
+
+        /// <summary>
+        /// 权限处理
+        /// </summary>
+        /// <param name="requestCode"></param>
+        /// <param name="permissions"></param>
+        /// <param name="grantResults"></param>
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
+        {
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+
+            switch (requestCode)
+            {
+                case RequestCodeFile:
+                    var path = AppApplication.LogPath;
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    break;
+            }
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            AppManager.Instance.FinishActivity(this);
+        }
+
+        /// <summary>
+        /// 初始化屏幕服务
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="resultCode"></param>
+        private void InitScreenServer(Intent data, Result resultCode)
+        {
+            if (resultCode == Result.Ok)
+            {
+                ScreenCapturerServer.Instance.Init(data, this);
+            }
+        }
+
+        /// <summary>
+        /// 截屏权限申请
+        /// </summary>
+        private void ScreenPermissions()
+        {
+            if (Build.VERSION.SdkInt < BuildVersionCodes.Lollipop)
+                return;
+
+            var mediaProjectionManager = AppUtils.GetSystemService<MediaProjectionManager>(MediaProjectionService);
+            if (mediaProjectionManager != null)
+            {
+                StartActivityForResult(mediaProjectionManager.CreateScreenCaptureIntent(), RequestCodeMediaProjection);
+            }
+        }
+
+        private void FilePermissions()
+        {
+            RequestPermissions(new[] { Android.Manifest.Permission.WriteExternalStorage, Android.Manifest.Permission.ReadExternalStorage }, RequestCodeFile);
         }
 
         /// <summary>
@@ -113,9 +209,9 @@ namespace AutoLua.Droid.Base
         /// <returns></returns>
         public CustomDialog GetDialog()
         {
-            if (_dialog != null) 
+            if (_dialog != null)
                 return _dialog;
-            
+
             _dialog = CustomDialog.Instance(this);
             _dialog.SetCancelable(true);
             return _dialog;
@@ -148,7 +244,7 @@ namespace AutoLua.Droid.Base
                 _dialog = null;
             }
         }
-        
+
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
             if (item.ItemId != AndroidResource.Id.Home)

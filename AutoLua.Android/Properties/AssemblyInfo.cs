@@ -35,6 +35,7 @@ using Android.App;
 [assembly: UsesPermission(Android.Manifest.Permission.ReadPhoneState)]
 [assembly: UsesPermission(Android.Manifest.Permission.WriteExternalStorage)]
 [assembly: UsesPermission(Android.Manifest.Permission.ReadExternalStorage)]
+[assembly: UsesPermission(Android.Manifest.Permission.MountUnmountFilesystems)]
 [assembly: UsesPermission(Android.Manifest.Permission.RequestInstallPackages)]
 [assembly: UsesPermission(Android.Manifest.Permission.SystemAlertWindow)]
 [assembly: UsesPermission(Android.Manifest.Permission.ForegroundService)]

@@ -302,7 +302,7 @@ namespace AutoLua.Core.LuaScript.Api
             return PFiles.Path(relativePath);
         }
 
-        internal class PFiles
+        public class PFiles
         {
             /// <summary>
             /// 返回相对路径对应的绝对路径。例如files.path("./1.png")，如果运行这个语句的脚本位于文件夹"/sdcard/脚本/"中，则返回"/sdcard/脚本/1.png"。
