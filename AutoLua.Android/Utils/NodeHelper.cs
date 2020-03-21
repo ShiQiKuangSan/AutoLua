@@ -32,6 +32,9 @@ namespace AutoLua.Droid.Utils
                 if (child == null)
                     continue;
 
+                if (!child.VisibleToUser)
+                    continue;
+
                 var node = GetModel(child);
 
                 model.Children.Add(node);

@@ -10,11 +10,9 @@ using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using AutoLua.Core.Common;
-using AutoLua.Core.Logging;
 using AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures;
 using AutoLua.Droid.Utils;
 using AutoLua.Droid.Views.Loading;
-using System;
 using System.IO;
 using AndroidResource = Android.Resource;
 

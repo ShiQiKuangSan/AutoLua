@@ -750,7 +750,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
 
             var windows = AutoAccessibilityService.Instance.Windows
                 .Where(x => x != null)
-                .ToList();
+                .Select(x => new UiNode(x.Root))
+                .Where(x => x.VisibleToUser).ToList();
 
             var list = new List<UiNode>();
 
@@ -767,10 +768,8 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
             }
             else
             {
-                foreach (var window in windows)
+                foreach (var node in windows)
                 {
-                    var node = new UiNode(window.Root);
-
                     var items = _uiNodeSearch.Search(node, _expressionExecutors).ToList();
 
                     list.AddRange(items);

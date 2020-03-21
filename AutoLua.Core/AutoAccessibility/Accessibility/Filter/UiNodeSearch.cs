@@ -38,6 +38,9 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
                         continue;
                     }
 
+                    if (!child.VisibleToUser)
+                        continue;
+
                     stack.Enqueue(child);
                 }
 

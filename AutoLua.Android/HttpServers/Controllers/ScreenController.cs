@@ -11,7 +11,6 @@ using AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures;
 using AutoLua.Droid.HttpServers.Models;
 using AutoLua.Droid.Utils;
 using HttpServer.Modules;
-using Newtonsoft.Json;
 
 namespace AutoLua.Droid.HttpServers.Controllers
 {

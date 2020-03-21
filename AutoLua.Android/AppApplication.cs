@@ -76,6 +76,7 @@ namespace AutoLua.Droid
 
                 if (i != null)
                 {
+                    i.SetFlags(ActivityFlags.NewTask);
                     base.StartActivity(i);
                 }
             }
