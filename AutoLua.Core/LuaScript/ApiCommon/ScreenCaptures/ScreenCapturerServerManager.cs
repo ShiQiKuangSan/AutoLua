@@ -15,7 +15,9 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
         {
             ScreenCapturerServer.Instance.Capture();
 
-            return ScreenCapturerServer.Instance.GetBitmap();
+            var bitmap = ScreenCapturerServer.Instance.GetBitmap();
+
+            return bitmap;
         }
     }
 }

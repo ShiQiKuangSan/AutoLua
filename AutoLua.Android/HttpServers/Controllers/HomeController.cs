@@ -13,12 +13,6 @@ namespace AutoLua.Droid.HttpServers.Controllers
     [Preserve(AllMembers = true)]
     public class HomeController : Controller
     {
-        private readonly string _serverUrl;
-
-        public HomeController()
-        {
-            _serverUrl = $"http://{AppUtils.GetIp()}:{AppApplication.HttpServerPort}/";
-        }
 
         [Route(RouteMethod.GET, "/")]
         public ActionResult Index()
@@ -45,8 +39,6 @@ namespace AutoLua.Droid.HttpServers.Controllers
                 {
                     return Html("页面不存在001");
                 }
-
-                str = str.Replace("{{WEBSERVER}}", _serverUrl);
 
                 return Html(str);
             }

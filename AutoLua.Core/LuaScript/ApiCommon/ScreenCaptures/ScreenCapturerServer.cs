@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Android.App;
+﻿using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Hardware.Display;
@@ -28,13 +26,12 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
         private ImageReader _imageReader;
 
         private Intent _intent;
-        private Context _context;
 
         /// <summary>
         /// 是否截屏
         /// </summary>
         private volatile Bitmap _bitmap = null;
-
+        private VolatileDispose volatileDispose;
         private Handler _handler = new Handler();
         private const int ImageCacheNum = 1;
 
@@ -61,13 +58,12 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public void Init(Intent data, Context context)
+        public void Init(Intent data)
         {
             if (_isInit)
                 return;
 
             _intent = data;
-            _context = context;
             _handler = new Handler();
             _mediaProjectionManager = AppUtils.GetSystemService<MediaProjectionManager>(Context.MediaProjectionService);
             _isInit = true;
@@ -79,25 +75,16 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
         /// <returns></returns>
         public void Capture()
         {
+            _bitmap?.Recycle();
+            _bitmap = null;
             StartVirtualDisplay();
         }
 
         public Bitmap GetBitmap()
         {
-            var t = new Task(() =>
-            {
-                var i = 60;
+            volatileDispose = new VolatileDispose();
 
-                while (_bitmap == null && i > 0)
-                {
-                    Task.Delay(200);
-                    i--;
-                }
-            });
-
-            t.Start();
-
-            t.Wait();
+            volatileDispose.blockedGet<Bitmap>();
 
             return _bitmap;
         }
@@ -154,8 +141,6 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
             bitmap.CopyPixelsFromBuffer(buffer);
             _bitmap = Bitmap.CreateBitmap(bitmap, 0, 0, image.Width, image.Height);
 
-            image.Close();
-
             return _bitmap;
         }
 
@@ -167,6 +152,7 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
             _mediaProjection?.Stop();
             _mediaProjection = null;
             _virtualDisplay?.Release();
+            _virtualDisplay = null;
             _imageReader?.Close();
             _imageReader = null;
         }
@@ -177,9 +163,15 @@ namespace AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures
         /// <param name="reader"></param>
         public void OnImageAvailable(ImageReader reader)
         {
-            var image = reader.AcquireNextImage();
-            _bitmap = ToBitmap(image);
-            TearDownMediaProjection();
+            var image = reader.AcquireLatestImage();
+
+            if (image != null)
+            {
+                _bitmap = ToBitmap(image);
+                image.Close();
+                TearDownMediaProjection();
+                volatileDispose?.setAndNotify(_bitmap);
+            }
         }
     }
 }

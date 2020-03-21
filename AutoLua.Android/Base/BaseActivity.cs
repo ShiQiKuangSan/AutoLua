@@ -118,7 +118,7 @@ namespace AutoLua.Droid.Base
         {
             if (resultCode == Result.Ok)
             {
-                ScreenCapturerServer.Instance.Init(data, this);
+                ScreenCapturerServer.Instance.Init(data);
             }
         }
 

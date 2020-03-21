@@ -252,7 +252,9 @@
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script src="https://unpkg.com/element-ui@2.13.0/lib/index.js"></script>
 	<script type="text/javascript">
-		window.LOCAL_URL = "{{WEBSERVER}}";
+		window.LOCAL_URL = "http://"+ window.location.host + "/";
+
+		console.log(window.LOCAL_URL);
 
 		function ImagePool(size) {
 			this.size = size;
