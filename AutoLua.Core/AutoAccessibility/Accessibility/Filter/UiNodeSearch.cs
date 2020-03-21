@@ -38,7 +38,7 @@ namespace AutoLua.Core.AutoAccessibility.Accessibility.Filter
                         continue;
                     }
 
-                    if (!child.VisibleToUser)
+                    if (!child?.VisibleToUser ?? false)
                         continue;
 
                     stack.Enqueue(child);
