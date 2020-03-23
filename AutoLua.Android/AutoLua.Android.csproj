@@ -36,6 +36,10 @@
     <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
     <AndroidSupportedAbis />
     <AndroidUseAapt2>false</AndroidUseAapt2>
+    <AotAssemblies>false</AotAssemblies>
+    <EnableLLVM>false</EnableLLVM>
+    <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+    <BundleAssemblies>false</BundleAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,7 +52,7 @@
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
     <AndroidLinkMode>Full</AndroidLinkMode>
-    <AndroidLinkSkip>KeraLua;NLua;HttpServer;DSoft.Messaging;AutoLua.Core</AndroidLinkSkip>
+    <AndroidLinkSkip>KeraLua;NLua;HttpServer;DSoft.Messaging;AutoLua.Core;Bind.UMeng</AndroidLinkSkip>
     <AndroidSupportedAbis>
     </AndroidSupportedAbis>
     <AndroidCreatePackagePerAbi>true</AndroidCreatePackagePerAbi>
@@ -172,6 +176,10 @@
     <ProjectReference Include="..\AutoLua.Core\AutoLua.Core.csproj">
       <Project>{a8fd5096-c06c-4e8b-8cbf-6666a8eab4bc}</Project>
       <Name>AutoLua.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bind.UMeng\Bind.UMeng.csproj">
+      <Project>{8b0dbf09-55e4-4f4c-bbe9-e26a36261be6}</Project>
+      <Name>Bind.UMeng</Name>
     </ProjectReference>
     <ProjectReference Include="..\DSoft.Messaging\DSoft.Messaging.csproj">
       <Project>{8e74323c-008e-42da-b3e9-2f3ea3c8cc1d}</Project>

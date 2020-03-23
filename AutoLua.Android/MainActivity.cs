@@ -13,6 +13,7 @@ using AutoLua.Droid.Views;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
 using AutoLua.Core.Logging;
+using System;
 
 namespace AutoLua.Droid
 {
@@ -67,8 +68,6 @@ namespace AutoLua.Droid
         {
             //初始化http服务。
             StartService(new Intent(this, typeof(AutoNotificationService)));
-            //LoggerFactory.Current.Create().LogError("测试日志");
-
             _titles = new List<string>
             {
                 "脚本",

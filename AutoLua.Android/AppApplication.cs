@@ -12,6 +12,8 @@ using AutoLua.Core.LuaScript;
 using AutoLua.Core.LuaScript.Api;
 using AutoLua.Droid.Utils;
 using AutoLua.Droid.Utils.Logging;
+using Com.Umeng.Analytics;
+using Com.Umeng.Commonsdk;
 using DSoft.Messaging;
 using Java.IO;
 using Java.Lang;
@@ -31,6 +33,9 @@ namespace AutoLua.Droid
         public override void OnCreate()
         {
             base.OnCreate();
+
+            UMeng();
+
             AppUtils.Init(this);
 
             RegisterActivityLifecycleCallbacks(new SimpleActivityLifecycleCallbacks());
@@ -47,6 +52,15 @@ namespace AutoLua.Droid
 
             //初始化lua全局函数
             LuaGlobal.Instance.Init();
+        }
+
+        /// <summary>
+        /// 集成友盟
+        /// </summary>
+        private  void UMeng()
+        {
+            UMConfigure.Init(this, "5e6cc7d4167edde636000076", "AutoLuaUM", UMConfigure.DeviceTypePhone, null);
+            MobclickAgent.SetPageCollectionMode(MobclickAgent.PageMode.Manual);
         }
 
         public const int HttpServerPort = 8060;
@@ -276,6 +290,8 @@ namespace AutoLua.Droid
                 sb.AppendLine(result);
 
                 LoggerFactory.Current.Create().LogError(sb.ToString());
+
+                MobclickAgent.ReportError(_context, sb.ToString());
             }
         }
 

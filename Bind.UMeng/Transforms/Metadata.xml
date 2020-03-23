@@ -1,0 +1,14 @@
+﻿<metadata>
+  <!--
+  This sample removes the class: android.support.v4.content.AsyncTaskLoader.LoadTask:
+  <remove-node path="/api/package[@name='android.support.v4.content']/class[@name='AsyncTaskLoader.LoadTask']" />
+  
+  This sample removes the method: android.support.v4.content.CursorLoader.loadInBackground:
+  <remove-node path="/api/package[@name='android.support.v4.content']/class[@name='CursorLoader']/method[@name='loadInBackground']" />
+  -->
+  <attr path="/api/package[@name='com.umeng.commonsdk.statistics']/class[@name='SdkVersion']/field[@name='SDK_VERSION']" name="managedName">sdkVersion</attr>
+  <attr path="/api/package[@name='com.umeng.commonsdk.statistics.common']/class[@name='HelperUtils']/method[@name='safeClose' and count(parameter)=1 and parameter[1][@type='java.io.OutputStream']]" name="managedName">safeOutputClose</attr>
+  <attr path="/api/package[@name='com.umeng.commonsdk.statistics.common']/class[@name='HelperUtils']/method[@name='safeClose' and count(parameter)=1 and parameter[1][@type='java.io.InputStream']]" name="managedName">safeInputClose</attr>
+  <attr path="/api/package[@name='com.umeng.commonsdk.utils']/class[@name='JSONArraySortUtil']/method[@name='compare' and count(parameter)=2 and parameter[1][@type='org.json.JSONObject'] and parameter[2][@type='org.json.JSONObject']]/parameter[1]" name="managedType">Java.Lang.Object</attr>
+  <attr path="/api/package[@name='com.umeng.commonsdk.utils']/class[@name='JSONArraySortUtil']/method[@name='compare' and count(parameter)=2 and parameter[1][@type='org.json.JSONObject'] and parameter[2][@type='org.json.JSONObject']]/parameter[2]" name="managedType">Java.Lang.Object</attr>
+</metadata>

@@ -7,7 +7,6 @@ using Android.Views;
 using Android.Views.Accessibility;
 using Android.Widget;
 using DSoft.Messaging;
-using Java.Util.Concurrent.Locks;
 
 namespace AutoLua.Core.AutoAccessibility
 {

@@ -13,6 +13,7 @@ using AutoLua.Core.Common;
 using AutoLua.Core.LuaScript.ApiCommon.ScreenCaptures;
 using AutoLua.Droid.Utils;
 using AutoLua.Droid.Views.Loading;
+using Com.Umeng.Analytics;
 using System.IO;
 using AndroidResource = Android.Resource;
 
@@ -101,6 +102,19 @@ namespace AutoLua.Droid.Base
                     }
                     break;
             }
+        }
+
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+            MobclickAgent.OnResume(this);
+        }
+
+        protected override void OnPause()
+        {
+            base.OnPause();
+            MobclickAgent.OnPause(this);
         }
 
         protected override void OnDestroy()
